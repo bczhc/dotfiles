@@ -1,0 +1,6 @@
+#!/bin/env ruby
+
+argv = ARGV
+dir = '.'
+dir = argv[0] unless argv.empty?
+puts Dir.children(dir).length

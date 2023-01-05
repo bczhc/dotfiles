@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# if argument count != 1, print help
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <factor>"
+    exit 1
+fi
+
+factor="$1"
+
+factor="$(echo "scale=10; $factor" | bc 2>&1)"
+if echo "$factor" | grep 'Runtime\ error' >/dev/null ||
+    echo "$factor" | grep 'syntax error' >/dev/null; then
+    echo "Invalid factor: $factor"
+    exit 1
+fi
+
+# if factor <= 0, print error
+if (($(echo "$factor < 0" | bc -l))); then
+    echo "Error: factor must be a positive number"
+    exit 1
+fi
+
+pts_multiplier="(1/$factor)"
+
+if (($(echo "$factor <= 2" | bc -l))); then
+    filter_complex="[0:v]setpts=$pts_multiplier*PTS[ov]; [0:a]atempo=${factor}[oa]"
+else
+    log2="$(echo "scale=10; l($factor)/l(2)" | bc -l)"
+    log_int_part="$(echo "scale=0; $log2 / 1" | bc)"
+    remain_multiplier="$(echo "scale=10; $factor / 2^$log_int_part" | bc)"
+
+    atempo_filter="[0:a]"
+    for ((i = 0; i < log_int_part; ++i)); do
+        if [ "$i" == 0 ]; then
+            atempo_filter="${atempo_filter}atempo=2[oa$i]; "
+        else
+            atempo_filter="${atempo_filter}[oa$((i - 1))]atempo=2[oa$i]; "
+        fi
+    done
+
+    atempo_filter="${atempo_filter}[oa$((i - 1))]atempo=${remain_multiplier}[oa]"
+    filter_complex="[0:v]setpts=$pts_multiplier*PTS[ov]; $atempo_filter"
+fi
+
+echo "$filter_complex"

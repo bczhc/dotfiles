@@ -1,0 +1,24 @@
+#!/bin/env ruby
+
+def update_temperature(value)
+  puts "Update temperature: #{value}"
+  system '/home/bczhc/bin/scrtemp', value.to_s
+end
+
+hour = Time.now.hour
+puts "Hour: #{hour}"
+
+case hour
+in 21..23
+  update_temperature 5000
+in 0..7
+  update_temperature 5000
+in 8..10
+  update_temperature 5500
+in 11..17
+  update_temperature 6000
+in 18..20
+  update_temperature 5500
+else
+  fail "unreachable"
+end

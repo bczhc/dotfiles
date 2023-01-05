@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd /home/bczhc/bin
+dir="`ls -d frp_*`"
+non-proxy "$dir/frpc" -c "$dir/frpc.ini"

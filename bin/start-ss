@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sslocal -vc /usr/local/etc/ss-config

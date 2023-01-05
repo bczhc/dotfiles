@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]; then
+  echo "Usage: command <joined-name> <device-to-join>..."
+  exit
+fi
+
+joined_name=$1
+shift
+
+offset=0
+for arg in "$@"; do
+  size=$(blockdev --getsz "$arg")
+  echo "$offset $size linear $arg 0"
+  offset=$((offset+size))
+done | dmsetup create "$joined_name"

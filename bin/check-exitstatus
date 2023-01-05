@@ -1,0 +1,12 @@
+#!/bin/env ruby
+
+self_name = File.basename($0)
+
+argv = ARGV
+if argv.empty?
+  puts "Usage: #{self_name} cmd..."
+  exit
+end
+
+system *argv
+raise "Non-zero exit code: #{$?.exitstatus}; #{argv.inspect}" unless $? != nil && $?.exitstatus == 0

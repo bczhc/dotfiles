@@ -1,0 +1,13 @@
+#!/bin/bash
+
+skip='00:00:00'
+if [ $# -lt 2 ]; then
+    echo 'Usage: command <encoded> <original> <skip>'
+    exit 1
+fi
+
+[ ! -z "$3" ] && skip="$3"
+
+ffplay -ss "$skip" -f lavfi "movie=$2[org]; \
+ movie=$1[enc]; \
+ [org][enc]blend=all_mode=difference"

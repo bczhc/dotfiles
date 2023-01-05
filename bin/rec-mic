@@ -1,0 +1,3 @@
+#!/bin/bash
+
+parec --device=alsa_input.pci-0000_00_1f.3.analog-stereo | ffmpeg -f s16le -ar 44100 -ac 2 -i pipe:0 -y "$1"

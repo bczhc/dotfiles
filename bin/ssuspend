@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+if [ "`tty`" == "not a tty" ]; then exit; fi
+
+lsmod | grep xhci_pci > /dev/null
+if [ $? == 0 ]; then
+    xhcictl off
+fi
+
+sync
+systemctl suspend

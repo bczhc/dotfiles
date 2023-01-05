@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sudo umount /mnt/bd-fs 2> /dev/null || true
+
+mkfs.btrfs /tmp/bd -f && sudo mount "$@" /tmp/bd /mnt/bd-fs && sudo chownme /mnt/bd-fs

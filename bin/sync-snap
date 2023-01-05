@@ -1,0 +1,61 @@
+#!/bin/env ruby
+
+argv = ARGV
+if argv.length != 2
+  puts "Usage: #{File.basename $0} <snap-src-dir> <snap-dest-dir>"
+  exit 1
+end
+
+snap_src_dir = argv[0]
+snap_dest_dir = argv[1]
+
+src_snaps = Dir.children(snap_src_dir).select { |x| File.directory?(File.join(snap_src_dir, x)) }.sort
+dest_snaps = Dir.children(snap_dest_dir).select { |x| File.directory?(File.join(snap_dest_dir, x)) }.sort
+
+# @param parent [String, nil]
+# @param volume [String]
+# @param dest [String]
+def send_snap(parent, volume, dest)
+  puts "Parent: #{parent}" if parent != nil
+  puts "Volume: #{volume}"
+  puts "Destination path: #{dest}"
+
+  if parent == nil
+    bash_cmd = %{sudo btrfs send "$1" | pv | sudo btrfs receive "$2"}
+    system 'bash', '-c', bash_cmd, '--', volume, dest
+  else
+    # incrementally send
+    bash_cmd = %{sudo btrfs send -p "$1" "$2" | pv | sudo btrfs receive "$3"}
+    # noinspection RubyMismatchedArgumentType
+    system 'bash', '-c', bash_cmd, '--', parent, volume, dest
+  end
+end
+
+last_src_snap = src_snaps.last
+if last_src_snap == nil
+  puts "No source snapshots"
+  exit 1
+end
+
+last_dest_snap = dest_snaps.last
+if last_dest_snap == nil
+  # no base snapshots
+  send_snap nil, File.join(snap_src_dir, last_src_snap), snap_dest_dir
+  exit 0
+end
+
+case last_src_snap.casecmp(last_dest_snap)
+when 0
+  puts "Up-to-date snapshots: #{last_dest_snap}"
+  exit 0
+when -1
+  puts "Source snapshots are earlier than that in the target directory"
+  puts "Last source snapshot: #{last_src_snap}"
+  puts "Last destination snapshot: #{last_dest_snap}"
+  exit 1
+when 1
+  send_snap(File.join(snap_src_dir, last_dest_snap), File.join(snap_src_dir, last_src_snap), snap_dest_dir)
+  exit 0
+else
+  fail
+end

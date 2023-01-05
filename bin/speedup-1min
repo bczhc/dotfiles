@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+argv = ARGV
+if argv.empty?
+  puts "Usage: #{File.basename $0} <input> <output>"
+  return
+end
+
+input = argv[0]
+output = argv[1]
+
+duration = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "#{input}"`
+duration = duration.to_f
+factor = duration / 60
+filters = `ffmpeg-speed-up-filter #{factor}`
+
+puts filters
+
+# system %{ffmpeg -i "#{input}" -filter_complex '#{}'}
+
+system 'ffmpeg', '-i', input, '-filter_complex', filters,
+       '-map', '[oa]', '-map', '[ov]',
+       '-c:v', 'h264_nvenc',
+       '-b:a', '0', '-b:v', '16M',
+       '-r', '120',
+       output
+

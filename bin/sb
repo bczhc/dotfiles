@@ -1,0 +1,131 @@
+#!/bin/bash
+
+set -e
+
+night_gamma_correction='1.0:0.88:0.76'
+normal_gamma_correction='1.0:1.0:1.0'
+
+self_name=$(basename "$0")
+
+# print usage if no arguments are given
+if [ $# -eq 0 ]; then
+    echo "Usage:"
+    echo -e "\t$self_name <brightness>"
+    echo -e "\t$self_name <night-mode>"
+    echo -e "\t$self_name <brightness> <night-mode>"
+    exit 1
+fi
+
+function get_display_devices() {
+    xrandr --verbose | grep ' connected' | cut -d' ' -f1
+}
+
+devices="$(get_display_devices)"
+
+function get_brightness() {
+    device=$1
+    xrandr --verbose | grep "$device" -C10 | grep Brightness | awk '{print $2}'
+}
+
+function xrandr_set_brightness_and_gamma() {
+    device=$1
+    brightness=$2
+    gamma_correction=$3
+    # set arg1 and gamma correction
+    xrandr --output "$device" --brightness "$brightness" --gamma "$gamma_correction"
+}
+
+function get_night_mode_gamma_correction() {
+    night_mode=$1
+    # echo `night_gamma_correction` if night mode is 1, else echo `normal_gamma_correction` if it's 0
+    if [ "$night_mode" -eq 1 ]; then
+        echo "$night_gamma_correction"
+    else
+        echo "$normal_gamma_correction"
+    fi
+}
+
+
+function parse_night_mode_arg() {
+    # echo 1 if night mode is "yes", else echo 0 if it's "no", otherwise throw error
+    if [ "$1" == "yes" ]; then
+        echo 1
+    elif [ "$1" == "no" ]; then
+        echo 0
+    else
+        echo "Error: night-mode must be either 'yes' or 'no'" >&2
+        exit 1
+    fi
+}
+
+
+function change_night_mode() {
+    device=$1
+    night_mode=$2
+
+    brightness="$(get_brightness "$device")"
+
+    gamma_correction="$(get_night_mode_gamma_correction "$night_mode")"
+
+    # set brightness and gamma correction
+    xrandr_set_brightness_and_gamma "$device" "$brightness" "$gamma_correction"
+}
+
+function get_xrandr_gamma() {
+    device=$1
+    xrandr --verbose | grep "$device" -C10 | grep Gamma | awk '{print $2}'
+}
+
+function change_brightness() {
+    device=$1
+    brightness=$2
+
+    current_gamma="$(get_xrandr_gamma "$device")"
+    # if current_gamma isn't `normal_gamma_correction`, set night_mode=1, otherwise set night_mode 0
+    if [ "$current_gamma" != "$normal_gamma_correction" ]; then
+        night_mode=1
+    else
+        night_mode=0
+    fi
+    gamma_correction="$(get_night_mode_gamma_correction "$night_mode")"
+
+    # set brightness and gamma correction
+    xrandr_set_brightness_and_gamma "$device" "$brightness" "$gamma_correction"
+}
+
+function handle_one_arg() {
+    # if 1st arg is not a floating point number, then used in "set night mode"
+    if ! [[ $1 =~ ^[0-9]*([.][0-9]+)?$ ]]; then
+        night_mode="$(parse_night_mode_arg "$1")"
+
+        # set night mode
+        for device in $devices; do
+            change_night_mode "$device" "$night_mode"
+        done
+    else
+        # set brightness
+        for device in $devices; do
+            change_brightness "$device" "$1"
+        done
+    fi
+}
+
+function handle_two_args() {
+    brightness=$1
+    night_mode_arg=$2
+
+    night_mode="$(parse_night_mode_arg "$night_mode_arg")"
+    gamma_correction="$(get_night_mode_gamma_correction "$night_mode")"
+
+    # loop through all devices
+    for device in $devices; do
+        xrandr_set_brightness_and_gamma "$device" "$brightness" "$gamma_correction"
+    done
+}
+
+# if argument length is 2...
+if [ $# -eq 2 ]; then
+    handle_two_args "$1" "$2"
+elif [ $# -eq 1 ]; then
+    handle_one_arg "$1"
+fi

@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+argv = ARGV
+if argv.empty?
+  puts "Usage: #{File.basename $0} <file>"
+  exit 1
+end
+
+file = argv[0]
+puts File.absolute_path file

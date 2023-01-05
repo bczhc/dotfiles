@@ -1,0 +1,5 @@
+#!/bin/bash
+
+[ $# != 1 ] && echo 'Usage: Command <img-file>' && exit 1
+
+dd if=/dev/zero of="$1" bs=1M count=4454 conv=sparse

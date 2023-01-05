@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ffmpeg -v error -i "$1" -f null -

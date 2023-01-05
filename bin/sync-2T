@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+cd /mnt/hdd/data
+./snap-backup
+
+sudo mount /dev/disk/by-uuid/e2c08e9b-dfaa-48f8-8218-9b5a2991078f /mnt/2T-bczhc
+sudo sync-snap ./snaps/backup/ /mnt/2T-bczhc/backup/
+sync
+sudo umount /mnt/2T-bczhc
+
+echo Done

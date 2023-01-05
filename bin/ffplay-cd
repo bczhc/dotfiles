@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ffplay -f s16le -ac 2 -ar 44100 -fflags nobuffer -hide_banner "$@"

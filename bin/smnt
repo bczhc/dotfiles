@@ -1,0 +1,63 @@
+#!/usr/bin/env ruby
+
+case (Process.uid)
+when 0
+  # We're root!
+else
+  $stderr.puts("You must run this with root privileges")
+  return
+end
+
+class PartInfo
+  attr_accessor :uuid, :link, :name, :is_mounted
+
+  def initialize(uuid, link, name, is_mounted)
+    @uuid = uuid
+    @link = link
+    @name = name
+    @is_mounted = is_mounted
+  end
+end
+
+# @type [Array<PartInfo>]
+entries = []
+Dir.chdir '/dev/disk/by-uuid'
+children = Dir.children '.'
+children.each do |uuid|
+  link = File.readlink File.absolute_path uuid
+  # @type [String]
+  mountpoint = `lsblk -no MOUNTPOINTS "#{link}"`.chomp
+  entries.push PartInfo.new(uuid, link, File.basename(link), !mountpoint.empty?)
+end
+
+entries.each_with_index do |entry, index|
+  # @type [PartInfo]
+  entry = entry
+  puts "#{index} #{entry.name}#{'*' if entry.is_mounted}\t#{entry.uuid}"
+end
+puts "Note: names with an asterisk indicate mounted"
+
+puts "Please select which to mount or unmount [0-#{entries.length - 1}]:"
+line = STDIN.readline(chomp: true)
+ordinal = Integer(line)
+throw 'Out of range' unless entries.each_index.member? ordinal
+
+# @type [PartInfo]
+target = entries[ordinal]
+
+if target.is_mounted
+  puts "Unmounting #{target.name}..."
+  system 'umount', target.link
+else
+  mount_point = "/mnt/#{target.uuid}"
+  puts "Mounting #{target.name} at #{mount_point}..."
+
+  unless Dir.exist? mount_point
+    Dir.mkdir mount_point
+  end
+  throw 'Non-empty mount point' unless Dir.empty? mount_point
+
+  system 'mount', target.link, mount_point
+end
+
+puts 'Done'

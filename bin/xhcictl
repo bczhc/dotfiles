@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+
+self_name="$(basename "$0")"
+
+# if argc is not 1, print help
+if [ $# -ne 1 ]; then
+    echo "Usage: $self_name (on|off)"
+    exit 1
+fi
+
+switch_arg="$1"
+# if `switch_arg` is not "on" or "off", print error
+if [ "$switch_arg" != "on" ] && [ "$switch_arg" != "off" ]; then
+    echo "Usage: $self_name (on|off)"
+    exit 1
+fi
+
+if [ "$switch_arg" == "on" ]; then
+    sudo modprobe xhci_pci_renesas
+    sudo modprobe xhci_pci
+else
+    sudo rmmod xhci_pci
+    sudo rmmod xhci_pci_renesas
+fi

@@ -1,0 +1,49 @@
+#!/bin/env ruby
+
+argv = ARGV
+self_name = File.basename($0)
+
+DIFFERENCE = :d
+INTERSECTION = :i
+UNION = :u
+
+if argv.length != 3
+  puts "Usage: #{self_name} <mode> <file1> <file2>"
+  puts "Mode:"
+  puts "  d: difference, elements in file1 but not in file2"
+  puts "  i: intersection, elements in file1 and file2"
+  puts "  u: union, elements in file1 or file2, duplicates removed"
+  exit 1
+end
+
+mode, file1, file2 = argv
+
+mode = case mode
+       when 'd'
+         DIFFERENCE
+       when 'i'
+         INTERSECTION
+       when 'u'
+         UNION
+       else
+         puts "Unknown mode: #{mode}"
+         exit 1
+       end
+
+file1 = File.new file1
+file2 = File.new file2
+
+file1_lines = file1.readlines
+file2_lines = file2.readlines
+
+case mode
+when DIFFERENCE
+  puts file1_lines - file2_lines
+when INTERSECTION
+  puts file1_lines & file2_lines
+when UNION
+  puts file1_lines | file2_lines
+else
+  # unreachable
+  abort
+end

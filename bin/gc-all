@@ -1,0 +1,3 @@
+#!/bin/bash
+
+for i in `jps | cut -d' ' -f1`; do jcmd $i GC.run; echo $i; done

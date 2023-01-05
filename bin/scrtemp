@@ -1,0 +1,3 @@
+#!/bin/bash
+
+redshift -PO "$1" -b1

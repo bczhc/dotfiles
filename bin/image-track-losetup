@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+
+require 'json'
+
+DEVICE = ARGV[0]
+
+info = `image-track info -j #{DEVICE}`
+info = JSON.parse info
+
+sector_size = info['sectorSize']
+tracks = info['tracks']
+
+tracks.each do |track|
+  number = track['number']
+  start_sector = track['startSector'].to_i
+  used_sectors = track['usedSectors']
+  puts track
+
+  start = start_sector * sector_size
+  size = used_sectors * sector_size
+
+  system %{sudo losetup loop#{number} #{DEVICE} --offset #{start} --sizelimit #{size} --sector-size #{sector_size}}
+end
