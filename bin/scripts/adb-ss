@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+if [ $# == 1 ] && [ $1 == "d" ]; then
+    sleep 2
+fi
+
+sleep 0.2
+
+date=`date "+Screenshot_%Y-%m-%d_%H-%M-%S"`
+filename="/home/bczhc/Pictures/screenshots/$date.png"
+
+ffmpeg -f x11grab -i $DISPLAY -frames:v 1 "$filename" -y 2> /dev/null
+adb push "$filename" /storage/emulated/0/adb-ss/
+

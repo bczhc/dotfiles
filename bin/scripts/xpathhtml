@@ -1,0 +1,5 @@
+#!/bin/env ruby
+
+require 'nokogiri'
+
+puts Nokogiri::HTML(STDIN.read).xpath(ARGV[0]).to_s

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+screen -dmS default zsh
+screen -S default -X stuff 'xdo-rec\n'
+screen -S default -X screen
+screen -S default -X stuff 'start-proxy\n'
+screen -S default -X screen
+screen -S default -X stuff 'memory-monitor\n'
+#screen -S default -X screen
+#screen -S default -X stuff 'pkill fcitx5\n'
+#screen -S default -X stuff 'cd ~ && fcitx5 2>&1 | tee fcitx5-log -a\n'
+screen -S default -X screen
+screen -S default -X stuff 'start-frpc\n'
+screen -S default -X screen
+screen -S default -X stuff 'x0vncserver -display :0 -PasswordFile=/home/bczhc/.vnc/passwd\n'
+screen -S default -X screen
+screen -S default -X stuff 'cd /home/bczhc/open-source/easy-typer && ./start\n'
+screen -S default -X stuff '\n'
+screen -S default -X screen
+echo Done

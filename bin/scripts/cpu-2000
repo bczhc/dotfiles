@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cpu-max 2000M

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+qt-scale non-proxy /bin/netease-cloud-music "$@"

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+w=2560
+h=1440
+
+dirname="`dirname "$0"`"
+
+display="$("$dirname"/list-x-display | head -n1 | rg '^DISPLAY=(.*)$' -r '$1')"
+echo "Display: $display"
+export DISPLAY="$display"
+
+file=$(mktemp /tmp/wallpaper.XXX.jpg)
+wget https://unsplash.it/$w/$h/?random -O "$file"
+feh --bg-scale "$file"

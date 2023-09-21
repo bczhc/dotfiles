@@ -1,0 +1,3 @@
+#!/bin/bash
+
+~/bin/rime-add-words-bin /home/bczhc/.local/share/fcitx5/rime/092wubi.dict.yaml /home/bczhc/.local/share/fcitx5/rime/char-map

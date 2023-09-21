@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+name="`date '+%Y-%m-%d %H:%M:%S'`"
+dir=~/Documents/my-log/xdo-rec
+mkdir -p "$dir" 2>/dev/null || true
+path="$dir/$name"
+
+echo "$path"
+
+x11-event-monitor -j > "$path"

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+mk() {
+    [ ! -L target ] && rm -rf target
+    [ ! -e target ] && ln -sf "`mktemp --directory`" target
+    pwd
+}
+
+cd ~/code/rust && mk
+cd ~/code/rust-demo && mk
+cd /home/bczhc/code/some-tools/app/src/main/rust && mk
+cd /home/bczhc/code/tauri-app/src-tauri && mk
+cd ~/code/rust-web && mk
+cd /home/bczhc/code/bzip3-rs && mk
+cd /home/bczhc/code/async-rust && mk

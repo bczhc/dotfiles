@@ -1,0 +1,159 @@
+#!/bin/env ruby
+
+require 'shellwords'
+require 'optparse'
+
+$dry_run = nil
+
+MODE_LAST = "last"
+MODE_SYNC = "sync"
+
+options = {}
+parser = OptionParser.new do |opt|
+  opt.banner = 'Usage: program [options] <snap-src-dir> <snap-dest-dir>'
+  opt.on('-m MODE', '--mode MODE', 'mode: "last" (default) or "sync"') { |o| options[:mode] = o }
+  opt.on('-d', '--dry-run', 'Dry-run mode') { |o| options[:dry_run] = o }
+end
+
+parsed = parser.parse ARGV
+if parsed.empty?
+  puts parser.help
+  exit 1
+end
+
+$snap_src_dir = parsed[0]
+$snap_dest_dir = parsed[1]
+mode =
+  case options[:mode]
+  when MODE_LAST
+    :last
+  when MODE_SYNC
+    :sync
+  when nil
+    :last
+  else
+    fail "Unknown mode: #{options[:mode]}"
+  end
+
+$dry_run = options[:dry_run]
+
+# @param parent [String, nil]
+# @param volume [String]
+# @param dest [String]
+def send_snap(parent, volume, dest)
+  puts "Parent: #{parent}" if parent != nil
+  puts "Volume: #{volume}"
+  puts "Destination path: #{dest}"
+
+  cmd =
+    if parent == nil
+      "sudo btrfs send #{Shellwords.escape volume} | pv | sudo btrfs receive #{Shellwords.escape dest}"
+    else
+      # incrementally send
+      "sudo btrfs send -p #{Shellwords.escape parent} #{Shellwords.escape volume} | pv | sudo btrfs receive #{Shellwords.escape dest}"
+    end
+  if $dry_run
+    puts cmd
+  else
+    `#{cmd}`
+  end
+  puts
+end
+
+# @return [Array<String>]
+def list_snaps(dir)
+  Dir.children(dir).select { |x| File.directory?(File.join(dir, x)) }.sort
+end
+
+def sync_last
+  src_snaps = list_snaps $snap_src_dir
+  dest_snaps = list_snaps $snap_dest_dir
+
+  last_src_snap = src_snaps.last
+  if last_src_snap == nil
+    puts "No source snapshots"
+    exit 1
+  end
+
+  last_dest_snap = dest_snaps.last
+  if last_dest_snap == nil
+    # no base snapshots
+    send_snap nil, File.join($snap_src_dir, last_src_snap), $snap_dest_dir
+    exit 0
+  end
+
+  case last_src_snap.casecmp(last_dest_snap)
+  when 0
+    puts "Up-to-date snapshots: #{last_dest_snap}"
+    exit 0
+  when -1
+    puts "Source snapshots are earlier than those in the target directory"
+    puts "Last source snapshot: #{last_src_snap}"
+    puts "Last destination snapshot: #{last_dest_snap}"
+    exit 1
+  when 1
+    send_snap(File.join($snap_src_dir, last_dest_snap), File.join($snap_src_dir, last_src_snap), $snap_dest_dir)
+    exit 0
+  else
+    fail
+  end
+end
+
+def sync_all
+  src_snaps = list_snaps $snap_src_dir
+  dest_snaps = list_snaps $snap_dest_dir
+
+  # @return [Boolean] `false` if all snapshots exist in dest dir
+  send_one = ->() {
+    # all src snaps not present in dest, send the initial snapshot from src
+    if src_snaps.all? { |e| dest_snaps.index e == nil }
+      first_src_snap = src_snaps.first
+      if first_src_snap == nil
+        puts 'No snapshots from src'
+        exit 1
+      end
+      puts 'Send the initial snapshot from src'
+      send_snap nil, first_src_snap, $snap_dest_dir
+      exit 0
+    end
+
+    parent = nil
+
+    # find the latest snap from dest that also exists in src dir, as the parent
+    dest_snaps.reverse_each do |s|
+      i = src_snaps.index { |e| s == e }
+      if i != nil
+        parent = src_snaps[i]
+        break
+      end
+    end
+    # parent must can be found
+    fail if parent == nil
+
+    snaps_to_be_sent = src_snaps - dest_snaps
+    if snaps_to_be_sent.empty?
+      false
+    else
+      # pick one to send; this `send_one` function may be called multiple times
+      picked = snaps_to_be_sent[0]
+      send_snap parent, picked, $snap_dest_dir
+      dest_snaps.push picked
+      dest_snaps.sort!
+      true
+    end
+  }
+
+
+  while send_one.call
+  end
+end
+
+puts "Mode: #{mode}"
+case mode
+when :last
+  sync_last
+when :sync
+  sync_all
+else
+  fail
+end

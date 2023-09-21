@@ -1,0 +1,7 @@
+#!/bin/bash
+
+dirname="`dirname "$0"`"
+
+display="$("$dirname"/list-x-display | head -n1 | rg '^DISPLAY=(.*)$' -r '$1')"
+echo "Display: $display"
+DISPLAY="$display" "$dirname"/update-scrtemp

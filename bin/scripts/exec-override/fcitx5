@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+name="`date '+%Y-%m-%d %H:%M:%S'`"
+dir=~/Documents/my-log/fcitx5
+mkdir -p "$dir" 2>/dev/null || true
+path="$dir/$name"
+
+/bin/fcitx5 "$@" --verbose=rime=5 2>&1 | tee "$path"

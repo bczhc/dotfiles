@@ -1,0 +1,5 @@
+#!/bin/bash
+
+me=bczhc0@126.com
+
+gpg2 --encrypt --sign -r "$me" --local-user "$me" --compress-algo none

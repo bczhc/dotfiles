@@ -1,0 +1,3 @@
+#!/bin/bash
+
+trojan -c /usr/local/etc/trojan.json & gost -L=http://:16619 -F=socks5://localhost:16618

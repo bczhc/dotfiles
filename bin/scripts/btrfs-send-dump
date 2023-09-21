@@ -1,0 +1,8 @@
+#!/bin/bash
+
+[ $# -eq 0 ] && echo 'Usage: Command <parent> <snapshot>' && exit 1
+
+parent="$1"
+snapshot="$2"
+
+sudo btrfs send -p "$parent" "$snapshot" | btrfs receive --dump

@@ -15,7 +15,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-# ZSH_THEME="robbyrussell"
+#ZSH_THEME="robbyrussell"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Set list of themes to pick from when loading at random
@@ -118,6 +118,7 @@ fpath+=~/.zfunc
 compinit
 
 setopt globdots
+setopt globcomplete
 
 export FZF_DEFAULT_COMMAND='fd -HI'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
@@ -127,32 +128,39 @@ export FZF_ALT_C_COMMAND="fd -HI -t d"
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
 
-# Input Method
-export GTK_IM_MODULE=ibus
-export XMODIFIERS="@im=ibus"
-export QT_IM_MODULE=ibus
+# IME integration
+export GTK_IM_MODULE=fcitx
+export XMODIFIERS="@im=fcitx"
+export QT_IM_MODULE=fcitx
+export SDL_IM_MODULE=fcitx
+export GLFW_IM_MODULE=ibus
 
 # display scale
 export GDK_SCALE=2
-export QT_SCALE_FACTOR=2
+
+#export QT_SCALE_FACTOR=2
+#export QT_FONT_DPI=192
 
 
 export ANDROID_HOME=/home/bczhc/bin/AndroidSdk
 
-export PATH="$PATH":/home/bczhc/bin
+export PATH=/home/bczhc/bin/scripts/exec-override:"$PATH"
+export PATH=/home/bczhc/bin:"$PATH"
+export PATH=/home/bczhc/bin/scripts:"$PATH"
 export PATH="$PATH":/home/bczhc/bin/AndroidSdk/platform-tools
 export PATH="$PATH":/home/bczhc/code/rust/target/debug
-export PATH="$PATH:$JAVA_HOME/bin"
 export PATH="$PATH":/home/bczhc/open-source/zig-lsp
 export PATH="$PATH":/home/bczhc/.local/share/gem/ruby/3.0.0/bin
 export PATH="$PATH":/home/bczhc/.local/bin
 export PATH="$PATH":/home/bczhc/go/bin
+export PATH="$PATH":/usr/lib/emscripten
 
 # proxy
-export http_proxy='http://localhost:16616'
+hpp=16619
+export http_proxy='http://localhost:'$hpp
 export https_proxy="$http_proxy"
 export no_proxy=localhost,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
-export _JAVA_OPTIONS='-Dhttp.proxyHost=localhost -Dhttp.proxyPort=16616 -Dhttps.proxyHost=localhost -Dhttps.proxyPort=16616'
+export _JAVA_OPTIONS="-Dhttp.proxyHost=localhost -Dhttp.proxyPort=$hpp -Dhttps.proxyHost=localhost -Dhttps.proxyPort=$hpp"
 
 # Rust
 export RUSTUP_HOME=/home/bczhc/.rustup
@@ -161,8 +169,8 @@ export CARGO_HOME=/home/bczhc/.cargo
 
 export EDITOR=vim
 export DEBUGINFOD_URLS="https://debuginfod.archlinux.org"
-export DOCKER_PROXY_ENV="-e no_proxy=localhost,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e http_proxy=http://localhost:16616 -e https_proxy=http://localhost:16616"
-export DOCKER_PROXY_ENV_EXPORT='export no_proxy=localhost,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16; export http_proxy=http://localhost:16616; export https_proxy=http://localhost:16616'
+# export DOCKER_PROXY_ENV="-e no_proxy=localhost,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 -e http_proxy=http://localhost:16616 -e https_proxy=http://localhost:16616"
+# export DOCKER_PROXY_ENV_EXPORT='export no_proxy=localhost,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16; export http_proxy=http://localhost:16616; export https_proxy=http://localhost:16616'
 
 ddusr1loop() {
     while true; do sudo ddusr1; sleep 1; done
@@ -185,8 +193,32 @@ alias pacS='non-proxy sudo pacman -S'
 
 alias icat='kitty +kitten icat'
 
+alias neofetchlc='neofetch | lolcat'
+
+alias xc='xclip -selection clipboard'
+
+alias np='non-proxy'
+
+alias chmx='chmod +x'
+
+alias neofetch='neofetch --sixel ~/.config/neofetch/archlinux-logo.png --size 30%'
+
+alias rename='perl-rename'
+
 # history
 export HISTSIZE=1000000000
 export SAVEHIST=$HISTSIZE
 unsetopt hist_ignore_dups
 
+export DEEPIN_WINE_SCALE=2
+
+export LC_ALL=C.UTF-8
+
+# Firefox smooth touchpad scrolling
+export MOZ_USE_XINPUT2=1
+
+#PATH="/home/bczhc/perl5/bin${PATH:+:${PATH}}"; export PATH;
+#PERL5LIB="/home/bczhc/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+#PERL_LOCAL_LIB_ROOT="/home/bczhc/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+#PERL_MB_OPT="--install_base \"/home/bczhc/perl5\""; export PERL_MB_OPT;
+#PERL_MM_OPT="INSTALL_BASE=/home/bczhc/perl5"; export PERL_MM_OPT;

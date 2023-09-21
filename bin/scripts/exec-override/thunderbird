@@ -1,0 +1,3 @@
+#!/bin/bash
+
+GDK_SCALE=1 GDK_DPI_SCALE=2 /bin/thunderbird

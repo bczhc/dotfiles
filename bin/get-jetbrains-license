@@ -1,9 +1,0 @@
-#!/bin/bash
-
-cd /tmp
-rm -v *2018.2*.txt
-non-proxy wget http://medeming.com/a/jihuoma1.zip -O license.zip
-unzip -o license.zip
-cat *2018.2*.txt
-# cat 1年激活*.txt
-echo 

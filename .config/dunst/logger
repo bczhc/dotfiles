@@ -1,0 +1,30 @@
+#!/bin/env ruby
+
+require 'json'
+require 'date'
+
+timestamp = DateTime.now.strftime('%Q')
+
+args = ARGV
+app_name = args[0]
+summary = args[1]
+body = args[2]
+icon = args[3]
+urgency = args[4]
+
+json = {
+  timestamp: timestamp,
+  appName: app_name,
+  summary: summary,
+  body: body,
+  icon: icon,
+  urgency: urgency,
+}.to_json
+output = json.to_s
+puts output
+
+File.open('/home/bczhc/dunst/log', 'a') do |f|
+  f.write output
+  f.write "\n"
+end
+

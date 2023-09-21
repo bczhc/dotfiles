@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+dir=/home/bczhc/Documents/my-log
+mkdir -p "$dir" 2>/dev/null || true
+
+output="$dir"/termrec/"$(date "+%Y-%m-%d_%H%M%S")"
+
+asciinema rec "$output"

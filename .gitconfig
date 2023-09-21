@@ -2,10 +2,19 @@
 	gpgSign = true
 [user]
 	signingkey = 41355DA0B11F584F
-	name = bczhc
+	name = Zhai Can
 	email = bczhc0@126.com
 [safe]
 	directory = /mnt/hdd/backup/zhc/diary
 	directory = /mnt/world-backup/world
 [core]
 	quotePath = false
+	autocrlf = input
+[alias]
+	s = status
+	c = checkout
+	b = branch
+    d = diff
+    l = log
+[pull]
+	rebase = false

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-pkill ibus-daemon
-ibus-daemon

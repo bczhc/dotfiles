@@ -1,0 +1,15 @@
+#!/bin/env ruby
+
+BATTERY_THRESHOLD = 40
+
+while true
+  status = `cat /sys/class/power_supply/BAT0/status`.chomp
+  capacity = `cat /sys/class/power_supply/BAT0/capacity`.chomp.to_i
+  puts [status, capacity].inspect
+  if status == 'Discharging' and capacity < BATTERY_THRESHOLD
+    #`notify-send 'Low battery!' -t 1000`
+    `systemctl suspend`
+    exit
+  end
+  sleep 2
+end
