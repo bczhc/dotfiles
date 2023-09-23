@@ -8,7 +8,7 @@ rsync -a --delete ~/bin/scripts bin/
 cp ~/.ssh/config .ssh/
 
 cd ~
-cp .vimrc .xinitrc .zshrc .Xmodmap .zsh_history .p10k.zsh .gitconfig "$basedir"
+cp .vimrc .xinitrc .zshrc .Xmodmap .p10k.zsh .gitconfig "$basedir"
 
 cd ~/.config
 rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch ranger htop \
