@@ -205,6 +205,8 @@ alias neofetch='neofetch --sixel ~/.config/neofetch/archlinux-logo.png --size 30
 
 alias rename='perl-rename'
 
+alias gpgclearsign='gpg --clearsign --local-user 2A8D4543A87E66C75F8E53DC41355DA0B11F584F'
+
 # history
 export HISTSIZE=1000000000
 export SAVEHIST=$HISTSIZE
