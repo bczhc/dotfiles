@@ -1,0 +1,10 @@
+#!/bin/bash
+
+seconds=$(awk '{print $1}' /proc/uptime)
+seconds=${seconds%.*}
+
+if [ $seconds -ge 86400 ]; then
+    echo $((seconds/86400))"d"$(date -d "1970-01-01 + $seconds seconds" "+%Hh%M")
+else
+    echo $(date -d "1970-01-01 + $seconds seconds" "+%Hh%M")
+fi

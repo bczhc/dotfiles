@@ -4,7 +4,8 @@ set -e
 
 basedir="$(dirname "$(realpath "$0")")"
 
-rsync -a --delete ~/bin/scripts bin/
+rsync -a --delete ~/bin/scripts ~/bin/rofi ~/bin/polybar-scripts bin/
+rm -rf bin/rofi/rofi-iwd-wifi-menu
 cp ~/.ssh/config .ssh/
 
 cd ~

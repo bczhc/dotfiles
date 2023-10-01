@@ -1,0 +1,28 @@
+#!/bin/env ruby
+require 'json'
+
+# I don't know why but I can't get Ruby regex work!
+# @type [String]
+info = `upower --dump | rg --multiline '^Device(.*\n)*?\n' --json | jq -c`
+# @type [Array<String>]
+matches = nil
+info.each_line(chomp: true) do |line|
+  json = JSON.parse(line)
+  if json['type'] == 'match'
+    matches = json['data']['submatches'].map do |m|
+      m['match']['text']
+    end
+  end
+end
+
+fail if matches == nil
+matches.each do |group|
+  model_scan = group.scan(/model: *(.*)/)[0]
+  percentage_scan = group.scan(/percentage: *(.*)/)[0]
+  next if model_scan == nil
+  next if percentage_scan == nil
+
+  model = model_scan[0]
+  percentage= percentage_scan[0]
+  puts "#{model}: #{percentage}"
+end
