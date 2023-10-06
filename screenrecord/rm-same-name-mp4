@@ -1,0 +1,3 @@
+#!/bin/bash
+
+fd -d1 -t f -j1 -x echo {/.} | sort | uniq -c | sort -n | grep '^      2.*' | cut -d' ' -f8 | xargs -d\\n -n1 bash -c 'rm -v "$1".mp4' --

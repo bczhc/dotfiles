@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+screen -dmS screenrecord
+screen -S screenrecord -X stuff 'cd ~/screenrecord\n'
+screen -S screenrecord -X stuff './record-va; exit\n'

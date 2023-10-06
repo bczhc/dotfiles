@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cq="$3"
+
+"`dirname "$0"`"/av1-aomenc "$1" "$2" --cpu-used=5 --threads=1 --end-usage=q --cq-level="$cq" --tile-columns=0 --tile-rows=0 --tune=psnr --lag-in-frames=48 --kf-max-dist=20000 --enable-fwd-kf=1 --arnr-strength=1 --arnr-maxframes=3 --aq-mode=1 --row-mt=0 -v
+
+# "`dirname "$0"`"/av1-aomenc "$1" "$2" --cpu-used=5 --threads=16 --end-usage=q --cq-level="$cq" --tile-columns=2 --tile-rows=2 --enable-fwd-kf=1 --kf-max-dist=9999 --lag-in-frames=35 --arnr-strength=4 --arnr-maxframes=15 -v

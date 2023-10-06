@@ -14,3 +14,7 @@ cp .vimrc .xinitrc .zshrc .Xmodmap .p10k.zsh .gitconfig "$basedir"
 cd ~/.config
 rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch ranger htop \
   "$basedir/.config/"
+
+cd "$basedir"
+mkdir screenrecord 2>/dev/null || true
+fd . -t x ~/screenrecord -j1 -x cp -v {} screenrecord/

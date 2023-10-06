@@ -1,0 +1,3 @@
+#!/bin/bash
+
+fd -d1 --extension mkv --extension mp4 -j1 -x bash -c 'codec="`ffprobe -v error -show_streams -select_streams v:0 -of json "$1" | jq ".streams[0].codec_name" -r`"; [ "$codec" != "av1" ] && echo "$1"' -- {} | xargs -d\\n -n1 bash -c 'cp --reflink=always -v "$1" to-reencode/' --

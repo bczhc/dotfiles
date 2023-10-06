@@ -1,0 +1,3 @@
+#!/bin/bash
+
+rofi -show wifi -modi 'wifi:~/bin/rofi/rofi-iwd-wifi-menu/iwdrofimenu.py'

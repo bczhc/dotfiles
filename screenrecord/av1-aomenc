@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+if [ $# -le 2 ]; then
+    echo 'Usage: command <input> <output> <aom-params>'
+    exit 1
+fi
+
+mkdir output 2> /dev/null || true
+mkdir pass-log 2> /dev/null || true
+mkdir av1-temp 2> /dev/null || true
+
+input="$1"
+output="$2"
+shift 2
+
+pass_log="./pass-log/$input"
+av1_temp="./av1-temp/$input"
+
+width="`ffprobe -v error -select_streams v -show_entries stream=width,height -of json "$input" | jq '.streams[0].width'`"
+height="`ffprobe -v error -select_streams v -show_entries stream=width,height -of json "$input" | jq '.streams[0].height'`"
+
+for pass in 1; do
+    ffmpeg -v error -nostdin -i "$input" -an -pix_fmt yuv420p -threads 1 -f yuv4mpegpipe - | aomenc -o "$av1_temp" - -w "$width" -h "$height" --webm --passes=1 --fpf="$pass_log" --pass="$pass" "$@"
+done
+
+ffmpeg -v error -nostdin -i "$input" -i "$av1_temp" -map 1:v -map '0:a?' -c:a copy -c:v copy -y "$output"
+
+rm "$pass_log" "$av1_temp"

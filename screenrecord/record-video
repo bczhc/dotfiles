@@ -1,0 +1,135 @@
+#!/bin/bash
+
+base_name="$(basename "$0")"
+
+function print_help() {
+    echo "Usage: $base_name [<option>]... [<output_file>]"
+    echo "Options:"
+    echo "  -h, --help                    Print this help"
+    echo "  -a, --audio                   Record audio"
+    echo "  -f, --framerate <framerate>   Set framerate (default: 30)"
+    echo "  -s, --scheme <scheme>         Set scheme (default: 2)"
+    echo "  -b, --bitrate <bitrate>       Bitrate for video (only applicable for scheme 2)"
+    echo
+    echo "Methods:"
+    echo "  1: cpu, libx264rgb, ultrafast preset, High 4:4:4 Predictive profile"
+    echo "  2: gpu, h264_nvenc, High profile, yuv420p pixel format"
+    echo
+    echo "Environments:"
+    echo "  REC_DEVICE: PulseAudio device"
+    exit 0
+}
+
+pulse_device=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor
+if [[ -z "$REC_DEVICE" ]]; then
+    echo "REC_DEVICE env missing; use the default: $pulse_device"
+else
+    pulse_device="$REC_DEVICE"
+    echo "Pick REC_DEVICE: $REC_DEVICE"
+fi
+
+# loop through arguments, and check if -h or --help is presented
+for arg in "$@"; do
+    if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+        print_help
+    fi
+done
+
+record_audio=0
+framerate=30
+scheme=2
+# default to 0: `-b:v 0`
+video_bitrate=0
+
+# loop through all options
+while [[ "$1" == -* ]]; do
+    case "$1" in
+    -a | --audio)
+        record_audio=1
+        shift
+        ;;
+    -f | --framerate)
+        framerate="$2"
+        shift 2
+        ;;
+    -s | --scheme)
+        scheme="$2"
+        shift 2
+        ;;
+    -b | --bitrate)
+        video_bitrate="$2"
+        shift 2
+        ;;
+    *)
+        echo "Unknown option: $1"
+        exit 1
+        ;;
+    esac
+done
+
+# set output_file from argument, and if not presented, use default
+if [[ -z "$1" ]]; then
+    output_file="$(date "+%Y-%m-%d_%H%M%S").mkv"
+else
+    output_file="$1"
+fi
+
+# if `framerate` is not an integer, print error
+if ! [[ "$framerate" =~ ^[0-9]+$ ]]; then
+    echo "Invalid framerate: $framerate"
+    exit 1
+fi
+
+# if scheme is not 1 or 2, print error
+if ! [[ "$scheme" =~ ^[1-2]$ ]]; then
+    echo "Invalid scheme: $scheme"
+    exit 1
+fi
+
+# if $DISPLAY is not set, print error
+if [[ -z "$DISPLAY" ]]; then
+    echo "\$DISPLAY env missing"
+    exit 1
+fi
+
+# scheme 1 and don't record audio
+if [[ "$scheme" == 1 && "$record_audio" == 0 ]]; then
+    ffmpeg -f x11grab -framerate "$framerate" -i "$DISPLAY" \
+        -c:v libx264rgb \
+        -vf setpts=N/FR/TB -crf 0 \
+        -preset ultrafast \
+        "$output_file"
+    exit 0
+fi
+
+# scheme 1 and record audio
+if [[ "$scheme" == 1 && "$record_audio" == 1 ]]; then
+    ffmpeg -f x11grab -framerate "$framerate" -i "$DISPLAY" \
+        -f pulse -i "$pulse_device" \
+        -c:v libx264rgb \
+        -vf setpts=N/FR/TB -crf 0 \
+        -preset ultrafast \
+        -c:a libopus -b:a 96k \
+        "$output_file"
+    exit 0
+fi
+
+# scheme 2 and don't record audio
+if [[ "$scheme" == 2 && "$record_audio" == 0 ]]; then
+    ffmpeg -f x11grab -framerate "$framerate" -i "$DISPLAY" \
+        -c:v hevc_nvenc \
+        -b:v "$video_bitrate" \
+        "$output_file"
+    exit 0
+fi
+
+# scheme 2 and record audio
+if [[ "$scheme" == 2 && "$record_audio" == 1 ]]; then
+    ffmpeg -f x11grab -framerate "$framerate" -i "$DISPLAY" \
+        -f pulse -i "$pulse_device" \
+        -c:v hevc_nvenc \
+        -b:v "$video_bitrate" \
+        -c:a libopus -b:a 96k \
+        "$output_file"
+    exit 0
+fi

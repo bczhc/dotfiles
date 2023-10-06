@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+
+if screen -list | grep screenrecord; then
+    ./screen-stop
+    notify-send stop -t 1000
+else
+    ./screen-start
+    notify-send start -t 500
+fi

@@ -107,8 +107,8 @@ bindsym $mod+v split v
 bindsym $mod+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
-bindsym $mod+s layout stacking
 bindsym $mod+t layout tabbed
+bindsym $mod+Shift+t layout stacking
 bindsym $mod+e layout toggle split
 
 # toggle tiling / floating
@@ -201,9 +201,6 @@ bindsym $mod+r mode "resize"
 #        position top
 #}
 
-bindsym Print exec 'my-screenshot'
-bindsym Shift+Print exec bash -c 'sleep 3 && my-screenshot'
-
 exec_always --no-startup-id bash -c 'pkill polybar; sleep 1 && polybar' &
 exec_always --no-startup-id bash -c 'pkill flameshot; sleep 1 && flameshot' &
 exec_always --no-startup-id bash -c 'pkill dunst; sleep 1 && dunst' &
@@ -212,12 +209,13 @@ exec_always --no-startup-id bash -c 'pgrep xfce4-clipman || xfce4-clipman &'
 
 set $Locker blur-lock && sleep 1
 
-set $mode_system System (l) lock, (e) logout, (s) suspend, (r) reboot, (Shift+s) shutdown
+set $mode_system System (q) scroff, (l) lock, (e) logout, (s) suspend, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
     bindsym l exec --no-startup-id $Locker, mode "default"
     bindsym e exec --no-startup-id i3-msg exit, mode "default"
     bindsym s exec --no-startup-id $Locker && sync && systemctl suspend, mode "default"
     bindsym r exec --no-startup-id systemctl reboot, mode "default"
+    bindsym q mode "default", exec scroff
     bindsym Shift+s exec --no-startup-id systemctl poweroff -i, mode "default"  
 
     # back to normal: Enter or Escape
@@ -227,13 +225,13 @@ mode "$mode_system" {
 
 set $mode_cpufreq Cpufreq (N: 1, 2, 3, 4) (1000 * N)M, (l) low, (h) high
 mode "$mode_cpufreq" {
-    bindsym 1 exec --no-startup-id cpufreq 1000M && notify-send 'cpufreq: 1000M', mode "default"
-    bindsym 2 exec --no-startup-id cpufreq 2000M && notify-send 'cpufreq: 2000M', mode "default"
-    bindsym 3 exec --no-startup-id cpufreq 3000M && notify-send 'cpufreq: 3000M', mode "default"
-    bindsym 4 exec --no-startup-id cpufreq 4000M && notify-send 'cpufreq: 4000M', mode "default"
+    bindsym 1 exec --no-startup-id cpufreq 1000M && notify-send 'cpufreq: 1000M' -t 1000, mode "default"
+    bindsym 2 exec --no-startup-id cpufreq 2000M && notify-send 'cpufreq: 2000M' -t 1000, mode "default"
+    bindsym 3 exec --no-startup-id cpufreq 3000M && notify-send 'cpufreq: 3000M' -t 1000, mode "default"
+    bindsym 4 exec --no-startup-id cpufreq 4000M && notify-send 'cpufreq: 4000M' -t 1000, mode "default"
 
-    bindsym l exec --no-startup-id cpu-low && notify-send 'cpu-low', mode "default"
-    bindsym h exec --no-startup-id cpu-high && notify-send 'cpu-high', mode "default"
+    bindsym l exec --no-startup-id cpu-low && notify-send 'cpu-low' -t 1000, mode "default"
+    bindsym h exec --no-startup-id cpu-high && notify-send 'cpu-high' -t 1000, mode "default"
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"
@@ -242,8 +240,8 @@ mode "$mode_cpufreq" {
 
 set $mode_cfwarp Cfwarp (c) connect, (d) disconnect
 mode "$mode_cfwarp" {
-    bindsym c exec --no-startup-id warp-cli connect && notify-send 'warp connected', mode "default"
-    bindsym d exec --no-startup-id warp-cli disconnect && notify-send 'warp disconnected', mode "default"
+    bindsym c exec --no-startup-id warp-cli connect && notify-send 'warp connected' -t 1000, mode "default"
+    bindsym d exec --no-startup-id warp-cli disconnect && notify-send 'warp disconnected' -t 1000, mode "default"
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"
@@ -252,17 +250,16 @@ mode "$mode_cfwarp" {
 
 bindsym $mod+Pause mode "$mode_system"
 
-set $mode_shortcut Shortcut (q) power, (s) flameshot, (d) flameshot-delay, (D) screenshot-delay, (r) screen off, (p) cpufreq
+set $mode_shortcut Shortcut (q) power, (sS) flameshot[-delay], (t) Thunar, (p) cpufreq, (r) screenrecord-(start|stop)
 mode "$mode_shortcut" {
     bindsym q mode "$mode_system"
 
     bindsym s mode "default", exec flameshot-take
-    bindsym d mode "default", exec bash -c 'sleep 3 && flameshot-take'
-    bindsym Shift+d mode "default", exec bash -c 'sleep 3 && my-screenshot'
+    bindsym Shift+s mode "default", exec bash -c 'sleep 3 && flameshot-take'
     bindsym t mode "default", exec thunar
-    bindsym r mode "default", exec scroff
     bindsym p mode "$mode_cpufreq"
     bindsym w mode "$mode_cfwarp"
+    bindsym r mode "default", exec bash -c 'cd ~/screenrecord && ./screen-toggle-notify'
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"
@@ -270,14 +267,19 @@ mode "$mode_shortcut" {
 }
 bindsym $mod+Shift+a mode "$mode_shortcut"
 
+# Brightness Fn keys
 bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set 2%+
 bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 2%-
 
-bindsym $mod+p exec my-screenshot
-bindsym $mod+Shift+s exec my-screenshot
-bindsym $mod+Shift+p exec scroff
-bindsym $mod+braceleft exec flameshot-take
-bindsym $mod+braceright exec bash -c 'sleep 3 && flameshot-take'
+# bindsym $mod+Shift+p exec scroff
+# bindsym $mod+braceleft exec flameshot-take
+# bindsym $mod+braceright exec bash -c 'sleep 3 && flameshot-take'
+
+# Screenshot
+bindsym Print exec my-screenshot
+bindsym Shift+Print exec bash -c 'sleep 3 && my-screenshot'
+bindsym $mod+s exec my-screenshot
+bindsym $mod+Shift+s exec bash -c 'sleep 3 && my-screenshot'
 
 for_window [class="^.*"] border pixel 3
 smart_borders on

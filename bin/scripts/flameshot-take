@@ -1,3 +1,6 @@
+#!/bin/bash
+
+my-screenshot no-notify
 focusedwindow=$(xdotool getactivewindow)
 flameshot gui  >/dev/null
 if [ "$focusedwindow" == "$(xdotool getactivewindow)" ]
