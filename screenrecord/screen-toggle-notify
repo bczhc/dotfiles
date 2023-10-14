@@ -2,10 +2,12 @@
 
 set -e
 
-
 if screen -list | grep screenrecord; then
     ./screen-stop
-    notify-send stop -t 1000
+    notify-send stop -t 2000
+    # ensure the session is terminated
+    sleep 5
+    screen -S screenrecord -X quit || true
 else
     ./screen-start
     notify-send start -t 500
