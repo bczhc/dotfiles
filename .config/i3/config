@@ -250,6 +250,16 @@ mode "$mode_cfwarp" {
 
 bindsym $mod+Pause mode "$mode_system"
 
+set $mode_bat bat-mode (e) enable, (d) disable
+mode "$mode_bat" {
+    bindsym e exec --no-startup-id bat-mode 1 && notify-send 'bat-mode 1' -t 1000, mode "default"
+    bindsym d exec --no-startup-id bat-mode 0 && (picom &) && notify-send 'bat-mode 0' -t 1000, mode "default"
+
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
 set $mode_shortcut Shortcut (q) power, (sS) flameshot[-delay], (t) Thunar, (p) cpufreq, (r) screenrecord-(start|stop)
 mode "$mode_shortcut" {
     bindsym q mode "$mode_system"
@@ -260,6 +270,7 @@ mode "$mode_shortcut" {
     bindsym p mode "$mode_cpufreq"
     bindsym w mode "$mode_cfwarp"
     bindsym r mode "default", exec bash -c 'cd ~/screenrecord && ./screen-toggle-notify'
+    bindsym b mode "$mode_bat"
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"

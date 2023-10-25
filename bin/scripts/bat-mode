@@ -7,8 +7,9 @@ set -e
 if [ $1 -eq 1 ]; then
     # pkill --signal STOP htop || true
     # xfconf-query -c xfwm4 -p /general/use_compositing -s false
-    memopti 0
+    sudo memopti 0
     sudo tlp start
+    pkill picom || true
     echo Done
     exit 0
 fi
@@ -16,7 +17,7 @@ fi
 if [ $1 -eq 0 ]; then
     # pkill --signal CONT htop || true
     # xfconf-query -c xfwm4 -p /general/use_compositing -s true
-    memopti 1
+    sudo memopti 1
     sudo tlp start
     echo Done
     exit 0
