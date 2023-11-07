@@ -219,6 +219,8 @@ export LC_ALL=C.UTF-8
 # Firefox smooth touchpad scrolling
 export MOZ_USE_XINPUT2=1
 
+export PATH="$PATH:/home/bczhc/rust"
+
 #PATH="/home/bczhc/perl5/bin${PATH:+:${PATH}}"; export PATH;
 #PERL5LIB="/home/bczhc/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 #PERL_LOCAL_LIB_ROOT="/home/bczhc/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;

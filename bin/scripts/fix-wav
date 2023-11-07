@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+f=`mktemp --suffix .wav`
+ffmpeg -i "$1" "$f" -y
+mv "$f" "$1"

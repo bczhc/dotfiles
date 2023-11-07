@@ -3,7 +3,7 @@
 screen -dmS default zsh
 screen -S default -X stuff 'xdo-rec\n'
 screen -S default -X screen
-screen -S default -X stuff 'start-proxy\n'
+screen -S default -X stuff 'start-proxy ~/bin/trojan-go/c2.json\n'
 screen -S default -X screen
 screen -S default -X stuff 'memory-monitor\n'
 #screen -S default -X screen

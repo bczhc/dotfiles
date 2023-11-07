@@ -1,0 +1,6 @@
+#!/bin/bash
+
+usd_price=`curl https://api.coincap.io/v2/rates/bitcoin -s | jq '.data.rateUsd' -r`
+rmb_rate=`curl https://api.coincap.io/v2/rates/chinese-yuan-renminbi -s | jq '.data.rateUsd' -r`
+
+echo "$usd_price / $rmb_rate" | bc

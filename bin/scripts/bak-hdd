@@ -6,8 +6,10 @@ set -e
 #data_dir=/mnt/1T/last
 
 #bak_dir="$data_dir/backup"
-bak_dir=/mnt/1T/last
+bak_dir=/mnt/4T/last
 #bak_dir=/mnt/4T/last
+
+cd
 
 rsync -avz Documents "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r

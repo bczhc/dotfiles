@@ -3,4 +3,4 @@
 #trojan -c "$1" & gost -L=http://:16619 -F=socks5://localhost:16618
 
 cd ~/bin/trojan-go
-./trojan-go -config client.json & gost -L=socks5://localhost:16618 -F=http://:16619
+./trojan-go -config "$1" & gost -L=socks5://localhost:16618 -F=http://:16619

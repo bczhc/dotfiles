@@ -2,5 +2,7 @@
 
 coll_dir=/mnt/2T/collections
 
+cd
+
 # backup ~/open-source
 fd . open-source -d1 -t d -j1 -x bash -c 'echo $1; rsync -ca --cc=sha1 --delete --info=PROGRESS2 "$1" '"$coll_dir"/open-source/ --
