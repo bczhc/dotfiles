@@ -11,5 +11,3 @@ set backspace=indent,eol,start
 
 syntax enable
 filetype plugin indent on
-
-let g:LanguageClient_serverCommands = {'rust': ['rust-analyzer']}

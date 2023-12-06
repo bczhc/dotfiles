@@ -1,2 +1,7 @@
 clear lock
 keycode 66 = grave Caps_Lock NoSymbol NoSymbol
+keycode 112 = Home Home NoSymbol NoSymbol
+keycode 117 = End End NoSymbol NoSymbol
+keycode 110 = Page_Up Page_Up NoSymbol NoSymbol
+keycode 115 = Next Next NoSymbol NoSymbol
+
