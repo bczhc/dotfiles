@@ -1,7 +1,7 @@
 #!/bin/bash
 
 w=2560
-h=1600
+h=1440
 
 dirname="`dirname "$0"`"
 

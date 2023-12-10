@@ -8,6 +8,7 @@
 	directory = /mnt/hdd/backup/zhc/diary
 	directory = /mnt/world-backup/world
 	directory = /mnt/smb/coll-last/open-source/linux
+	directory = *
 [core]
 	quotePath = false
 	autocrlf = input

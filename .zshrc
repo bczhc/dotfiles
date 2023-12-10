@@ -136,7 +136,8 @@ export SDL_IM_MODULE=fcitx
 export GLFW_IM_MODULE=ibus
 
 # display scale
-export GDK_SCALE=2
+export GDK_SCALE=1
+export GDK_DPI_SCALE=1.5
 
 #export QT_SCALE_FACTOR=2
 #export QT_FONT_DPI=192

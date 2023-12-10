@@ -2,7 +2,7 @@
 
 def update_temperature(value)
   puts "Update temperature: #{value}"
-  system '/home/bczhc/bin/scrtemp', value.to_s
+  system '/home/bczhc/bin/scripts/scrtemp', value.to_s
 end
 
 hour = Time.now.hour
