@@ -12,7 +12,7 @@ screen -S default -X stuff 'memory-monitor\n'
 screen -S default -X screen
 screen -S default -X stuff 'start-frpc\n'
 screen -S default -X screen
-screen -S default -X stuff 'x0vncserver -display :0 -PasswordFile=/home/bczhc/.vnc/passwd\n'
+screen -S default -X stuff 'while :; do start-vnc2; done\n'
 screen -S default -X screen
 screen -S default -X stuff 'cd /home/bczhc/open-source/easy-typer && ./start\n'
 screen -S default -X stuff '\n'

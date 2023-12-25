@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/zsh
+
+pulse_device=default.monitor
 
 base_name="$(basename "$0")"
 
@@ -17,15 +19,19 @@ function print_help() {
     echo
     echo "Environments:"
     echo "  REC_DEVICE: PulseAudio device"
+    echo "  FF_ARGS: FFmpeg extra arguments"
     exit 0
 }
 
-pulse_device=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor
 if [[ -z "$REC_DEVICE" ]]; then
     echo "REC_DEVICE env missing; use the default: $pulse_device"
 else
     pulse_device="$REC_DEVICE"
     echo "Pick REC_DEVICE: $REC_DEVICE"
+fi
+
+if [[ ! -z "$FF_ARGS" ]]; then
+    echo "Use FF_ARGS: $FF_ARGS"
 fi
 
 # loop through arguments, and check if -h or --help is presented
@@ -95,8 +101,8 @@ fi
 # scheme 1 and don't record audio
 if [[ "$scheme" == 1 && "$record_audio" == 0 ]]; then
     ffmpeg -f x11grab -framerate "$framerate" -i "$DISPLAY" \
-        -c:v libx264rgb \
-        -vf setpts=N/FR/TB -crf 0 \
+        -c:v libx264rgb -r "$framerate" ${=FF_ARGS} \
+        -crf 0 \
         -preset ultrafast \
         "$output_file"
     exit 0
@@ -106,8 +112,8 @@ fi
 if [[ "$scheme" == 1 && "$record_audio" == 1 ]]; then
     ffmpeg -f x11grab -framerate "$framerate" -i "$DISPLAY" \
         -f pulse -i "$pulse_device" \
-        -c:v libx264rgb \
-        -vf setpts=N/FR/TB -crf 0 \
+        -c:v libx264rgb -r "$framerate" ${=FF_ARGS} \
+        -crf 0 \
         -preset ultrafast \
         -c:a libopus -b:a 96k \
         "$output_file"
@@ -118,7 +124,7 @@ fi
 if [[ "$scheme" == 2 && "$record_audio" == 0 ]]; then
     ffmpeg -f x11grab -framerate "$framerate" -i "$DISPLAY" \
         -c:v hevc_nvenc \
-        -b:v "$video_bitrate" \
+        -b:v "$video_bitrate" -r "$framerate" ${=FF_ARGS} \
         "$output_file"
     exit 0
 fi
@@ -128,7 +134,7 @@ if [[ "$scheme" == 2 && "$record_audio" == 1 ]]; then
     ffmpeg -f x11grab -framerate "$framerate" -i "$DISPLAY" \
         -f pulse -i "$pulse_device" \
         -c:v hevc_nvenc \
-        -b:v "$video_bitrate" \
+        -b:v "$video_bitrate" -r "$framerate" ${=FF_ARGS} \
         -c:a libopus -b:a 96k \
         "$output_file"
     exit 0

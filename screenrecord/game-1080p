@@ -1,0 +1,3 @@
+#!/bin/bash
+
+FF_ARGS='-vf scale=1920:1080' ./record-video -b 0 -f 144 -s 2 -a

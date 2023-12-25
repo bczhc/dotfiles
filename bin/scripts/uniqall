@@ -1,0 +1,5 @@
+#!/bin/env ruby
+
+lines = STDIN.readlines
+lines.uniq!
+puts lines

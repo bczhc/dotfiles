@@ -1,4 +1,4 @@
 #!/bin/bash
 
-REC_DEVICE=default.monitor ./record-video -s 2 -a
-#REC_DEVICE=default.monitor ./record-video -s 1 -a
+#REC_DEVICE=default.monitor ./record-video -s 2 -a
+REC_DEVICE=default.monitor ./record-video -s 1 -a

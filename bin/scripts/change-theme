@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+[ $# -ne 1 ] && echo 'Usage: command light|dark' && exit
+
+name="$1"
+
+function set_theme() {
+  gsettings set org.gnome.desktop.interface gtk-theme "$1"
+}
+
+light_theme='WhiteSur-Light-pink'
+dark_theme='WhiteSur-Dark-pink'
+
+if [ "$name" == "light" ]; then
+    set_theme "$light_theme"
+elif [ "$name" == "dark" ]; then
+    set_theme "$dark_theme"
+else
+    echo "Unknown theme name: $name"
+    exit 1
+fi

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-non-proxy x0vncserver -display :0 -PasswordFile=/home/bczhc/.vnc/passwd
+non-proxy sudo x0vncserver -display :0 -PasswordFile=/home/bczhc/.vnc/passwd

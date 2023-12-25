@@ -1,0 +1,5 @@
+#!/bin/bash
+
+dpi=160
+
+/bin/rofi -dpi "$dpi" "$@"
