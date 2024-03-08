@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo dmesg --follow-new | rg 'Kzzi-K75 5.0  Keyboard as /devices' --line-buffered | while read -r line; do echo "$line"; sleep 1; xmodmap ~/.Xmodmap; done

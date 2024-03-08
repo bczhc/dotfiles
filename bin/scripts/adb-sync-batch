@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for i in "$@"; do
+  ~/bin/adb-sync/adb-sync "$i" "."
+done

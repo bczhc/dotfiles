@@ -11,7 +11,7 @@
 
 set $mod Mod4
 
-set $rofi_dpi 160
+set $rofi_dpi 144
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -279,7 +279,17 @@ mode "$mode_theme" {
     bindsym Escape mode "default"
 }
 
-set $mode_shortcut Shortcut (q) power, (sS) flameshot[-delay], (t) Thunar, (p) cpufreq, (r) screenrecord-(start|stop), (k) xkill, (T) theme
+set $mode_compositor Compositor (e) enable, (d) disable
+mode "$mode_compositor" {
+    bindsym e exec --no-startup-id picom, mode "default"
+    bindsym d exec --no-startup-id pkill picom, mode "default"
+    
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+set $mode_shortcut Shortcut (q) power, (sS) flameshot[-delay], (t) Thunar, (p) cpufreq, (r) screenrecord-(start|stop), (k) xkill, (T) theme, (w) CfWarp
 mode "$mode_shortcut" {
     bindsym q mode "$mode_system"
 
@@ -292,6 +302,7 @@ mode "$mode_shortcut" {
     bindsym r mode "default", exec bash -c 'cd ~/screenrecord && ./screen-toggle-notify'
     bindsym b mode "$mode_bat"
     bindsym k mode "default", exec bash -c 'sleep 0.3 && xkill'
+    bindsym c mode "$mode_compositor"
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"
@@ -313,12 +324,13 @@ bindsym Shift+Print exec bash -c 'sleep 3 && my-screenshot'
 bindsym $mod+s exec my-screenshot
 bindsym $mod+Shift+s exec bash -c 'sleep 3 && my-screenshot'
 
-for_window [class="^.*"] border pixel 3
+for_window [class="^.*"] border pixel 2
 smart_borders on
 
 # client.focused #ffff00 #ff0000 #ff0000 #ff0000 #ff0000
 # <colorclass> <border> <background> <text> <indicator> <child_border>
-client.focused #ffffff #6a6a6a #ffffff # #ff5016
+#client.focused #ffffff #6a6a6a #ffffff # #ff5016
+client.focused #ffffff #6a6a6a #ffffff # #e55e9c
 
 
 # gaps inner 10

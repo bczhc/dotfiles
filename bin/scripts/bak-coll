@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#coll_dir=/mnt/2T/collections
-coll_dir=/mnt/4T/coll-last
+coll_dir=/mnt/2T/coll-last
+#coll_dir=/mnt/4T/coll-last
 
 cd
 

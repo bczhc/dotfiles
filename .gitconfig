@@ -18,7 +18,8 @@
 	b = branch
     d = diff
     l = log
+    cl = clone
 [pull]
 	rebase = false
 [cinnabar]
-	version-check = 1702725304
+	version-check = 1708531362

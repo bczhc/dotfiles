@@ -17,4 +17,7 @@ screen -S default -X screen
 screen -S default -X stuff 'cd /home/bczhc/open-source/easy-typer && ./start\n'
 screen -S default -X stuff '\n'
 screen -S default -X screen
+screen -S default -X stuff 'auto-set-xmodmap\n'
+
+screen -S default -X screen
 echo Done

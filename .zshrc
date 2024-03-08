@@ -140,14 +140,12 @@ export GDK_SCALE=1
 export GDK_DPI_SCALE=1.5
 
 #export QT_SCALE_FACTOR=2
-#export QT_FONT_DPI=192
+export QT_FONT_DPI=144
 
 
 export ANDROID_HOME=/home/bczhc/bin/AndroidSdk
 
-export PATH=/home/bczhc/bin/scripts/exec-override:"$PATH"
-export PATH=/home/bczhc/bin:"$PATH"
-export PATH=/home/bczhc/bin/scripts:"$PATH"
+export PATH=/home/bczhc/bin/scripts/exec-override:/home/bczhc/bin/scripts:/home/bczhc/bin:"$PATH"
 export PATH="$PATH":/home/bczhc/bin/AndroidSdk/platform-tools
 export PATH="$PATH":/home/bczhc/code/rust/target/debug
 export PATH="$PATH":/home/bczhc/open-source/zig-lsp

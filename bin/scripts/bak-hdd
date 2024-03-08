@@ -13,19 +13,19 @@ cd
 
 rsync -avz Documents "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r
-rsync -avz Pictures/screenshots/ "$bak_dir"/zhc/Screenshots --remove-source-files --info=progress2 --no-i-r
+rsync -avz Pictures/screenshots/ "$bak_dir"/zhc/Screenshots --info=progress2 --no-i-r
 rsync -avz screenrecord "$bak_dir"/zhc --info=progress2 --no-i-r
 rm -v screenrecord/*.mkv || true
 
 echo 'Syncing ~/.config...'
 rsync -a .config/ "$bak_dir"/zhc/linux/home-.config --info=PROGRESS2 --no-i-r --delete
 echo 'Syncing QQ files'
-rsync -a /home/bczhc/.config/QQ/ "$bak_dir"/zhc/tencent/linuxqq --info=PROGRESS2 --no-i-r
+rsync -a .config/QQ/ "$bak_dir"/zhc/tencent/linuxqq --info=PROGRESS2 --no-i-r
 
 echo 'Syncing Minecraft screenshots'
-cd ~/mc/.minecraft
+cd mc/.minecraft
 fd -t d screenshots | while read -r d; do
-    rsync -av "$d" "$bak_dir"/mc/screenshots --remove-source-files
+    rsync -av "$d" "$bak_dir"/mc/screenshots
 done
 
 cd ~

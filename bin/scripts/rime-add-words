@@ -1,3 +1,8 @@
 #!/bin/bash
 
+# not knowing why.
+# https://www.reddit.com/r/rust/comments/16tzu8w/tauri_issue
+
+export WEBKIT_DISABLE_COMPOSITING_MODE=1
+
 ~/bin/rime-add-words-bin /home/bczhc/.local/share/fcitx5/rime/092wubi.dict.yaml /home/bczhc/.local/share/fcitx5/rime/char-map
