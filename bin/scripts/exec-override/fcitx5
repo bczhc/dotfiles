@@ -7,5 +7,7 @@ dir=~/Documents/my-log/fcitx5
 mkdir -p "$dir" 2>/dev/null || true
 path="$dir/$name"
 
+notify-send 'Fcitx5 logger started' -t 2000
+
 /bin/fcitx5 "$@" --verbose=rime=5 2>&1 | tee "$path"
 #/usr/local/bin/fcitx5 "$@" --verbose=rime=5 2>&1 | tee "$path"

@@ -2,4 +2,5 @@
 
 dpi=160
 
+export XDG_DATA_DIRS=$HOME/.local/xdg-override:$HOME/.local/share:/usr/local:/usr/share:/usr/local/share
 /bin/rofi -dpi "$dpi" "$@"

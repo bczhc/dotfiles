@@ -16,5 +16,5 @@ rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch ranger htop
   "$basedir/.config/"
 
 cd "$basedir"
-mkdir screenrecord 2>/dev/null || true
-fd . -t x ~/screenrecord -j1 -x cp -v {} screenrecord/
+mkdir Screenrecords 2>/dev/null || true
+fd . -t x ~/Screenrecords -j1 -x cp -v {} Screenrecords/

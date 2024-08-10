@@ -23,3 +23,5 @@
 	rebase = false
 [cinnabar]
 	version-check = 1708531362
+[init]
+	defaultBranch = master

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+if screen -list | grep screenrecord; then
+    pkill --signal INT gpu-screen-reco
+
+    notify-send stop -t 2000
+    # ensure the session is terminated
+    sleep 5
+    screen -S screenrecord -X quit || true
+else
+    screen -dmS screenrecord
+    screen -S screenrecord -X stuff 'cd ~/Screenrecords\n'
+    # if gpusr-start exits unexpectedly, quit the terminal session
+    screen -S screenrecord -X stuff './gpusr-start; exit\n'
+
+    notify-send start -t 500
+fi

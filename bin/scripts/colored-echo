@@ -1,0 +1,62 @@
+#!/bin/env ruby
+
+require 'shellwords'
+
+if ARGV.empty?
+  puts "Usage: #{$0} <style>... <text>"
+  exit 1
+end
+
+# Num  Colour    #define         R G B
+#
+# 0    black     COLOR_BLACK     0,0,0
+# 1    red       COLOR_RED       1,0,0
+# 2    green     COLOR_GREEN     0,1,0
+# 3    yellow    COLOR_YELLOW    1,1,0
+# 4    blue      COLOR_BLUE      0,0,1
+# 5    magenta   COLOR_MAGENTA   1,0,1
+# 6    cyan      COLOR_CYAN      0,1,1
+# 7    white     COLOR_WHITE     1,1,1
+
+def reset_color
+  system 'tput sgr0'
+end
+
+def change_color(color_code)
+  system "tput setaf #{color_code}"
+end
+
+def bold
+  system 'tput bold'
+end
+
+color_map = {
+  'black' => 0,
+  'red' => 1,
+  'green' => 2,
+  'yellow' => 3,
+  'blue' => 4,
+  'magenta' => 5,
+  'cyan' => 6,
+  'white' => 7,
+}
+
+# @type [Array<String>]
+styles = ARGV.take(ARGV.length - 1)
+
+styles.each do |style|
+  if color_map[style] != nil
+    change_color color_map[style]
+    next
+  end
+
+  case style
+  when 'bold'
+    bold
+  else
+    fail "Unknown style: #{style}"
+  end
+end
+
+system "echo #{Shellwords.escape ARGV.last}"
+reset_color

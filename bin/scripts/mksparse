@@ -1,0 +1,8 @@
+#!/bin/bash
+
+[ $# -ne 2 ] && echo "Usage: $0 <path> <size-in-MiB>" && exit 1
+
+path="$1"
+size="$2"
+
+dd if=/dev/zero bs=1M conv=sparse count="$size" of="$path" iflag=fullblock

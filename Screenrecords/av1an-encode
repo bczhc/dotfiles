@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+[ $# -ne 2 ] && echo "Usage $0 <source> <crf>" && exit 1
+
+mkdir out 2>/dev/null || true
+mkdir tmp 2>/dev/null || true
+
+src="$1"
+crf="$2"
+
+out=out/"${src%.*}".mkv
+echo "Output: $out"
+scene_file=tmp/"$src".json
+tmp=tmp/"$src".mp4
+
+[ -f "$scene_file" ] && rm "$scene_file"
+
+if [ ! -f "$tmp" ]; then
+    # av1an only takes CFR inputs
+    # this will produce CFR video
+    ffmpeg -i "$src" -c:a libopus -b:a 96k -c:v hevc_nvenc -b:v 50M "$tmp"
+fi
+
+frames=`ffprobe -v error -select_streams v:0 -count_packets \
+        -show_entries stream=nb_read_packets -of csv=p=0 "$tmp"`
+
+# always make it have two splits
+split_frames=$((frames/2+1))
+
+~/av1an --sc-only -s "$scene_file" -i "$tmp" --split-method=none --extra-split="$split_frames"
+
+~/av1an -i "$tmp" -s "$scene_file" -v "--cpu-used=4 --tune=psnr --end-usage=q --cq-level=$crf --threads=16 --tile-columns=2 --tile-rows=1 --row-mt=1" -a '-c:a libopus -b:a 96k' -w2 -p1 --pix-format=yuv420p -o "$out"
+
+#rm "$tmp"

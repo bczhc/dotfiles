@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#cat /tmp/btc-price
+netcat _gateway 3457

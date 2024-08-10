@@ -1,0 +1,61 @@
+#!/bin/env ruby
+
+require 'shellwords'
+
+if ARGV.empty?
+  puts "Usage: #{$0} <drive-device>"
+  exit 1
+end
+
+drive = ARGV[0]
+
+class Track
+  # `start_addr`, `end_addr` and `size` are in sectors
+  attr_accessor :track_no, :session_no, :start_addr, :end_addr, :size
+
+  def initialize(track_no, session_no, start_addr, end_addr, size)
+    @track_no = track_no
+    @session_no = session_no
+    @start_addr = start_addr
+    @end_addr = end_addr
+    @size = size
+  end
+end
+
+# @type [String]
+minfo = `wodim dev=#{Shellwords.escape drive} -minfo`
+extracted_lines = minfo.lines(chomp: true)
+                       .drop_while { |x| not /Track +Sess +Type +Start Addr +End Addr +Size/.match? x }
+                       .drop(2).take_while { |x| not x.empty? }
+
+filtered_lines = []
+# @type [Array<Track>]
+tracks = []
+extracted_lines.each do |line|
+  captured = / *(\d+) +(\d+) +Data +(\d+) +(\d+) +(\d+)/.match(line)
+  next if captured == nil
+  track = Track.new(captured[1].to_i, captured[2].to_i, captured[3].to_i, captured[4].to_i, captured[5].to_i)
+  tracks.push track
+  filtered_lines.push line
+end
+
+puts <<EOF
+Track  Sess Type   Start Addr End Addr   Size
+==============================================
+EOF
+puts filtered_lines
+puts
+
+STDOUT.write 'Please pick a track (input the track number): '
+STDOUT.flush
+
+input = STDIN.readline
+# @type [Track]
+found_track = tracks.find { |x| x.track_no == input.to_i }
+if found_track == nil
+  puts 'No track was found'
+  exit 1
+end
+puts found_track.inspect
+
+puts `sudo losetup -f #{Shellwords.escape drive} --sizelimit #{found_track.size * 2048} --offset #{found_track.start_addr * 2048} --sector-size 2048 --read-only --show`

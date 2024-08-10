@@ -1,0 +1,13 @@
+#!/bin/bash
+
+rec_source="$(pactl get-default-sink).monitor"
+output_name="Video_$(date '+%Y-%m-%d_%H-%M-%S').mkv"
+output_path="/mnt/nvme/screenrecord"
+
+output_file="$output_path/$output_name"
+
+echo "Audio source: $rec_source"
+echo "Output name: $output_name"
+
+
+gpu-screen-recorder -w HDMI-0 -c matroska -q ultra -k auto -ac opus -f 120 -cursor yes -cr limited -o "$output_file" -a "$rec_source"

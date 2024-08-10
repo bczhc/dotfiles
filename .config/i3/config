@@ -168,6 +168,8 @@ bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
+bindsym $mod+Shift+grave move container to workspace number $ws10
+
 # reload the configuration file
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
@@ -289,9 +291,9 @@ mode "$mode_compositor" {
     bindsym Escape mode "default"
 }
 
-set $mode_shortcut Shortcut (q) power, (sS) flameshot[-delay], (t) Thunar, (p) cpufreq, (r) screenrecord-(start|stop), (k) xkill, (T) theme, (w) CfWarp
+set $mode_shortcut Shortcut (Q) power, (sS) flameshot[-delay], (t) Thunar, (p) cpufreq, (r) screenrecord-(start|stop), (k) xkill, (T) theme, (w) CfWarp
 mode "$mode_shortcut" {
-    bindsym q mode "$mode_system"
+    bindsym Shift+q mode "$mode_system"
 
     bindsym s mode "default", exec flameshot-take
     bindsym Shift+s mode "default", exec bash -c 'sleep 3 && flameshot-take'
@@ -299,7 +301,7 @@ mode "$mode_shortcut" {
     bindsym Shift+t mode "$mode_theme"
     bindsym p mode "$mode_cpufreq"
     bindsym w mode "$mode_cfwarp"
-    bindsym r mode "default", exec bash -c 'cd ~/screenrecord && ./screen-toggle-notify'
+    bindsym r mode "default", exec bash -c 'cd ~/Screenrecords && ./screen-toggle-notify'
     bindsym b mode "$mode_bat"
     bindsym k mode "default", exec bash -c 'sleep 0.3 && xkill'
     bindsym c mode "$mode_compositor"

@@ -1,3 +1,5 @@
 #!/bin/bash
 
-ffmpeg-build -i "$1" -i "$2" -filter_complex '[0:v]setpts=PTS-STARTPTS[dist];[1:v]setpts=PTS-STARTPTS[ref];[dist][ref]libvmaf=n_threads=16:model_path=/home/bczhc/open-source/vmaf/model/vmaf_4k_v0.6.1.json' -an -t "$3" -f null -
+model=/usr/local/share/vmaf-models/vmaf_v0.6.1.json
+
+ffmpeg-build -i "$1" -i "$2" -filter_complex '[0:v]setpts=PTS-STARTPTS[dist];[1:v]setpts=PTS-STARTPTS[ref];[dist][ref]libvmaf=n_threads=16:model_path='"$model" -an -t "$3" -f null -

@@ -200,11 +200,17 @@ alias np='non-proxy'
 
 alias chmx='chmod +x'
 
-alias neofetch='neofetch --sixel ~/.config/neofetch/archlinux-logo.png --size 30%'
+alias neofetch='neofetch --sixel ~/.config/neofetch/archlinux-logo.png --size 25%'
+alias fastfetch='clear; fastfetch --raw ~/.config/neofetch/sixel --logo-width 60 --logo-height 25 --logo-padding-top 2'
 
 alias rename='perl-rename'
 
 alias gpgclearsign='gpg --clearsign --local-user 2A8D4543A87E66C75F8E53DC41355DA0B11F584F'
+
+alias ip='ip -c=always'
+alias bridge='bridge -c=always'
+
+alias ra='ranger'
 
 # history
 export HISTSIZE=1000000000
@@ -220,8 +226,16 @@ export MOZ_USE_XINPUT2=1
 
 export PATH="$PATH:/home/bczhc/rust"
 
+# for some reason, tauri won't work without this
+export WEBKIT_DISABLE_COMPOSITING_MODE=1
+
 #PATH="/home/bczhc/perl5/bin${PATH:+:${PATH}}"; export PATH;
 #PERL5LIB="/home/bczhc/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 #PERL_LOCAL_LIB_ROOT="/home/bczhc/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 #PERL_MB_OPT="--install_base \"/home/bczhc/perl5\""; export PERL_MB_OPT;
 #PERL_MM_OPT="INSTALL_BASE=/home/bczhc/perl5"; export PERL_MM_OPT;
+
+source /etc/profile.d/xtensa-lx106-elf-gcc.sh
+
+alias wodim=cdrecord
+alias cminfo='cdrskin -minfo'
