@@ -6,31 +6,31 @@ set -e
 #data_dir=/mnt/1T/last
 
 #bak_dir="$data_dir/backup"
-bak_dir=/mnt/4T/backup
+bak_dir=/mnt/4T/@backup
 #bak_dir=/mnt/4T/last
 
 cd
 
 rsync -avz Documents "$bak_dir"/zhc --info=progress2 --no-i-r
-rsync -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r
-rsync -avz Screenshots "$bak_dir"/zhc/Screenshots --info=progress2 --no-i-r
+#rsync -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r
+rsync -avz Screenshots "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync -avz Screenrecords "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync -avz Pictures "$bak_dir/zhc" --info=progress2 --no-i-r
 rsync -avz Music "$bak_dir/zhc" --info=progress2 --no-i-r
 rm -v Screenrecords/*.mkv || true
 
 echo 'Syncing ~/.config...'
-rsync -a .config/ "$bak_dir"/zhc/linux/home-.config --info=PROGRESS2 --no-i-r --delete
+rsync -a .config/ "$bak_dir"/zhc/linux/home-.config --info=PROGRESS2 --no-i-r --delete -v --exclude=QQ/
 echo 'Syncing QQ files'
-rsync -a .config/QQ/ "$bak_dir"/zhc/tencent/linuxqq --info=PROGRESS2 --no-i-r
+rsync -a .config/QQ/ "$bak_dir"/zhc/tencent/linuxqq --info=PROGRESS2 --no-i-r -v --inplace
 
 echo 'Syncing Minecraft screenshots'
-cd mc/.minecraft
+cd /mnt/nvme/mc-game/mc/.minecraft
 fd -t d screenshots | while read -r d; do
     rsync -av "$d" "$bak_dir"/mc/screenshots
 done
 
 cd ~
-echo 'Syncing ~/bin'
-rsync -a bin/ "$bak_dir"/zhc/linux/home-bin --delete --info=progress2 --no-i-r
+rsync -a bin/scripts "$bak_dir"/zhc/linux/home-bin --delete --info=progress2 --no-i-r
 
+fd -d1 -HI "^\." -t f -x cp -v {} "$bak_dir"/zhc/linux/home-hidden -a

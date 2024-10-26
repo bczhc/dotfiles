@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+jobs=16
+
+make bzImage -j$jobs
+make modules -j$jobs

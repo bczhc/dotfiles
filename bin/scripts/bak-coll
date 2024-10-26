@@ -1,9 +1,15 @@
 #!/bin/bash
 
+set -e
+
 #coll_dir=/mnt/2T/coll-last
-coll_dir=/mnt/4T/coll-last
+coll_dir=/mnt/4T/@collections
 
 cd
 
+rsync -a --no-i-r ~/Downloads/ "$coll_dir"/downloads -v
+rsync -a --no-i-r /mnt/nvme/Download/ "$coll_dir"/downloads -v
+
 # backup ~/open-source
-fd . open-source -d1 -t d -j1 -x bash -c 'echo $1; rsync -ca --cc=sha1 --delete --info=PROGRESS2 "$1" '"$coll_dir"/open-source/ --
+# fd . open-source -d1 -t d -j1 -x bash -c 'echo $1; rsync -ca --cc=sha1 --delete --info=PROGRESS2 "$1" '"$coll_dir"/open-source/ --
+

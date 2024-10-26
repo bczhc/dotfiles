@@ -239,3 +239,7 @@ source /etc/profile.d/xtensa-lx106-elf-gcc.sh
 
 alias wodim=cdrecord
 alias cminfo='cdrskin -minfo'
+
+alias btc='bitcoin-cli'
+
+export TERM=xterm-256color

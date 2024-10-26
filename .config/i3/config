@@ -291,7 +291,7 @@ mode "$mode_compositor" {
     bindsym Escape mode "default"
 }
 
-set $mode_shortcut Shortcut (Q) power, (sS) flameshot[-delay], (t) Thunar, (p) cpufreq, (r) screenrecord-(start|stop), (k) xkill, (T) theme, (w) CfWarp
+set $mode_shortcut Shortcut (Q) power, (sS) flameshot[-delay], (t) Thunar, (p) cpufreq, (r) screenrecord-(start|stop), (k) xkill, (T) theme, (w) CfWarp, (W) wallpaper
 mode "$mode_shortcut" {
     bindsym Shift+q mode "$mode_system"
 
@@ -305,6 +305,7 @@ mode "$mode_shortcut" {
     bindsym b mode "$mode_bat"
     bindsym k mode "default", exec bash -c 'sleep 0.3 && xkill'
     bindsym c mode "$mode_compositor"
+    bindsym Shift+w mode "default", exec notify-send 'wallpaper' -t 1000 && bash -c 'wallpaper'
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"

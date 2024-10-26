@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/bin/bitcoin-cli -rpcuser=bitcoinrpc -rpcpassword=123 "$@"

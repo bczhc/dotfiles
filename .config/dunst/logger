@@ -23,7 +23,9 @@ json = {
 output = json.to_s
 puts output
 
-File.open('/home/bczhc/dunst/log', 'a') do |f|
+`mkdir ~/Documents/my-log/dunst -p || true`
+
+File.open('/home/bczhc/Documents/my-log/dunst/log', 'a') do |f|
   f.write output
   f.write "\n"
 end
