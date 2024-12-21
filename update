@@ -12,9 +12,12 @@ cd ~
 cp .vimrc .xinitrc .zshrc .Xmodmap .p10k.zsh .gitconfig "$basedir"
 
 cd ~/.config
-rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch htop yazi tmux \
+rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch htop yazi tmux-powerline \
   "$basedir/.config/"
 
 cd "$basedir"
 mkdir Screenrecords 2>/dev/null || true
 fd . -t x ~/Screenrecords -j1 -x cp -v {} Screenrecords/
+
+# tmux
+rsync -a ~/.config/./tmux/tmux.conf .config --delete --relative
