@@ -1,0 +1,11 @@
+#!/bin/bash
+
+[ $# == 0 ] && echo "Usage: $0 on|off" && exit 0
+
+option="$1"
+
+if [ "$option" == "on" ]; then
+    sudo rmmod r8169 && echo 'nameserver 223.5.5.5' | sudo tee /etc/resolv.conf && sudo systemctl start iwd
+else
+    sudo systemctl stop iwd && sudo modprobe r8169 && sudo dhclient
+fi

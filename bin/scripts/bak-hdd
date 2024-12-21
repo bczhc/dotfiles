@@ -2,12 +2,8 @@
 
 set -e
 
-#data_dir=/mnt/hdd/data
-#data_dir=/mnt/1T/last
-
-#bak_dir="$data_dir/backup"
-bak_dir=/mnt/4T/@backup
-#bak_dir=/mnt/4T/last
+#bak_dir=/mnt/4T/@backup
+bak_dir=bczhc@bczhc-eq:/mnt/bczhc-4T/@backup
 
 cd
 
@@ -20,7 +16,15 @@ rsync -avz Music "$bak_dir/zhc" --info=progress2 --no-i-r
 rm -v Screenrecords/*.mkv || true
 
 echo 'Syncing ~/.config...'
-rsync -a .config/ "$bak_dir"/zhc/linux/home-.config --info=PROGRESS2 --no-i-r --delete -v --exclude=QQ/
+rsync -a .config/ "$bak_dir"/zhc/linux/home-.config --info=PROGRESS2 --no-i-r --delete -v \
+    --exclude=QQ \
+    --exclude=chromium \
+    --exclude=google-chrome \
+    --exclude=JetBrains \
+    --exclude=wechat-devtools
+echo 'Backing up mozilla...'
+rsync -aRv /home/bczhc/./.mozilla/firefox/w7uo8oy7.default-release/places.sqlite "$bak_dir"/zhc/linux/mozilla/
+rsync -aRv /home/bczhc/./.mozilla/firefox/profile-non-proxy/places.sqlite "$bak_dir"/zhc/linux/mozilla/
 echo 'Syncing QQ files'
 rsync -a .config/QQ/ "$bak_dir"/zhc/tencent/linuxqq --info=PROGRESS2 --no-i-r -v --inplace
 
@@ -33,4 +37,9 @@ done
 cd ~
 rsync -a bin/scripts "$bak_dir"/zhc/linux/home-bin --delete --info=progress2 --no-i-r
 
-fd -d1 -HI "^\." -t f -x cp -v {} "$bak_dir"/zhc/linux/home-hidden -a
+#mkdir "$bak_dir"/zhc/linux/arch/home-hidden || true
+#sudo fd -d1 -HI "^\." -t f -x cp -av {} "$bak_dir"/zhc/linux/arch/home-hidden/ -a
+
+# Steam screenshots
+cd .local/share/Steam/userdata
+fd screenshot -t d -j1 -x rsync -av --relative {} "$bak_dir"/zhc/Steam

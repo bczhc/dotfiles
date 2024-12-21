@@ -328,6 +328,7 @@ bindsym $mod+s exec my-screenshot
 bindsym $mod+Shift+s exec bash -c 'sleep 3 && my-screenshot'
 
 for_window [class="^.*"] border pixel 2
+for_window [window_type="splash"] border pixel 0
 smart_borders on
 
 # client.focused #ffff00 #ff0000 #ff0000 #ff0000 #ff0000

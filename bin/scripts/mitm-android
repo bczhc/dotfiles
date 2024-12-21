@@ -1,0 +1,60 @@
+#!/bin/bash
+
+set -e
+
+ca="`mktemp`"
+
+base64 -d > "$ca" <<EOF
+LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUROVENDQWgyZ0F3SUJBZ0lVVWxuVllOdm5O
+QUhPVTJrYldBWmROT2U0WFRNd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0tERVNNQkFHQTFVRUF3d0pi
+V2wwYlhCeWIzaDVNUkl3RUFZRFZRUUtEQWx0YVhSdGNISnZlSGt3SGhjTgpNakl4TURFd01UYzFN
+akl5V2hjTk16SXhNREE1TVRjMU1qSXlXakFvTVJJd0VBWURWUVFEREFsdGFYUnRjSEp2CmVIa3hF
+akFRQmdOVkJBb01DVzFwZEcxd2NtOTRlVENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFEZ2dFUEFE
+Q0MKQVFvQ2dnRUJBS0lYcThyYUVNNDJFck5pRVNROEw4NnNjeVpKL3JaLzQ3SjRSMDB5MnQyU1NW
+eGlPVTF5QUVHSQowOUtENkZUKzZubHVRTDFPNnNOSWd4OEd2ajM1VERYbFdkS0hyckJxK1FIYmQ4
+Zy9IL2NtNXFGclAwMTdadEVUCi8wY1MxZWQ0dHNpOUVtL1VnSDBwbG1pc29zQUdGZmEvN3ZJRUtR
+TGtmak1hc1dWTjVvTlFsd2VkOTdCNG1ETlgKN3BPbTRSTXlxMkhJeE9uQ2NidU5yaUs2ZnA5eDVJ
+UFVlZUYrNndsSTlKTU0xZXBvWVkzUUJpS3h6c1ZqTmZGSQpPakpJbWh3K1l0WHlKZkpJVGtFQUt6
+VGltRTFxL211dW13MG1sb3E1RHVlVkRVbElaMGw4UVBPSHpjQmxGYytsCmowQ0ljWDQ5c3EvRFpI
+S2oya0tvL1MwU2FGY2oxemNDQXdFQUFhTlhNRlV3RHdZRFZSMFRBUUgvQkFVd0F3RUIKL3pBVEJn
+TlZIU1VFRERBS0JnZ3JCZ0VGQlFjREFUQU9CZ05WSFE4QkFmOEVCQU1DQVFZd0hRWURWUjBPQkJZ
+RQpGQVZzNUY5MW9FaENTQWNmc1M1ekRuMmVPVkNYTUEwR0NTcUdTSWIzRFFFQkN3VUFBNElCQVFC
+NHdVandnOElXCkM5L3hyaWRtWmhHcG05RWdjRUlKQUhkNFpPUGJHcmtObWJtMWtydGtlZDFsSWN3
+Um9UNnNHcDZIN2c3ckgrOFQKT2UvN1hEOVBqQVRFQzBoV3FmMThpVXd5TFFCNFo3Q0c4cXNxL2JM
+bjkweElzUmQ5M3ZISlY5RXRXOFhQYjc5bgpQcXJFdlZ2cnhDdmVXeCs3ZGJwRG5mNGpCSlRtdGQz
+S2VFMFRHdURFcUtLSFNBNXNOTHcxQWJaczJTbUxWeHJlCmtSdGFzdS9XaU0rVWd5RXZkTHA1NkRo
+MCsyTlRyaVVRdVBoVXdEN3pnbVR4OVRlWnRIbW0weWFMMmtKMHJTdDkKazRrTGxtQnAyOW9ELzlQ
+clduNVpURittZi83Q1dlQW9FVENZNHVMa0dQckx3eGpTV04zUlhLZG1kYlJFTGRIKwoyS3p6NFE3
+YWRKcmYKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+EOF
+
+hash="`openssl x509 -noout -subject_hash_old -in "$ca"`"
+[ "$hash" == 'c8750f0d' ]
+adb push "$ca" /data/local/tmp/$hash.0
+
+script="`mktemp`"
+cat > "$script" <<EOF
+set -e
+hash=c8750f0d
+
+do_umount=0
+mkdir /data/cacerts 2>/dev/null || true
+df /data/cacerts | grep 'etc/security/cacerts' >/dev/null && do_umount=1
+if [ \$do_umount -eq 1 ]; then
+    echo 'Umounting /etc/security/cacerts...'
+    umount /etc/security/cacerts
+fi
+
+cp -a /etc/security/cacerts /data
+cp /data/local/tmp/\$hash.0 /data/cacerts
+chmod 644 /data/cacerts/\$hash.0
+echo 'Binding new cacerts folder...'
+mount --bind /data/cacerts /etc/security/cacerts
+[ -f /etc/security/cacerts/\$hash.0 ] && echo 'Done!'
+EOF
+
+adb push "$script" /data/local/tmp/add-mitm-ca
+adb shell 'chmod +x /data/local/tmp/add-mitm-ca'
+adb shell 'su -- /data/local/tmp/add-mitm-ca'
+
+echo 'Done!'
