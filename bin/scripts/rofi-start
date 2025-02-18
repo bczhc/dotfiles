@@ -1,6 +1,0 @@
-#!/bin/bash
-
-dpi=160
-theme=''
-
-rofi -combi-modi window,drun -show combi -dpi "$dpi" -show-icons "%@"

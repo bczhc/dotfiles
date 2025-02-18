@@ -1,0 +1,25 @@
+#!/bin/env ruby
+
+require 'json'
+
+if ARGV.empty?
+  puts "Usage: #{$0} next|prev"
+  exit 1
+end
+
+direction = ARGV[0]
+
+workspaces = JSON.parse `i3-msg -t get_workspaces`
+
+len = workspaces.length
+index = workspaces.index { |x| x['focused'] }
+case direction
+when 'next'
+  index = (index + 1) % len
+when 'prev'
+  index -= 1
+  index = len - 1 if index == -1
+end
+
+new_num = workspaces[index]['num']
+system %{i3-msg workspace #{new_num}}

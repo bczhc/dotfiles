@@ -1,0 +1,5 @@
+#!/bin/bash
+
+[ $# -eq 0 ] && echo 'Usage: <src> <dst> <bitrate>' && exit 1
+
+ffmpeg -i "$1" -c:v h264_nvenc -b:v "$3" -c:a aac -b:a 0 "$2"

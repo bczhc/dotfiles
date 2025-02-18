@@ -1,0 +1,15 @@
+#!/bin/env ruby
+
+require 'shellwords'
+
+cmds = {
+  'Theme: Light' => 'change-theme light',
+  'Theme: Dark' => 'change-theme dark',
+  'Mount: /mnt/4T' => 'sudo mountwait /mnt/4T',
+}
+
+keys = cmds.keys.join("\n")
+selected = `echo #{Shellwords.escape keys} | rofi -dmenu`.chomp
+
+cmd = cmds[selected]
+system cmd unless cmd == nil

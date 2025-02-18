@@ -1,0 +1,54 @@
+#!/bin/env ruby
+
+require 'open3'
+require 'iconv'
+require 'shellwords'
+
+$args = ARGV
+show_help = $args.include?('-h') || $args.include?('--help') || $args.empty?
+if show_help
+  puts %{Epson LQ-615KII Print Utility
+
+Usage:
+  REPL mode
+  #{$0} --repl
+
+  Print PDF file
+  #{$0} <predefined-page-size-file> <pdf-file>
+}
+  exit 1
+end
+
+def repl_run
+  printer = "epson-gbk"
+  puts "输入文本，每行回车后发送到打印机 (Ctrl+D 结束)"
+
+  while (line = gets)
+    line.strip!
+    unless line.empty?
+      puts line
+      line = Iconv.conv('GBK', 'UTF-8', line)
+      Open3.popen3("lp -d #{printer}") do |stdin, _, _, _|
+        stdin.puts line
+      end
+    end
+  end
+
+  puts "打印结束"
+end
+
+def print_pdf_run
+  fail if $args.length != 2
+  size_file = $args[0]
+  pdf = $args[1]
+  page_size = File.open(size_file).readlines(chomp: true)[0].strip
+  system 'lpoptions -p epson -o Resolution=360x180dpi'
+  system "lpoptions -p epson -o PageSize=#{Shellwords.escape page_size}"
+  system "lpr -P epson #{Shellwords.escape pdf}"
+end
+
+if $args[1] == '--repl'
+  repl_run
+else
+  print_pdf_run
+end

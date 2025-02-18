@@ -1,0 +1,8 @@
+#!/bin/bash
+
+[ $# -eq 0 ] && echo 'Args: <page-size-in-dots> <pdf-file>' && exit 1
+
+lpoptions -p brother -o cupsPrintQuality=High
+lpoptions -p brother -o PageSize=Custom."$1"
+
+lpr -P brother "$2"

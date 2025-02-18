@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# wait for two minutes at most
+max_seconds=120
+
+start=$(date +%s)
+while :; do
+    now=$(date +%s)
+    elapsed=$(( now - start ))
+    if [ $elapsed -ge $max_seconds ]; then echo 'Timeout!' && exit 1; fi
+    sleep 0.5
+    mount "$@" && exit 0
+done

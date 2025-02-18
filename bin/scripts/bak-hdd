@@ -2,13 +2,13 @@
 
 set -e
 
-#bak_dir=/mnt/4T/@backup
-bak_dir=bczhc@bczhc-eq:/mnt/bczhc-4T/@backup
+bak_dir=/mnt/4T/@backup
+#bak_dir=bczhc@bczhc-eq:/mnt/bczhc-4T/@backup
 
 cd
 
 rsync -avz Documents "$bak_dir"/zhc --info=progress2 --no-i-r
-#rsync -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r
+rsync -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync -avz Screenshots "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync -avz Screenrecords "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync -avz Pictures "$bak_dir/zhc" --info=progress2 --no-i-r

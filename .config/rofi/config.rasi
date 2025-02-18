@@ -3,6 +3,7 @@ configuration {
     // noinspection CssInvalidPropertyValue
     //font: "Iosevka Nerd Font 12";
     font: "JetBrains Mono 12";
+    //font: "DejaVuSans 12";
     /*	location: 0;*/
     /*	yoffset: 0;*/
     /*	xoffset: 0;*/
@@ -39,7 +40,7 @@ configuration {
     /*	tokenize: true;*/
     /*	m: "-5";*/
     /*	filter: ;*/
-    dpi: 192;
+    dpi: 144;
     /*	threads: 0;*/
     /*	scroll-method: 0;*/
     /*	window-format: "{w}    {c}   {t}";*/
