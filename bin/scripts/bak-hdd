@@ -11,6 +11,7 @@ rsync -avz Documents "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync -avz Screenshots "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync -avz Screenrecords "$bak_dir"/zhc --info=progress2 --no-i-r
+rsync -avz /mnt/nvme/screenrecord/ "$bak_dir"/zhc/Screenrecords --info=progress2 --no-i-r
 rsync -avz Pictures "$bak_dir/zhc" --info=progress2 --no-i-r
 rsync -avz Music "$bak_dir/zhc" --info=progress2 --no-i-r
 rm -v Screenrecords/*.mkv || true

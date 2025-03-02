@@ -51,6 +51,7 @@ tiling_drag modifier titlebar
 # start a terminal
 #bindsym $mod+Return exec kitty
 bindsym $mod+Return exec /home/bczhc/bin/alacritty-sixel
+bindsym $mod+Shift+Return exec /home/bczhc/bin/alacritty-sixel --command=zsh
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -63,7 +64,8 @@ bindsym $mod+d exec rofi -show drun
 bindsym $mod+Shift+e exec rofi -show emoji
 bindsym $mod+w exec rofi -show window
 bindsym $mod+Shift+u exec rofi -show calc
-bindsym $mod+Shift+w exec rofi -show wifi -modi 'wifi:~/bin/rofi/rofi-iwd-wifi-menu/iwdrofimenu.py'
+#bindsym $mod+Shift+w exec rofi -show wifi -modi 'wifi:~/bin/rofi/rofi-iwd-wifi-menu/iwdrofimenu.py'
+bindsym $mod+Shift+w exec i3-select-workspace
 bindsym $mod+Shift+b exec rofi-bluetooth
 
 

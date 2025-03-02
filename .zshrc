@@ -254,3 +254,5 @@ function y() {
 	fi
 	rm -f -- "$tmp"
 }
+
+alias setnp='unset http_proxy; unset https_proxy'
