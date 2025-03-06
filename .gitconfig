@@ -1,7 +1,7 @@
 [commit]
 	gpgSign = true
 [user]
-	signingkey = 41355DA0B11F584F
+	signingkey = 7031A36018C3E82E259B628640485E2ADED49718
 	name = Zhai Can
 	email = bczhc0@126.com
 [safe]

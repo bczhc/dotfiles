@@ -217,13 +217,11 @@ exec_always --no-startup-id bash -c 'pkill dunst; sleep 1 && dunst' &
 exec_always --no-startup-id bash -c 'pgrep xfce4-clipman || xfce4-clipman &'
 exec_always --no-startup-id bash -c 'pgrep gsd-xsettings || (/lib/gsd-xsettings &) && sleep 1 && xrdb -remove'
 
-set $Locker blur-lock && sleep 1
-
 set $mode_system System (q) scroff, (l) lock, (e) logout, (s) suspend, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
-    bindsym l exec --no-startup-id $Locker, mode "default"
+    bindsym l exec --no-startup-id blur-lock && sleep 1, mode "default"
     bindsym e exec --no-startup-id i3-msg exit, mode "default"
-    bindsym s exec --no-startup-id $Locker && sync && systemctl suspend, mode "default"
+    bindsym s exec --no-startup-id power-suspend, mode "default"
     bindsym r exec --no-startup-id systemctl reboot, mode "default"
     bindsym q mode "default", exec scroff
     bindsym Shift+s exec --no-startup-id systemctl poweroff -i, mode "default"  

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+pkill picom
+blur-lock && sleep 1
+sync
+systemctl suspend
