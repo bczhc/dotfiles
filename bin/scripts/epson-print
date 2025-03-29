@@ -14,16 +14,24 @@ Usage:
   #{$0} --repl
 
   Print PDF file
-  #{$0} <predefined-page-size-file> <pdf-file>
+  #{$0} <pdf-file>
 }
   exit 1
+end
+
+def query_pdf_dots(file)
+  output = `pdfinfo #{Shellwords.escape file}`
+  group = output.scan(/^Page size: +([0-9]+) x ([0-9]+) pts$/)[0]
+  width = group[0].to_i
+  height = group[1].to_i
+  [width, height]
 end
 
 def repl_run
   printer = "epson-gbk"
   puts "输入文本，每行回车后发送到打印机 (Ctrl+D 结束)"
 
-  while (line = gets)
+  while (line = STDIN.gets)
     line.strip!
     unless line.empty?
       puts line
@@ -38,16 +46,16 @@ def repl_run
 end
 
 def print_pdf_run
-  fail if $args.length != 2
-  size_file = $args[0]
-  pdf = $args[1]
-  page_size = File.open(size_file).readlines(chomp: true)[0].strip
+  fail if $args.length != 1
+  pdf = $args[0]
+  pdf_size_dots = query_pdf_dots pdf
+  puts "PDF size: #{pdf_size_dots[0]} x #{pdf_size_dots[1]} dots"
   system 'lpoptions -p epson -o Resolution=360x180dpi'
-  system "lpoptions -p epson -o PageSize=#{Shellwords.escape page_size}"
+  system "lpoptions -p epson -o PageSize=Custom.#{pdf_size_dots[0]}x#{pdf_size_dots[1]}"
   system "lpr -P epson #{Shellwords.escape pdf}"
 end
 
-if $args[1] == '--repl'
+if $args[0] == '--repl'
   repl_run
 else
   print_pdf_run

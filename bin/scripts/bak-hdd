@@ -2,8 +2,8 @@
 
 set -e
 
-bak_dir=/mnt/4T/@backup
-#bak_dir=bczhc@bczhc-eq:/mnt/bczhc-4T/@backup
+#bak_dir=/mnt/4T/@backup
+bak_dir=bczhc@bczhc-eq:/mnt/bczhc-4T/@backup
 
 cd
 
