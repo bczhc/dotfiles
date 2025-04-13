@@ -1,0 +1,33 @@
+#!/bin/bash
+set -e
+
+# 创建输出目录（如果不存在）
+mkdir -p reencoded
+
+# 遍历当前目录下的所有MOV文件
+for mov_file in *.MOV *.mov; do
+    # 跳过不匹配的文件
+    [ -e "$mov_file" ] || continue
+    
+    # 设置输出文件名
+    output_file="reencoded/${mov_file%.*}.MP4"
+    
+    echo "正在处理: $mov_file"
+    
+    # 使用ffmpeg转码
+    ffmpeg -i "$mov_file" \
+           -pix_fmt yuvj420p \
+           -movflags +faststart \
+           -c:v hevc_nvenc \
+           -b:v 50M \
+           -c:a libopus \
+           -b:a 128k \
+           "$output_file"
+    
+    # 复制EXIF信息
+    exiftool -overwrite_original_in_place -TagsFromFile "$mov_file" "$output_file"
+    
+    echo "已完成: $output_file"
+done
+
+echo "所有文件处理完成"

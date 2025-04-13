@@ -1,46 +1,49 @@
-#!/bin/bash
+#!/bin/zsh
 
 set -e
 
 #bak_dir=/mnt/4T/@backup
-bak_dir=bczhc@bczhc-eq:/mnt/bczhc-4T/@backup
+#bak_dir=bczhc@bczhc-eq:/mnt/bczhc-4T/@backup
+ssh_host=192.168.5.1
+rsync_arg=(-e 'ssh -p22')
+bak_dir=bczhc@$ssh_host:/mnt/bczhc-4T/@backup
 
 cd
 
-rsync -avz Documents "$bak_dir"/zhc --info=progress2 --no-i-r
-rsync -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r
-rsync -avz Screenshots "$bak_dir"/zhc --info=progress2 --no-i-r
-rsync -avz Screenrecords "$bak_dir"/zhc --info=progress2 --no-i-r
-rsync -avz /mnt/nvme/screenrecord/ "$bak_dir"/zhc/Screenrecords --info=progress2 --no-i-r
-rsync -avz Pictures "$bak_dir/zhc" --info=progress2 --no-i-r
-rsync -avz Music "$bak_dir/zhc" --info=progress2 --no-i-r
+rsync $rsync_arg -avz Documents "$bak_dir"/zhc --info=progress2 --no-i-r
+rsync $rsync_arg -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r
+rsync $rsync_arg -avz Screenshots "$bak_dir"/zhc --info=progress2 --no-i-r
+rsync $rsync_arg -avz Screenrecords "$bak_dir"/zhc --info=progress2 --no-i-r
+rsync $rsync_arg -avz /mnt/nvme/screenrecord/ "$bak_dir"/zhc/Screenrecords --info=progress2 --no-i-r
+rsync $rsync_arg -avz Pictures "$bak_dir/zhc" --info=progress2 --no-i-r
+rsync $rsync_arg -avz Music "$bak_dir/zhc" --info=progress2 --no-i-r
 rm -v Screenrecords/*.mkv || true
 
 echo 'Syncing ~/.config...'
-rsync -a .config/ "$bak_dir"/zhc/linux/home-.config --info=PROGRESS2 --no-i-r --delete -v \
+rsync $rsync_arg -a .config/ "$bak_dir"/zhc/linux/home-.config --info=PROGRESS2 --no-i-r --delete -v \
     --exclude=QQ \
     --exclude=chromium \
     --exclude=google-chrome \
     --exclude=JetBrains \
     --exclude=wechat-devtools
 echo 'Backing up mozilla...'
-rsync -aRv /home/bczhc/./.mozilla/firefox/w7uo8oy7.default-release/places.sqlite "$bak_dir"/zhc/linux/mozilla/
-rsync -aRv /home/bczhc/./.mozilla/firefox/profile-non-proxy/places.sqlite "$bak_dir"/zhc/linux/mozilla/
+rsync $rsync_arg -aRv /home/bczhc/./.mozilla/firefox/w7uo8oy7.default-release/places.sqlite "$bak_dir"/zhc/linux/mozilla/
+rsync $rsync_arg -aRv /home/bczhc/./.mozilla/firefox/profile-non-proxy/places.sqlite "$bak_dir"/zhc/linux/mozilla/
 echo 'Syncing QQ files'
-rsync -a .config/QQ/ "$bak_dir"/zhc/tencent/linuxqq --info=PROGRESS2 --no-i-r -v --inplace
+rsync $rsync_arg -a .config/QQ/ "$bak_dir"/zhc/tencent/linuxqq --info=PROGRESS2 --no-i-r -v --inplace
 
 echo 'Syncing Minecraft screenshots'
 cd /mnt/nvme/mc-game/mc/.minecraft
 fd -t d screenshots | while read -r d; do
-    rsync -av "$d" "$bak_dir"/mc/screenshots
+    rsync $rsync_arg -av "$d" "$bak_dir"/mc/screenshots
 done
 
 cd ~
-rsync -a bin/scripts "$bak_dir"/zhc/linux/home-bin --delete --info=progress2 --no-i-r
+rsync $rsync_arg -a bin/scripts "$bak_dir"/zhc/linux/home-bin --delete --info=progress2 --no-i-r
 
 #mkdir "$bak_dir"/zhc/linux/arch/home-hidden || true
 #sudo fd -d1 -HI "^\." -t f -x cp -av {} "$bak_dir"/zhc/linux/arch/home-hidden/ -a
 
 # Steam screenshots
 cd .local/share/Steam/userdata
-fd screenshot -t d -j1 -x rsync -av --relative {} "$bak_dir"/zhc/Steam
+fd screenshot -t d -j1 -x rsync $rsync_arg -av --relative {} "$bak_dir"/zhc/Steam
