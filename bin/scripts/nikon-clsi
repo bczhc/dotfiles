@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mkdir mov; mv *.MOV mov
+mkdir nef; mv *.NEF nef

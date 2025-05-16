@@ -6,18 +6,17 @@ set -e
 #bak_dir=bczhc@bczhc-eq:/mnt/bczhc-4T/@backup
 ssh_host=192.168.5.1
 rsync_arg=(-e 'ssh -p22')
-bak_dir=bczhc@$ssh_host:/mnt/bczhc-4T/@backup
+#bak_dir=bczhc@$ssh_host:/mnt/bczhc-4T/@backup
+bak_dir=/mnt/4T/@backup
 
 cd
 
 rsync $rsync_arg -avz Documents "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync $rsync_arg -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync $rsync_arg -avz Screenshots "$bak_dir"/zhc --info=progress2 --no-i-r
-rsync $rsync_arg -avz Screenrecords "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync $rsync_arg -avz /mnt/nvme/screenrecord/ "$bak_dir"/zhc/Screenrecords --info=progress2 --no-i-r
 rsync $rsync_arg -avz Pictures "$bak_dir/zhc" --info=progress2 --no-i-r
 rsync $rsync_arg -avz Music "$bak_dir/zhc" --info=progress2 --no-i-r
-rm -v Screenrecords/*.mkv || true
 
 echo 'Syncing ~/.config...'
 rsync $rsync_arg -a .config/ "$bak_dir"/zhc/linux/home-.config --info=PROGRESS2 --no-i-r --delete -v \

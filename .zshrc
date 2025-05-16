@@ -138,9 +138,11 @@ export QT_IM_MODULE=fcitx
 # display scale
 export GDK_SCALE=1
 export GDK_DPI_SCALE=1.5
+#export GDK_DPI_SCALE=2
 
 #export QT_SCALE_FACTOR=2
 export QT_FONT_DPI=144
+#export QT_FONT_DPI=192
 
 
 export ANDROID_HOME=/home/bczhc/bin/AndroidSdk

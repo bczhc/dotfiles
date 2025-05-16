@@ -16,7 +16,7 @@ for mov_file in *.MOV *.mov; do
     
     # 使用ffmpeg转码
     ffmpeg -i "$mov_file" \
-           -pix_fmt yuvj420p \
+           -pix_fmt p010le \
            -movflags +faststart \
            -c:v hevc_nvenc \
            -b:v 50M \

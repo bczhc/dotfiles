@@ -1,3 +1,5 @@
 #!/bin/bash
 
+export DISPLAY=:0
+
 sudo dmesg --follow-new | rg 'Keyboard' --line-buffered | while read -r line; do echo "$line"; sleep 1; xmodmap ~/.Xmodmap; done

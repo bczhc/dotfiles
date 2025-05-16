@@ -1,0 +1,38 @@
+#!/bin/bash
+
+[ $# -eq 0 ] && echo 'Usage: cmd <src> <dst>' && exit 1
+
+src="$1"
+dst="$2"
+max_size=$((2 * 1024 * 1024))  # 2MB in bytes
+qscale=1
+
+while true; do
+    # Run ffmpeg with current qscale directly to destination
+    ffmpeg -i "$src" -qscale $qscale "$dst" -y
+    
+    # Check if file exists and get its size
+    if [ -f "$dst" ]; then
+        file_size=$(stat -c%s "$dst")
+        
+        if [ $file_size -lt $max_size ]; then
+            # File is small enough, copy metadata
+            exiftool -overwrite_original_in_place -TagsFromFile "$src" "$dst"
+            echo "Success: Output file '$dst' created with qscale=$qscale (size: $((file_size/1024))KB)"
+            break
+        else
+            # File still too big, increase qscale by 5 and try again
+            ((qscale+=5))
+            echo "Trying higher qscale: $qscale"
+        fi
+    else
+        echo "Error: Failed to create output file"
+        exit 1
+    fi
+    
+    # Safety check to prevent infinite loop
+    if [ $qscale -gt 31 ]; then
+        echo "Error: Reached maximum qscale (31) but file is still too large"
+        exit 1
+    fi
+done

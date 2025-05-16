@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -e
+
+function log() {
+    colored-echo cyan bold "$1"
+}
+
+[ $# -eq 0 ] && echo 'args: <version>' && exit 1
+
+[ "$EUID" -eq 0 ] && echo 'Please do not run as root' && exit 1
+
+version="$1"
+
+log 'Altering CONFIG_LOCALVERSION...'
+#cat .config | sed 's/CONFIG_LOCALVERSION=""/CONFIG_LOCALVERSION="-bczhc"/' | sponge .config
+
+log 'Compiling...'
+#"$(dirname "$0")"/build-linux
+
+log 'Installing...'
+#sudo make INSTALL_MOD_STRIP=1 modules_install -j$jobs
+#sudo cp -v arch/x86/boot/bzImage /boot/vmlinuz-linux-"$version"
+
+log 'Processing mkinitcpio...'
+cd /etc/mkinitcpio.d
+cat template.preset | sed "s/linuxver/linux-"$version"/g" | sudo tee linux-"$version".preset > /dev/null
+sudo mkinitcpio -p linux-"$version"
+
+log 'Generating grub...'
+sudo grub-gen-config
