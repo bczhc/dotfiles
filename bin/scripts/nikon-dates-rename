@@ -1,3 +1,5 @@
+#!/bin/bash
+
 mkdir -p cp && find . -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.JPG" \) -exec ln {} cp/ \; && cd cp
 find . -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.JPG" \) | parallel --bar '
   # 提取完整的CreateDate字段（优先取带毫秒的版本）

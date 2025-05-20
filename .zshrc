@@ -212,8 +212,6 @@ alias gpgclearsign='gpg --clearsign --local-user 2A8D4543A87E66C75F8E53DC41355DA
 alias ip='ip -c=always'
 alias bridge='bridge -c=always'
 
-alias ra='ranger'
-
 # history
 export HISTSIZE=1000000000
 export SAVEHIST=$HISTSIZE

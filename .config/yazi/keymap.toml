@@ -68,6 +68,7 @@ keymap = [
 	{ on = "o",         run = "open",                        desc = "Open selected files" },
 	{ on = "O",         run = "open --interactive",          desc = "Open selected files interactively" },
 	#{ on = "<Enter>",   run = "open",                        desc = "Open selected files" },
+	{ on = "<Enter>",   run = "plugin bczhc-demo -- a b c",                        desc = "Open selected files" },
 	{ on = "<S-Enter>", run = "open --interactive",          desc = "Open selected files interactively" },
 	#{ on = "y",         run = "yank",                        desc = "Yank selected files (copy)" },
 	{ on = ["y", "y"],         run = "yank",                        desc = "Yank selected files (copy)" },
@@ -89,8 +90,7 @@ keymap = [
 	{ on = ":",         run = "shell --block --interactive", desc = "Run a shell command (block until finishes)" },
 	{ on = ".",         run = "hidden toggle",               desc = "Toggle the visibility of hidden files" },
 	{ on = "s",         run = "search --via=fd",             desc = "Search files by name via fd" },
-	#{ on = "S",         run = "search --via=rg",             desc = "Search files by content via ripgrep" },
-	{ on = "S",         run = '''shell --block 'export f="$1"; zsh' ''',             desc = "Run zsh on pwd" },
+	{ on = "S",         run = 'shell --block -- zsh -s "$@"',             desc = "Run zsh on pwd" },
 	{ on = "<C-s>",     run = "escape --search",             desc = "Cancel the ongoing search" },
 	#{ on = "Z",         run = "plugin zoxide",               desc = "Jump to a directory via zoxide" },
 	{ on = "z",         run = "plugin fzf",                  desc = "Jump to a file/directory via fzf" },
@@ -102,8 +102,6 @@ keymap = [
 	{ on = [ "m", "m" ], run = "linemode mtime",       desc = "Linemode: mtime" },
 	{ on = [ "m", "o" ], run = "linemode owner",       desc = "Linemode: owner" },
 	{ on = [ "m", "n" ], run = "linemode none",        desc = "Linemode: none" },
-
-    { on = "M", run = "mime", desc = "Run MIME fetcher"},    
 
 	# Copy
 	{ on = [ "c", "c" ], run = "copy path",             desc = "Copy the file path" },

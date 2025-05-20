@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cd /home/bczhc/bin/clash
-./start

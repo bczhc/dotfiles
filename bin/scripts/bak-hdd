@@ -45,4 +45,4 @@ rsync $rsync_arg -a bin/scripts "$bak_dir"/zhc/linux/home-bin --delete --info=pr
 
 # Steam screenshots
 cd .local/share/Steam/userdata
-fd screenshot -t d -j1 -x rsync $rsync_arg -av --relative {} "$bak_dir"/zhc/Steam
+fd screenshot -t d -j1 -x rsync $rsync_arg -av --relative {} "$bak_dir"/zhc/gaming/screenshots/Steam

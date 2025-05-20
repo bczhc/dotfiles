@@ -1,4 +1,4 @@
 #!/bin/env ruby
 
 puts ARGV.inspect
-puts ARGV
+#puts ARGV
