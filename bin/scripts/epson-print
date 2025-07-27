@@ -1,7 +1,7 @@
 #!/bin/env ruby
 
 require 'open3'
-require 'iconv'
+#require 'iconv'
 require 'shellwords'
 
 $args = ARGV
@@ -21,7 +21,7 @@ end
 
 def query_pdf_dots(file)
   output = `pdfinfo #{Shellwords.escape file}`
-  group = output.scan(/^Page size: +([0-9]+) x ([0-9]+) pts$/)[0]
+  group = output.scan(/^Page size: +([0-9]+) x ([0-9]+) pts.*$/)[0]
   width = group[0].to_i
   height = group[1].to_i
   [width, height]

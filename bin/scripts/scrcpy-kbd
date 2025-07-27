@@ -1,0 +1,3 @@
+#!/bin/bash
+
+scrcpy --keyboard=aoa --shortcut-mod=ralt

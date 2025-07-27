@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+bv=50M
+[ $# -eq 1 ] && bv="$1"
+
+echo "bv: $bv"
+
 # 创建输出目录（如果不存在）
 mkdir -p reencoded
 
@@ -19,7 +24,7 @@ for mov_file in *.MOV *.mov; do
            -pix_fmt p010le \
            -movflags +faststart \
            -c:v hevc_nvenc \
-           -b:v 50M \
+           -b:v "$bv" \
            -c:a libopus \
            -b:a 128k \
            "$output_file"

@@ -1,0 +1,59 @@
+#!/bin/env ruby
+
+require 'nokogiri'
+require 'time'
+
+# 检查参数
+if ARGV.length != 1
+  puts "用法: ruby convert_kml.rb <input_file.kml>"
+  exit 1
+end
+
+# 获取输入文件路径
+input_file = ARGV[0]
+
+# 检查文件是否存在
+unless File.exist?(input_file)
+  puts "错误: 文件 #{input_file} 不存在"
+  exit 1
+end
+
+# 根据输入文件名生成输出文件名
+basename = File.basename(input_file, ".kml")
+output_file = "./#{basename}_track.kml"
+
+# 读取原始 KML 文件
+doc = Nokogiri::XML(File.read(input_file))
+
+# 创建新 KML 文档
+builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+  xml.kml('xmlns' => 'http://www.opengis.net/kml/2.2',
+          'xmlns:gx' => 'http://www.google.com/kml/ext/2.2',
+          'xmlns:kml' => 'http://www.opengis.net/kml/2.2',
+          'xmlns:atom' => 'http://www.w3.org/2005/Atom') {
+    xml.Document {
+      xml.name Time.now.iso8601
+      xml.Placemark {
+        xml['gx'].Track {
+          # 提取 Placemark 下的时间戳和坐标
+          doc.xpath('//xmlns:Placemark').each do |placemark|
+            when_node = placemark.at_xpath('./xmlns:TimeStamp/xmlns:when')
+            coord_node = placemark.at_xpath('./xmlns:Point/xmlns:coordinates')
+
+            if when_node && coord_node
+              xml.when when_node.content.strip
+
+              lon, lat, *_ = coord_node.content.strip.split(',')
+              xml['gx'].coord "#{lon} #{lat}"
+            end
+          end
+        }
+      }
+    }
+  }
+end
+
+# 写入输出文件
+File.write(output_file, builder.to_xml)
+puts "转换完成，已生成 #{output_file}"
+

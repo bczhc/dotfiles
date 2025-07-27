@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Usage: ./create_luks_image.sh source.img
+
+set -e
+
+# for standard optical devices
+LUKS_SECTOR_SIZE=2048
+
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 source.img"
+  exit 1
+fi
+
+SOURCE_IMG="$1"
+LUKS_IMG="${SOURCE_IMG}.luks"
+
+# 生成随机 mapper name
+MAPPER_NAME="luks_$(head -c 8 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+
+echo "Generated mapper name: $MAPPER_NAME"
+
+# 获取源镜像大小（字节）
+IMG_SIZE=$(stat --format="%s" "$SOURCE_IMG")
+# 多 30MiB
+EXTRA_SIZE=$((30 * 1024 * 1024))
+TOTAL_SIZE=$((IMG_SIZE + EXTRA_SIZE))
+
+echo "Source image size : $IMG_SIZE bytes"
+echo "LUKS image size   : $TOTAL_SIZE bytes"
+
+# 创建空白 LUKS 容器镜像
+dd if=/dev/zero of="$LUKS_IMG" bs=1 count=0 seek=$TOTAL_SIZE
+
+# 格式化为 LUKS
+echo "Formatting LUKS container..."
+sudo cryptsetup luksFormat --sector-size=$LUKS_SECTOR_SIZE "$LUKS_IMG"
+
+# 打开 LUKS 容器
+echo "Opening LUKS container..."
+sudo cryptsetup open "$LUKS_IMG" "$MAPPER_NAME"
+
+# 将原始 img 写入映射的 LUKS 容器
+echo "Writing source image to LUKS container..."
+sudo dd if="$SOURCE_IMG" of="/dev/mapper/$MAPPER_NAME" bs=4M status=progress
+
+# 关闭 LUKS 容器
+echo "Closing LUKS container..."
+sudo cryptsetup close "$MAPPER_NAME"
+
+echo "Done. LUKS image created at: $LUKS_IMG"
+
