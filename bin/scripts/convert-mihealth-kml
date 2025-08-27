@@ -41,7 +41,11 @@ builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
             coord_node = placemark.at_xpath('./xmlns:Point/xmlns:coordinates')
 
             if when_node && coord_node
-              xml.when when_node.content.strip
+              when_content = when_node.content.strip
+              # 把末尾的 Z 替换成 +08:00
+              when_content = when_content.gsub(/Z$/, '+08:00')
+
+              xml.when when_content
 
               lon, lat, *_ = coord_node.content.strip.split(',')
               xml['gx'].coord "#{lon} #{lat}"

@@ -1,0 +1,50 @@
+#!/bin/bash
+set -e
+
+usage() {
+    colored-echo cyan bold "用法: $0 [视频码率]"
+    colored-echo cyan bold "示例: $0 50M"
+    colored-echo cyan bold "默认码率: 50M"
+    exit 0
+}
+
+# 处理参数
+bv=50M
+if [ $# -eq 1 ]; then
+    if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+        usage
+    else
+        bv="$1"
+    fi
+fi
+
+colored-echo cyan bold "bv: $bv"
+
+# 遍历当前目录及所有子目录的所有 MOV 文件
+find . -type f \( -iname "*.mov" -o -iname "*.MOV" \) | while read -r mov_file; do
+    dir_name="$(dirname "$mov_file")"
+    base_name="$(basename "$mov_file" .MOV)"
+    base_name="${base_name%.mov}"
+
+    output_file="$dir_name/${base_name}.MP4"
+
+    colored-echo cyan bold "正在处理: $mov_file"
+
+    ffmpeg -nostdin -hide_banner -loglevel error -stats -i "$mov_file" \
+           -pix_fmt p010le \
+           -movflags +faststart \
+           -c:v hevc_nvenc \
+           -b:v "$bv" \
+           -c:a libopus \
+           -b:a 128k \
+           -y "$output_file"
+
+    exiftool -overwrite_original_in_place -TagsFromFile "$mov_file" "$output_file"
+
+    rm -f "$mov_file"
+
+    colored-echo cyan bold "已完成: $output_file"
+done
+
+colored-echo cyan bold "所有文件处理完成"
+

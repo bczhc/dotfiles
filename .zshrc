@@ -256,3 +256,7 @@ function y() {
 }
 
 alias setnp='unset http_proxy; unset https_proxy'
+
+function sortuniq() {
+    sort | uniq -c | sort -n
+}
