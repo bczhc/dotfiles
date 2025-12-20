@@ -13,14 +13,14 @@ function log() {
 version="$1"
 
 log 'Altering CONFIG_LOCALVERSION...'
-#cat .config | sed 's/CONFIG_LOCALVERSION=""/CONFIG_LOCALVERSION="-bczhc"/' | sponge .config
+cat .config | sed 's/CONFIG_LOCALVERSION=""/CONFIG_LOCALVERSION="-bczhc"/' | sponge .config
 
 log 'Compiling...'
-#"$(dirname "$0")"/build-linux
+"$(dirname "$0")"/build-linux
 
 log 'Installing...'
-#sudo make INSTALL_MOD_STRIP=1 modules_install -j$jobs
-#sudo cp -v arch/x86/boot/bzImage /boot/vmlinuz-linux-"$version"
+sudo make INSTALL_MOD_STRIP=1 modules_install -j$jobs
+sudo cp -v arch/x86/boot/bzImage /boot/vmlinuz-linux-"$version"
 
 log 'Processing mkinitcpio...'
 cd /etc/mkinitcpio.d

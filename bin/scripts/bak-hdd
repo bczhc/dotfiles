@@ -11,38 +11,46 @@ bak_dir=/mnt/4T/@backup
 
 cd
 
+# 家下主目录
 rsync $rsync_arg -avz Documents "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync $rsync_arg -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r
+rsync $rsync_arg -avz Videos "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync $rsync_arg -avz Screenshots "$bak_dir"/zhc --info=progress2 --no-i-r
-rsync $rsync_arg -avz /mnt/nvme/screenrecord/ "$bak_dir"/zhc/Screenrecords --info=progress2 --no-i-r
 rsync $rsync_arg -avz Pictures "$bak_dir/zhc" --info=progress2 --no-i-r
 rsync $rsync_arg -avz Music "$bak_dir/zhc" --info=progress2 --no-i-r
 
-echo 'Syncing ~/.config...'
+# 屏幕录像
+rsync $rsync_arg -avz /mnt/nvme/screenrecord/ "$bak_dir"/zhc/Screenrecords --info=progress2 --no-i-r
+
+# 带排除 ~/.config
 rsync $rsync_arg -a .config/ "$bak_dir"/zhc/linux/home-.config --info=PROGRESS2 --no-i-r --delete -v \
     --exclude=QQ \
     --exclude=chromium \
     --exclude=google-chrome \
     --exclude=JetBrains \
     --exclude=wechat-devtools
-echo 'Backing up mozilla...'
+
+# Mozilla
 rsync $rsync_arg -aRv /home/bczhc/./.mozilla/firefox/w7uo8oy7.default-release/places.sqlite "$bak_dir"/zhc/linux/mozilla/
 rsync $rsync_arg -aRv /home/bczhc/./.mozilla/firefox/profile-non-proxy/places.sqlite "$bak_dir"/zhc/linux/mozilla/
-echo 'Syncing QQ files'
+
+# QQ
 rsync $rsync_arg -a .config/QQ/ "$bak_dir"/zhc/tencent/linuxqq --info=PROGRESS2 --no-i-r -v --inplace
 
-echo 'Syncing Minecraft screenshots'
+# Minecraft屏幕截图
 cd /mnt/nvme/mc-game/mc/.minecraft
 fd -t d screenshots | while read -r d; do
     rsync $rsync_arg -av "$d" "$bak_dir"/mc/screenshots
 done
 
 cd ~
+# bin下脚本
 rsync $rsync_arg -a bin/scripts "$bak_dir"/zhc/linux/home-bin --delete --info=progress2 --no-i-r
 
-#mkdir "$bak_dir"/zhc/linux/arch/home-hidden || true
-#sudo fd -d1 -HI "^\." -t f -x cp -av {} "$bak_dir"/zhc/linux/arch/home-hidden/ -a
+# 家目录隐藏文件
+mkdir "$bak_dir"/zhc/linux/arch/home-hidden || true
+fd -d1 -HI "^\." -t f -x cp -av {} "$bak_dir"/zhc/linux/arch/home-hidden/ -a || true
 
-# Steam screenshots
+# Steam屏幕截图
 cd .local/share/Steam/userdata
 fd screenshot -t d -j1 -x rsync $rsync_arg -av --relative {} "$bak_dir"/zhc/gaming/screenshots/Steam

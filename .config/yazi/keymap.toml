@@ -68,7 +68,6 @@ keymap = [
 	{ on = "o",         run = "open",                        desc = "Open selected files" },
 	{ on = "O",         run = "open --interactive",          desc = "Open selected files interactively" },
 	#{ on = "<Enter>",   run = "open",                        desc = "Open selected files" },
-	{ on = "<Enter>",   run = "plugin bczhc-demo -- a b c",                        desc = "Open selected files" },
 	{ on = "<S-Enter>", run = "open --interactive",          desc = "Open selected files interactively" },
 	#{ on = "y",         run = "yank",                        desc = "Yank selected files (copy)" },
 	{ on = ["y", "y"],         run = "yank",                        desc = "Yank selected files (copy)" },
@@ -103,6 +102,7 @@ keymap = [
 	{ on = [ "m", "m" ], run = "linemode mtime",       desc = "Linemode: mtime" },
 	{ on = [ "m", "o" ], run = "linemode owner",       desc = "Linemode: owner" },
 	{ on = [ "m", "n" ], run = "linemode none",        desc = "Linemode: none" },
+#    { on = [ "m", "c" ], run = "plugin folder-size",      desc = "Linemode: custom" },
 
 	# Copy
 	{ on = [ "c", "c" ], run = "copy path",             desc = "Copy the file path" },

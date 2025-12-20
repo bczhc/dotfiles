@@ -17,7 +17,8 @@ require("mime-ext"):setup {
 }
 
 -- modified from https://github.com/sxyazi/yazi/blob/546920e0491975a8060f10f8cd5c8d401bbe3231/yazi-plugin/preset/components/status.lua#L121C1-L131C4
-function Status:position()
+-- TODO: doesn't work with latest yazi
+function Status:__position()
     local cursor = self._current.cursor
     local length = #self._current.files
     local loaded = cx.active.current.stage()
@@ -35,3 +36,16 @@ function Status:position()
         ui.Span(th.status.sep_right.close):fg(style.main.bg):bg("reset"),
     }
 end
+
+require("git"):setup()
+require('bczhc-custom')
+
+--local child, _ = Command("echo")
+--        :args("a")
+--        :stdout(Command.PIPED)
+--        :spawn()
+--local line = child:read_line()
+
+--require('folder-size'):setup {
+--    oder = 850
+--}

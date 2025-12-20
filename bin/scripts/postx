@@ -2,12 +2,12 @@
 
 DISPLAY=:0 xrandr --output HDMI-0 --mode '2560x1440' --rate 120  --primary
 
-sudo mount /mnt/nvme
+#sudo mount /mnt/nvme
 
 # network
-sudo ip link set wlan0 down
-sudo modprobe r8169
-sudo dhclient enp47s0
+#sudo ip link set wlan0 down
+#sudo modprobe r8169
+#sudo dhclient enp47s0
 
 xmodmap ~/.Xmodmap
 mk-rust-temp-targets
@@ -16,5 +16,5 @@ mk-rust-temp-targets
 
 xset -dpms; xset s off
 
-tmux new -s bg -d 'xdo-rec'
+#tmux new -s bg -d 'xdo-rec'
 feh --bg-scale ~/Pictures/wallpaper.jpg

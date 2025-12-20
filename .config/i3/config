@@ -62,10 +62,11 @@ bindsym $mod+Shift+q kill
 # Rofi
 bindsym $mod+d exec rofi -show drun
 bindsym $mod+Shift+e exec rofi -show emoji
-bindsym $mod+w exec rofi -show window
+bindsym $mod+w exec rofi -show windowcd
 bindsym $mod+Shift+u exec rofi -show calc
 #bindsym $mod+Shift+w exec rofi -show wifi -modi 'wifi:~/bin/rofi/rofi-iwd-wifi-menu/iwdrofimenu.py'
-bindsym $mod+Shift+w exec i3-select-workspace
+#bindsym $mod+Shift+w exec i3-select-workspace
+bindsym $mod+Shift+w exec rofi -show window
 bindsym $mod+Shift+b exec rofi-bluetooth
 
 

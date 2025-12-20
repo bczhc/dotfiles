@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# 检查是否传入参数
+if [ $# -eq 0 ]; then
+    echo "用法: $0 <input.svg> [output.pdf]"
+    echo "将多页SVG文件导出为多个PDF文件并合并"
+    exit 1
+fi
+
+input_svg="$1"
+output_pdf="$2"
+
+# 检查文件是否存在
+if [ ! -f "$input_svg" ]; then
+    echo "错误: 文件 '$input_svg' 不存在"
+    exit 1
+fi
+
+# 如果没有传入输出文件名，使用输入文件的基本名
+if [ -z "$output_pdf" ]; then
+    base_name=$(basename "$input_svg" .svg)
+    output_pdf="${base_name}.pdf"
+fi
+
+# 确保输出文件名以.pdf结尾
+if [[ ! "$output_pdf" =~ \.pdf$ ]]; then
+    output_pdf="${output_pdf}.pdf"
+fi
+
+# 创建临时目录
+temp_dir=$(mktemp -d)
+echo "临时目录: $temp_dir"
+
+# 使用 Inkscape 一次性导出所有页面
+echo "正在使用 Inkscape 导出所有页..."
+base_name=$(basename "$input_svg" .svg)
+inkscape --export-type=svg --export-page=all --pages=all "$input_svg" -o "$temp_dir/a"
+
+if [ $? -ne 0 ]; then
+    echo "错误: Inkscape 导出失败"
+    rm -rf "$temp_dir"
+    exit 1
+fi
+
+echo "导出完成，准备合并 PDF..."
+
+# 收集导出的 SVG 文件
+if [ -f "$temp_dir"/a.svg ]; then
+    # 单页svg
+    svg_files="$temp_dir"/a.svg
+else
+    svg_files=$(ls "$temp_dir"/a_p*.svg | sort -V 2>/dev/null)
+fi
+if [ -z "$svg_files" ]; then
+    echo "错误: 未找到导出的SVG文件"
+    rm -rf "$temp_dir"
+    exit 1
+fi
+
+# 使用 krilla-svg 转为 PDF 并合并
+krilla-svg --dpi=96 $svg_files -o "$output_pdf"
+
+if [ $? -ne 0 ]; then
+    echo "错误: PDF 合并失败"
+    rm -rf "$temp_dir"
+    exit 1
+fi
+
+echo "合并完成: $output_pdf"
+
+# 清理临时目录
+#echo "清理临时文件..."
+#rm -rf "$temp_dir"
+
+echo "处理完成"

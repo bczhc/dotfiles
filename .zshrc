@@ -225,6 +225,7 @@ export LC_ALL=C.UTF-8
 export MOZ_USE_XINPUT2=1
 
 export PATH="$PATH:/home/bczhc/rust"
+export PATH="$PATH:/home/bczhc/.local/share/gem/ruby/3.4.0/bin"
 
 # for some reason, tauri won't work without this
 export WEBKIT_DISABLE_COMPOSITING_MODE=1

@@ -2,7 +2,7 @@
 
 my-screenshot no-notify
 focusedwindow=$(xdotool getactivewindow)
-flameshot gui  >/dev/null
+QT_ENABLE_HIGHDPI_SCALING=0 flameshot gui  >/dev/null
 if [ "$focusedwindow" == "$(xdotool getactivewindow)" ]
 then
 	xdotool windowfocus $focusedwindow

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/bin/codium --force-device-scale-factor=1.5 "$@"

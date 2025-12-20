@@ -1,0 +1,16 @@
+#!/bin/env ruby
+
+process = IO.popen 'x11-event-monitor'
+pid = nil
+process.each_line do |line|
+  if /^KeyPress .* F$/.match? line
+    shell='xdotool key i; sleep 0.05; xdotool click --repeat 2 --delay 200 1'
+    pid = Process.spawn('bash', '-c', shell, '--')
+    puts pid
+  end
+  #if /^KeyRelease .* F$/.match? line
+  #  puts "Kill: #{pid}"
+  #  Process.kill('TERM', pid)
+  #  Process.wait(pid)
+  #end
+end
