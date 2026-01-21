@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+# 检查是否以 root 运行
+if Process.euid != 0
+  puts "错误：此脚本必须以 root 权限运行 (sudo ruby ...)"
+  exit 1
+end
+
+# 设置 ydotool 的命令
+# 使用你提供的参数：重复 999999 次，延迟 20ms
+YDO_CMD = "ydotool click --repeat=999999 --next-delay=10 0xc0"
+YDO_CMD_FINISH = 'ydotool click 0xc0'
+
+puts "--- Hyprland 连点器已启动 (监听 keyd 虚拟键盘) ---"
+puts "按住 F 开始连点，松开停止。"
+
+# 开启 keyd monitor 进程进行监听
+# 注意：我们这里不指定设备，直接监听 keyd 的虚拟输出
+IO.popen("keyd monitor") do |monitor|
+  click_pid = nil
+
+  monitor.each_line do |line|
+    # 匹配 'f down'
+    if line.include?("f down")
+      if click_pid.nil?
+        # 启动 ydotool 连点进程
+        click_pid = Process.spawn(YDO_CMD)
+        puts "检测到 F 按下：开始连点 (PID: #{click_pid})"
+      end
+
+    # 匹配 'f up'
+    elsif line.include?("f up")
+      if click_pid
+        # 杀死连点进程
+        # 使用 INT 或 TERM 信号停止 ydotool
+        Process.kill("TERM", click_pid)
+        Process.wait(click_pid)
+        puts "检测到 F 释放：停止连点"
+        system YDO_CMD_FINISH
+        click_pid = nil
+      end
+    end
+  end
+end

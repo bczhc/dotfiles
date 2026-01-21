@@ -2,8 +2,13 @@
 
 unset http_proxy; unset https_proxy
 
+# Disable GPU for ollama
+# export CUDA_VISIBLE_DEVICES=''
+
 OLLAMA_MODELS=/mnt/nvme/ollama \
 OLLAMA_FLASH_ATTENTION=1 \
 OLLAMA_HOST=0.0.0.0 \
 OLLAMA_ORIGINS='*' \
+OLLAMA_DEBUG=1 \
+OLLAMA_LOAD_TIMEOUT=99999999 \
 ollama serve

@@ -1,0 +1,73 @@
+#!/usr/bin/env ruby
+
+# -------- 权限检查 --------
+if Process.uid != 0
+  STDERR.puts "Error: this script must be run with sudo (root)."
+  exit 1
+end
+
+# -------- 参数检查 --------
+if ARGV.length != 1
+  STDERR.puts "Usage: mountsqfs <path-to-squashfs>"
+  exit 1
+end
+
+sqfs_path = File.expand_path(ARGV[0])
+
+# -------- 确保 /mnt/sqfs 存在 --------
+base_mount_root = "/mnt/sqfs"
+unless Dir.exist?(base_mount_root)
+  Dir.mkdir(base_mount_root, 0755)
+end
+
+
+unless File.exist?(sqfs_path)
+  STDERR.puts "Error: file does not exist: #{sqfs_path}"
+  exit 1
+end
+
+# -------- 基本路径 --------
+base_name = File.basename(sqfs_path)
+base_mount_root = "/mnt/sqfs"
+mount_base = File.join(base_mount_root, base_name)
+
+# -------- 判断目录是否已被挂载 --------
+def mounted?(path)
+  File.foreach("/proc/self/mountinfo") do |line|
+    fields = line.split
+    return true if fields.include?(path)
+  end
+  false
+end
+
+# -------- 寻找可用挂载点 --------
+mount_point = mount_base
+suffix = 1
+
+while mounted?(mount_point)
+  suffix += 1
+  mount_point = "#{mount_base}-#{suffix}"
+end
+
+# -------- 创建目录 --------
+unless Dir.exist?(mount_point)
+  Dir.mkdir(mount_point, 0755)
+end
+
+# -------- 执行挂载 --------
+cmd = [
+  "mount",
+  "-t", "squashfs",
+  "-o", "ro",
+  sqfs_path,
+  mount_point
+]
+
+unless system(*cmd)
+  STDERR.puts "Error: mount failed."
+  exit 1
+end
+
+# -------- 成功输出 --------
+puts mount_point
+

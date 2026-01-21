@@ -2,12 +2,11 @@
 
 set -e
 
-#bak_dir=/mnt/4T/@backup
+bak_dir=/mnt/4T/@backup
 #bak_dir=bczhc@bczhc-eq:/mnt/bczhc-4T/@backup
 ssh_host=192.168.5.1
 rsync_arg=(-e 'ssh -p22')
 #bak_dir=bczhc@$ssh_host:/mnt/bczhc-4T/@backup
-bak_dir=/mnt/4T/@backup
 
 cd
 
@@ -54,3 +53,11 @@ fd -d1 -HI "^\." -t f -x cp -av {} "$bak_dir"/zhc/linux/arch/home-hidden/ -a || 
 # Steam屏幕截图
 cd .local/share/Steam/userdata
 fd screenshot -t d -j1 -x rsync $rsync_arg -av --relative {} "$bak_dir"/zhc/gaming/screenshots/Steam
+
+# Palworld Saves
+saves_path='/mnt/nvme/SteamLibrary/steamapps/compatdata/1623730/pfx/drive_c/users/steamuser/AppData/Local/Pal/Saved/SaveGames'
+rsync $rsync_arg "$saves_path" "$bak_dir"'/zhc/gaming/Palworld saves' --info=progress2 -a --delete
+
+# ~/code
+mkdir -p "$bak_dir"/zhc/code
+fd . ~/code -t d -d 1 -x rsync $rsync_arg --no-i-r --info=PROGRESS2 -a --filter=':- .gitignore' --exclude='/target' --delete-during "{}" "$bak_dir/zhc/code/"

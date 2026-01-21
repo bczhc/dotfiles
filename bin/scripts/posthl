@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DISPLAY=:0 xrandr --output HDMI-0 --mode '2560x1440' --rate 120  --primary
+#DISPLAY=:0 xrandr --output HDMI-0 --mode '2560x1440' --rate 120  --primary
 
 #sudo mount /mnt/nvme
 
@@ -10,12 +10,12 @@ sudo modprobe r8169
 sudo dhclient enp47s0
 echo 'nameserver 223.5.5.5' | sudo tee /etc/resolv.conf
 
-xmodmap ~/.Xmodmap
+#xmodmap ~/.Xmodmap
 mk-rust-temp-targets
 
 #startup-screen
 
-xset -dpms; xset s off
+#xset -dpms; xset s off
 
 #tmux new -s bg -d 'xdo-rec'
-feh --bg-scale ~/Pictures/wallpaper.jpg
+#feh --bg-scale ~/Pictures/wallpaper.jpg

@@ -1,0 +1,103 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 25,
+  "spacing": 4,
+  "modules-left": ["hyprland/workspaces", "hyprland/window"],
+  "modules-center": [],
+  "modules-right": [
+    //"filesystem",
+    "battery",
+    //"backlight",
+    "pulseaudio",
+    "memory",
+    "cpu",
+    "network",
+    "clock",
+    "tray",
+  ],
+
+  // 对应 [module/i3] -> 改为 Hyprland 工作区
+  "hyprland/workspaces": {
+    "disable-scroll": false,
+    "all-outputs": true,
+    "format": "{name}",
+    "on-click": "activate",
+  },
+
+  // 对应 [module/xwindow]
+  "hyprland/window": {
+    // "max-length": 25,
+    "separate-outputs": true,
+  },
+
+  // 对应 [module/filesystem]
+  "filesystem": {
+    "interval": 25,
+    "path": "/",
+    "format": "<span color='#F0C674'></span> {percentage_used}%",
+  },
+
+  // 对应 [module/backlight]
+  "backlight": {
+    "device": "intel_backlight",
+    "format": "<span color='#F0C674'></span> {percentage}%",
+    "on-scroll-up": "brightnessctl set 1%+",
+    "on-scroll-down": "brightnessctl set 1%-",
+  },
+
+  // 对应 [module/battery]
+  "battery": {
+    "states": {
+      "warning": 30,
+      "critical": 20,
+    },
+    "format": "<span color='#F0C674'>{icon}</span> {capacity}%",
+    "format-charging": "<span color='#F0C674'>󱐥</span> {percentage}%",
+    "format-icons": ["", "", "", "", ""],
+    "on-click": "rofi -show Battery -modes \"Battery:~/bin/rofi/rofi-upower\"",
+  },
+
+  // 对应 [module/pulseaudio]
+  "pulseaudio": {
+    "format": "<span color='#F0C674'>{icon}</span> {volume}%",
+    "format-muted": "󰝟",
+    "format-icons": {
+      "default": ["󰖀", "󰕾", ""],
+    },
+    "on-click": "pavucontrol",
+  },
+
+  // 对应 [module/memory]
+  "memory": {
+    "interval": 2,
+    "format": "<span color='#F0C674'></span> {percentage:2}%",
+  },
+
+  // 对应 [module/cpu]
+  "cpu": {
+    "interval": 2,
+    "format": "<span color='#F0C674'></span> {usage:2}%",
+  },
+
+  // 对应 [network-base] 和 [module/eth/wlan]
+  "network": {
+    "interval": 5,
+    "format-wifi": "<span color='#F0C674'>󰖩</span> {essid} <span color='#00aa00'>{bandwidthUpBits}|{bandwidthDownBits}</span>",
+    "format-ethernet": "<span color='#F0C674'>{ifname}</span> {ipaddr} <span color='#00aa00'>{bandwidthUpBits}|{bandwidthDownBits}</span>",
+    "format-disconnected": "<span color='#F0C674'>󰖩</span> <span color='#707880'>disconnected</span>",
+    "on-click": "iwctl",
+  },
+
+  // 对应 [module/date]
+  "clock": {
+    "interval": 1,
+    "format": "{:%b %d %H:%M:%S}",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+  },
+
+  "tray": {
+    "icon-size": 21,
+    "spacing": 10,
+  },
+}

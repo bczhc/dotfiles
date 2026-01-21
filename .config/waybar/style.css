@@ -1,0 +1,80 @@
+/* 对应 [colors] 部分 */
+@define-color background rgba(40, 42, 46, 0.67); /* aa282A2E 对应 0.67 透明度 */
+@define-color background-alt #373B41;
+@define-color foreground #C5C8C6;
+@define-color primary #F0C674;
+@define-color secondary #8ABEB7;
+@define-color alert #A54242;
+@define-color disabled #707880;
+
+* {
+    font-family: "Symbols Nerd Font", "monospace";
+    font-size: 14px;
+    border: none;
+    border-radius: 0;
+}
+
+window#waybar {
+    background-color: @background;
+    color: @foreground;
+    transition-property: background-color;
+    transition-duration: 0.5s;
+}
+
+/* 对应 [module/i3] 的样式 */
+#workspaces button {
+    padding: 0 10px;
+    color: @foreground;
+}
+
+#workspaces button.active {
+    background-color: #3f3f3f;
+    color: #ffffff;
+    border-bottom: 3px solid #fba922; /* label-focused-underline */
+}
+
+#workspaces button.urgent {
+    background-color: #bd2c40;
+    color: #000000;
+}
+
+/* 模块通用样式 */
+#module-left,
+#module-right {
+    margin: 0 4px;
+}
+
+/* 对应 separator | */
+#window,
+#filesystem,
+#battery,
+#backlight,
+#pulseaudio,
+#memory,
+#cpu,
+#network,
+#clock {
+    padding: 0 10px;
+    border-left: 1px solid @disabled;
+}
+
+#clock {
+    color: @primary;
+}
+
+#battery.critical:not(.charging) {
+    background-color: @alert;
+    color: white;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+@keyframes blink {
+    to {
+        background-color: #ffffff;
+        color: #000000;
+    }
+}

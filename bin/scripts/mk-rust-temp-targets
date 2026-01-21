@@ -13,3 +13,5 @@ cd /home/bczhc/code/tauri-app/src-tauri && mk
 cd ~/code/rust-web && mk
 cd /home/bczhc/code/bzip3-rs && mk
 cd /home/bczhc/code/async-rust && mk
+cd /home/bczhc/code/wplace-tools && mk
+cd /home/bczhc/code/bevy && mk

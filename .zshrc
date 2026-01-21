@@ -136,14 +136,10 @@ export QT_IM_MODULE=fcitx
 #export GLFW_IM_MODULE=ibus
 
 # display scale
-export GDK_SCALE=1
-export GDK_DPI_SCALE=1.5
-#export GDK_DPI_SCALE=2
-
-#export QT_SCALE_FACTOR=2
-export QT_FONT_DPI=144
-#export QT_FONT_DPI=192
-
+#export GDK_SCALE=1
+#export GDK_DPI_SCALE=1.5
+#export QT_FONT_DPI=144
+#export DEEPIN_WINE_SCALE=2
 
 export ANDROID_HOME=/home/bczhc/bin/AndroidSdk
 
@@ -202,7 +198,7 @@ alias np='non-proxy'
 
 alias chmx='chmod +x'
 
-alias neofetch='neofetch --sixel ~/.config/neofetch/archlinux-logo.png --size 25%'
+#alias neofetch='neofetch --sixel ~/.config/neofetch/archlinux-logo.png --size 25%'
 alias fastfetch='clear; fastfetch --raw ~/.config/neofetch/sixel --logo-width 60 --logo-height 25 --logo-padding-top 2'
 
 alias rename='perl-rename'
@@ -217,7 +213,6 @@ export HISTSIZE=1000000000
 export SAVEHIST=$HISTSIZE
 unsetopt hist_ignore_dups
 
-export DEEPIN_WINE_SCALE=2
 
 export LC_ALL=C.UTF-8
 
@@ -261,3 +256,4 @@ alias setnp='unset http_proxy; unset https_proxy'
 function sortuniq() {
     sort | uniq -c | sort -n
 }
+
