@@ -128,14 +128,14 @@ export FZF_ALT_C_COMMAND="fd -HI -t d"
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
 
-# IME integration
-export GTK_IM_MODULE=fcitx
-export XMODIFIERS="@im=fcitx"
-export QT_IM_MODULE=fcitx
+# IME integration (legacy x11)
+#export GTK_IM_MODULE=fcitx
+#export XMODIFIERS="@im=fcitx"
+#export QT_IM_MODULE=fcitx
 #export SDL_IM_MODULE=fcitx
 #export GLFW_IM_MODULE=ibus
 
-# display scale
+# display scale (legacy x11)
 #export GDK_SCALE=1
 #export GDK_DPI_SCALE=1.5
 #export QT_FONT_DPI=144
@@ -192,8 +192,6 @@ alias icat='kitty +kitten icat'
 
 alias neofetchlc='neofetch | lolcat'
 
-alias xc='xclip -selection clipboard'
-
 alias np='non-proxy'
 
 alias chmx='chmod +x'
@@ -240,8 +238,6 @@ alias btc='bitcoin-cli'
 
 export TERM=xterm-256color
 
-export MANGOHUD_CONFIGFILE=/home/bczhc/.config/mangohud
-
 function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	yazi "$@" --cwd-file="$tmp"
@@ -257,3 +253,5 @@ function sortuniq() {
     sort | uniq -c | sort -n
 }
 
+
+alias starth='start-hyprland'

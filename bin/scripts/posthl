@@ -5,10 +5,7 @@
 #sudo mount /mnt/nvme
 
 # network
-sudo ip link set wlan0 down
-sudo modprobe r8169
-sudo dhclient enp47s0
-echo 'nameserver 223.5.5.5' | sudo tee /etc/resolv.conf
+sudo use-eth
 
 #xmodmap ~/.Xmodmap
 mk-rust-temp-targets

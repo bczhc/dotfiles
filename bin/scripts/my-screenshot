@@ -2,10 +2,39 @@
 
 set -e
 
-sleep 0.2
+DATE_STR=$(date "+Screenshot_%Y-%m-%d_%H-%M-%S")
+TEMP_FILE="/tmp/$(uuidgen).png"
+SAVE_DIR="/home/bczhc/Screenshots"
 
-date=`date "+Screenshot_%Y-%m-%d_%H-%M-%S"`
-#ffmpeg -f x11grab -i $DISPLAY -frames:v 1 "/home/bczhc/Screenshots/$date.png" -y 2> /dev/null
-grim -c "/home/bczhc/Screenshots/$date.png"
-[ "$1" != "no-notify" ] && notify-send -t 1000 'Screenshot has been grabbed'
-echo Done
+mkdir -p "$SAVE_DIR"
+
+# 1. 立即截图 (最小延迟)
+grim -c -l 0 "$TEMP_FILE"
+
+# 2. 安全地锁定目标文件名
+# 我们使用 set -C (noclobber) 模式来尝试创建一个空文件
+# 只有当文件不存在时，创建才会成功，这是一个原子操作
+TARGET_FILE="$SAVE_DIR/$DATE_STR.png"
+COUNTER=1
+
+# 尝试创建文件，如果失败则递增后缀
+# (set -o noclobber; > "$file") 是 shell 中保证竞争安全的标准做法
+until (set -o noclobber; > "$TARGET_FILE") 2> /dev/null; do
+    TARGET_FILE="$SAVE_DIR/${DATE_STR}_${COUNTER}.png"
+    ((COUNTER++))
+done
+
+# 到这里为止，$TARGET_FILE 已经是一个被我们“占坑”成功的空文件了
+
+if [ "$1" != "no-notify" ]; then
+    notify-send -t 1000 'Screenshot has been grabbed: '"$(basename "$TARGET_FILE")"
+fi
+
+# 3. 使用 ffmpeg 压缩并覆盖那个空文件
+# 注意：使用 -y 强制覆盖，因为我们上面已经创建了空文件
+ffmpeg -v error -i "$TEMP_FILE" -pred mixed -compression_level 9 -y "$TARGET_FILE" || (notify-send -t 10000 'Screenshot Failed!!' && exit 1)
+
+# 4. 清理并通知
+rm "$TEMP_FILE"
+
+echo "Done: $TARGET_FILE"

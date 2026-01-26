@@ -5,5 +5,5 @@ path=$1
 
 abspath="`readlink -f "$path"`"
 echo "$abspath"
-printf "$abspath" | xclip -selection clipboard
+printf "$abspath" | xc
 

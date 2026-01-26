@@ -1,6 +1,10 @@
 #!/bin/bash
 
-pkill picom
-blur-lock && sleep 1
+#pkill picom
+#blur-lock && sleep 1
+#sync
+#systemctl suspend
+
+# for wayland
 sync
 systemctl suspend
