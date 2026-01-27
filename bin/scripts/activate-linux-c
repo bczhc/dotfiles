@@ -1,3 +1,4 @@
 #!/bin/bash
 
-/home/bczhc/bin/activate-linux -s2 -c 0.652012-0.659205-0.670557-0.709858
+#/home/bczhc/bin/activate-linux -s2 -c 0.652012-0.659205-0.670557-0.709858
+/home/bczhc/bin/activate-linux -c 0.652012-0.659205-0.670557-0.709858

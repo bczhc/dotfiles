@@ -9,7 +9,7 @@ rm -rf bin/rofi/rofi-iwd-wifi-menu
 cp ~/.ssh/config .ssh/
 
 cd ~
-cp .vimrc .xinitrc .zshrc .Xmodmap .p10k.zsh .gitconfig "$basedir"
+cp .vimrc .zshrc .p10k.zsh .gitconfig "$basedir"
 
 cd ~/.config
 rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch htop yazi tmux-powerline hypr waybar \

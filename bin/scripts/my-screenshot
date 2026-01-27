@@ -2,6 +2,45 @@
 
 set -e
 
+function failure() {
+    notify-send -t 10000 'Screenshot Failed!!'; exit 1
+}
+
+slurp_and_get_ffmpeg_crop() {
+    # 1. 从 hyprctl 获取主显示器的缩放比例 (scale)
+    # 注意：这里默认取第一个显示器 [0]，你可以根据需要调整 jq 逻辑
+    local SCALE=$(hyprctl monitors -j | jq -r '.[0].scale')
+
+    # 2. 执行 slurp 获取逻辑坐标 (x y w h)
+    local GEOM
+    GEOM=$(slurp -f "%x %y %w %h") || return 1
+
+    # 4. 使用 awk 进行缩放计算
+    # - v s="$SCALE" 传入缩放比例
+    # - int(n/2)*2 确保宽高为偶数，防止 ffmpeg 报错
+    # - 输出格式为 w:h:x:y
+    echo "$GEOM" | awk -v s="$SCALE" '{
+        w = int($3 * s / 2) * 2;
+        h = int($4 * s / 2) * 2;
+        x = int($1 * s);
+        y = int($2 * s);
+        printf "%d:%d:%d:%d\n", w, h, x, y
+    }'
+}
+
+# --- 处理 slurp 参数 ---
+USE_SLURP=false
+for arg in "$@"; do
+    if [ "$arg" == "--slurp" ]; then
+        USE_SLURP=true
+        if ! ffmpeg_crop_param="$(slurp_and_get_ffmpeg_crop)"; then
+            notify-send 'Selection cancelled' -t 2000
+            exit 0
+        fi
+        break
+    fi
+done
+
 DATE_STR=$(date "+Screenshot_%Y-%m-%d_%H-%M-%S")
 TEMP_FILE="/tmp/$(uuidgen).png"
 SAVE_DIR="/home/bczhc/Screenshots"
@@ -11,14 +50,17 @@ mkdir -p "$SAVE_DIR"
 # 1. 立即截图 (最小延迟)
 grim -c -l 0 "$TEMP_FILE"
 
+# --- 如果开启了 slurp，执行裁剪并存入剪切板 ---
+if [ "$USE_SLURP" = true ]; then
+    # 提取区域并送到剪切板 (不影响主流程)
+    ffmpeg -v error -i "$TEMP_FILE" -vf "crop=$ffmpeg_crop_param" -f image2pipe -vcodec png - | wl-copy -t image/png || failure
+    notify-send -t 2000 'Selected region copied to clipboard'
+fi
+
 # 2. 安全地锁定目标文件名
-# 我们使用 set -C (noclobber) 模式来尝试创建一个空文件
-# 只有当文件不存在时，创建才会成功，这是一个原子操作
 TARGET_FILE="$SAVE_DIR/$DATE_STR.png"
 COUNTER=1
 
-# 尝试创建文件，如果失败则递增后缀
-# (set -o noclobber; > "$file") 是 shell 中保证竞争安全的标准做法
 until (set -o noclobber; > "$TARGET_FILE") 2> /dev/null; do
     TARGET_FILE="$SAVE_DIR/${DATE_STR}_${COUNTER}.png"
     ((COUNTER++))
@@ -32,7 +74,9 @@ fi
 
 # 3. 使用 ffmpeg 压缩并覆盖那个空文件
 # 注意：使用 -y 强制覆盖，因为我们上面已经创建了空文件
-ffmpeg -v error -i "$TEMP_FILE" -pred mixed -compression_level 9 -y "$TARGET_FILE" || (notify-send -t 10000 'Screenshot Failed!!' && exit 1)
+ffmpeg -v error -i "$TEMP_FILE" -pred mixed -compression_level 9 -y "$TARGET_FILE" || failure
+
+exiftool -overwrite_original_in_place -Comment="$(hyprctl activewindow -j | jq '{"hyprctl-activewindow": .}' -c)" "$TARGET_FILE" || failure
 
 # 4. 清理并通知
 rm "$TEMP_FILE"
