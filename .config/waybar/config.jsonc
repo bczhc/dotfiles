@@ -3,11 +3,7 @@
   "position": "top",
   "height": 25,
   "spacing": 4,
-  "modules-left": [
-    "hyprland/workspaces",
-    "hyprland/window",
-    "hyprland/submap"
-  ],
+  "modules-left": ["hyprland/workspaces", "hyprland/window", "hyprland/submap"],
   "modules-center": [],
   "modules-right": [
     //"filesystem",
@@ -27,7 +23,7 @@
     "format": "{name}",
     "on-click": "activate",
     "on-scroll-up": "hyprctl dispatch workspace e-1",
-    "on-scroll-down": "hyprctl dispatch workspace e+1"
+    "on-scroll-down": "hyprctl dispatch workspace e+1",
   },
   // 对应 [module/xwindow]
   "hyprland/window": {
@@ -37,7 +33,7 @@
   "hyprland/submap": {
     "format": "Mode: [{}]",
     // "max-length": 8,
-    "tooltip": false
+    "tooltip": false,
   },
   // 对应 [module/filesystem]
   "filesystem": {
@@ -60,13 +56,7 @@
     },
     "format": "<span color='#F0C674'>{icon}</span> {capacity}%",
     "format-charging": "<span color='#F0C674'>󱐥</span> {percentage}%",
-    "format-icons": [
-      "",
-      "",
-      "",
-      "",
-      ""
-    ],
+    "format-icons": ["", "", "", "", ""],
     "on-click": "rofi -show Battery -modes \"Battery:~/bin/rofi/rofi-upower\"",
   },
   // 对应 [module/pulseaudio]
@@ -74,13 +64,10 @@
     "format": "<span color='#F0C674'>{icon}</span> {volume}%",
     "format-muted": "󰝟",
     "format-icons": {
-      "default": [
-        "󰖀",
-        "󰕾",
-        ""
-      ],
+      "default": ["󰖀", "󰕾", ""],
     },
-    "on-click": "pavucontrol",
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-click-right": "pavucontrol",
   },
   // 对应 [module/memory]
   "memory": {
@@ -95,9 +82,9 @@
   // 对应 [network-base] 和 [module/eth/wlan]
   "network": {
     "interval": 1,
-    "format-wifi": "<span color='#F0C674'>󰖩</span> {essid} <span color='#00aa00'>{bandwidthUpBytes}|{bandwidthDownBytes}</span>",
-    "format-ethernet": "<span color='#F0C674'>{ifname}</span> {ipaddr} <span color='#00aa00'>{bandwidthUpBytes}|{bandwidthDownBytes}</span>",
-    "format-disconnected": "<span color='#F0C674'>󰖩</span> <span color='#707880'>disconnected</span>"
+    "format-wifi": "<span color='#F0C674'>󰖩</span> {essid} <span color='#00aa00'>{bandwidthUpBytes:>10}|{bandwidthDownBytes:>10}</span>",
+    "format-ethernet": "<span color='#F0C674'>{ifname}</span> {ipaddr} <span color='#00aa00'>Up:{bandwidthUpBytes:>17}|Down:{bandwidthDownBytes:>7}</span>",
+    "format-disconnected": "<span color='#F0C674'>󰖩</span> <span color='#707880'>disconnected</span>",
     // "on-click": "iwctl",
   },
   // 对应 [module/date]
@@ -105,6 +92,7 @@
     "interval": 1,
     "format": "{:%b %d %H:%M:%S}",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "on-click": "gsimplecal",
   },
   "tray": {
     "icon-size": 21,

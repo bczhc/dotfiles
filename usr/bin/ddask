@@ -1,0 +1,49 @@
+#!/bin/zsh
+
+# 检查是否传入参数
+if [[ $# -eq 0 ]]; then
+    echo "Usage: $0 [dd parameters...]"
+    exit 1
+fi
+
+# 直接调用原版的版本信息，在做了compdef ddask=dd后，使得补全使用GNU版本，否则会有参数缺失，比如conv=sparse
+if [[ "$1" == "--version" ]]; then
+    /bin/dd --version  # 直接调用原版的版本信息
+    exit 0
+fi
+
+# 尝试从参数中提取输出文件/设备 (of=...)
+TARGET_DEV=""
+for arg in "$@"; do
+    if [[ "$arg" == of=* ]]; then
+        TARGET_DEV="${arg#of=}"
+    fi
+done
+
+echo "--- 准备执行 DD 任务 ---"
+echo "完整命令: dd $@"
+
+# 如果找到了目标设备，显示其分区表
+if [[ -n "$TARGET_DEV" ]]; then
+    echo "\n--- 目标设备状态 ($TARGET_DEV) ---"
+    if true; then
+        # 如果是块设备，调用 fdisk
+        fdisk -l "$TARGET_DEV" 2>/dev/null || echo "无法获取 fdisk 信息（可能权限不足或非磁盘设备）"
+    else
+        echo "提示: $TARGET_DEV 看起来像是一个普通文件而非块设备。"
+    fi
+else
+    echo "\n警告: 未在参数中检测到 'of=' 目标。"
+fi
+
+echo "\n--- 确认 ---"
+echo -n "确定要继续吗？请输入大写 **YES** 执行: "
+read CONFIRM
+
+if [[ "$CONFIRM" == "YES" ]]; then
+    echo "正在启动 dd..."
+    sudo /bin/dd "$@"
+else
+    echo "操作已取消。"
+    exit 1
+fi

@@ -261,3 +261,16 @@ function sortuniq() {
 
 alias starth='start-hyprland'
 alias baksys='sync; cd /btrfs; sudo ./snap-current'
+
+dd_warn_msg="⚠️  错误：请使用 'ddask' 代替 'dd'。"
+
+# 拦截 sudo dd 并建议使用 sudo ddask
+sudo() {
+    if [[ "$1" == "dd" ]]; then
+        echo $dd_warn_msg
+    else
+        command sudo "$@"
+    fi
+}
+
+alias dd='echo $dd_warn_msg'

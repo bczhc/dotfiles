@@ -1,0 +1,11 @@
+#!/bin/zsh
+
+set -e
+
+[ $# -ne 2 ] && echo 'Usage: cmd <source-dir> <output-dir>' && exit 1
+
+source_dir="$1"
+output_dir="$2"
+
+args=(-f bash -c 'zstd -T16 | aes256 -pass "`cat ~/aes-pass`"')
+append-baktool -o $output_dir $source_dir $args

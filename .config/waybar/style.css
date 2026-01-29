@@ -58,6 +58,10 @@ window#waybar {
     border-left: 1px solid @disabled;
 }
 
+#network {
+    transition: none; /* 关闭过渡动画，防止文字对齐时的缓慢位移 */
+}
+
 #clock {
     color: @primary;
 }
@@ -90,5 +94,7 @@ window#waybar {
 }
 
 @keyframes blinker {
-    50% { opacity: 0.5; }
+    50% {
+        opacity: 0.5;
+    }
 }

@@ -71,7 +71,7 @@ keymap = [
 	{ on = "<S-Enter>", run = "open --interactive",          desc = "Open selected files interactively" },
 	#{ on = "y",         run = "yank",                        desc = "Yank selected files (copy)" },
 	{ on = ["y", "y"],         run = "yank",                        desc = "Yank selected files (copy)" },
-	{ on = ["y", "x"],         run = '''shell 'cppath "$1"'''',                        desc = "X11-copy path of the selected file" },
+	{ on = ["y", "p"],         run = '''shell 'cppath "$1"'''',                        desc = "Put path of the selected file to clipboard" },
 	{ on = "x",         run = "yank --cut",                  desc = "Yank selected files (cut)" },
 	{ on = "p",         run = "paste",                       desc = "Paste yanked files" },
 	{ on = "P",         run = "paste --force",               desc = "Paste yanked files (overwrite if the destination exists)" },

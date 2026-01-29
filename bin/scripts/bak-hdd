@@ -14,7 +14,7 @@ cd
 rsync $rsync_arg -avz Documents "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync $rsync_arg -avz Downloads "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync $rsync_arg -avz Videos "$bak_dir"/zhc --info=progress2 --no-i-r
-rsync $rsync_arg -avz Screenshots "$bak_dir"/zhc --info=progress2 --no-i-r
+rsync $rsync_arg -avz Screenshots/ "$bak_dir"/zhc/Screenshots/png --info=progress2 --no-i-r
 rsync $rsync_arg -avz Pictures "$bak_dir/zhc" --info=progress2 --no-i-r
 rsync $rsync_arg -avz Music "$bak_dir/zhc" --info=progress2 --no-i-r
 
