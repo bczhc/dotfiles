@@ -1,0 +1,5 @@
+#!/bin/bash
+
+eww update scanout_active=$(hyprctl getoption render:direct_scanout | rg '^int: (\d)$' -r '$1')
+eww update cursor_no_hw=$(hyprctl getoption cursor:no_hardware_cursors | rg '^int: (\d)$' -r '$1')
+eww update al_status=$(pgrep activate-linux > /dev/null && echo 1 || echo 0)

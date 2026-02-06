@@ -1,0 +1,48 @@
+* { all: unset; }
+
+.main-container {
+  background: rgba(26, 27, 38, 0.95); // 深色透明背景
+  border: 2px solid #7aa2f7;
+  border-radius: 15px;
+  padding: 20px;
+  color: #c0caf5;
+  font-family: "JetBrains Mono Nerd Font";
+  box-shadow: none;
+  margin: 0;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #bb9af7;
+}
+
+.setting-row {
+  margin-bottom: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.btn-on {
+  background: #9ece6a;
+  color: #1a1b26;
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+
+.btn-off {
+  background: #f7768e;
+  color: #1a1b26;
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+
+.close-btn {
+  margin-top: 10px;
+  background: #414868;
+  padding: 8px;
+  border-radius: 8px;
+  &:hover { background: #565f89; }
+}

@@ -15,6 +15,7 @@
     "network",
     "clock",
     "tray",
+    "custom/arch-icon",
   ],
   // 对应 [module/i3] -> 改为 Hyprland 工作区
   "hyprland/workspaces": {
@@ -97,5 +98,10 @@
   "tray": {
     "icon-size": 21,
     "spacing": 5,
+  },
+  "custom/arch-icon": {
+    "format": "󰣇",
+    "on-click": "/home/bczhc/bin/scripts/eww/hypr-menu-switch",
+    "tooltip-format": "Arch Linux",
   },
 }

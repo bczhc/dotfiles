@@ -1,0 +1,56 @@
+;; ============================================================
+;; 变量定义 (使用 defvar，初始值设为 0，不再自动轮询)
+;; ============================================================
+(defvar scanout_active 0)
+(defvar cursor_no_hw 0)
+(defvar al_status 0)
+
+;; ============================================================
+;; 核心逻辑组件
+;; ============================================================
+(defwidget control_panel []
+  (box :class "main-container" :orientation "v" :space-evenly false
+    (label :class "title" :text "Hyprland Control Center")
+    
+    ;; 1. Direct Scanout
+    (box :class "setting-row" :space-evenly true
+      (label :halign "start" :text "Direct Scanout")
+      (button :class {scanout_active == 1 ? "btn-on" : "btn-off"}
+        ;; 点击逻辑：执行修改 -> 立即拉取最新状态更新 UI
+        :onclick "hyprctl keyword render:direct_scanout $((1 - ${scanout_active})) && eww update scanout_active=$(hyprctl getoption render:direct_scanout | grep 'int:' | awk '{print $2}')"
+      {scanout_active == 1 ? "Enabled" : "Disabled"})
+    )
+    
+    ;; 2. 硬件光标 (No Hardware Cursors)
+    (box :class "setting-row" :space-evenly true
+      (label :halign "start" :text "No HW Cursor")
+      (button :class {cursor_no_hw == 1 ? "btn-on" : "btn-off"}
+        :onclick "hyprctl keyword cursor:no_hardware_cursors $((1 - ${cursor_no_hw})) && eww update cursor_no_hw=$(hyprctl getoption cursor:no_hardware_cursors | grep 'int:' | awk '{print $2}')"
+      {cursor_no_hw == 1 ? "Enabled" : "Disabled"})
+    )
+    
+    ;; 3. Activate Linux (开关进程)
+    (box :class "setting-row" :space-evenly true
+      (label :halign "start" :text "Activate Linux")
+      (button :class {al_status == 1 ? "btn-on" : "btn-off"}
+        ;; 逻辑：如果是运行中就杀掉，如果没运行就启动；最后延迟 0.1s 确认状态更新 UI
+        :onclick {al_status == 1 ?
+        "pkill activate-linux; eww update al_status=0" :
+        "activate-linux & eww update al_status=1"}
+      {al_status == 1 ? "Enabled" : "Disabled"})
+    )
+    
+    (button :class "close-btn" :onclick "eww close hypr-menu" "Close")
+  )
+)
+
+;; ============================================================
+;; 窗口定义
+;; ============================================================
+(defwindow hypr-menu
+  :monitor 0
+  :stacking "fg"
+  :geometry (geometry :x "10px" :y "5px" :width "300px" :anchor "top right")
+  :namespace "eww-hypr-panel"
+  (control_panel)
+)

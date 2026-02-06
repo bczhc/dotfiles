@@ -42,7 +42,7 @@ read CONFIRM
 
 if [[ "$CONFIRM" == "YES" ]]; then
     echo "正在启动 dd..."
-    sudo /bin/dd "$@"
+    /bin/dd "$@"
 else
     echo "操作已取消。"
     exit 1

@@ -98,3 +98,10 @@ window#waybar {
         opacity: 0.5;
     }
 }
+
+#custom-arch-icon {
+    font-size: 1.5em; /* 调大图标 */
+    padding: 0 5px; /* 增加左右间距，防止图标太挤 */
+    color: #1793d1; /* 顺便设置颜色 */
+    border-left: 1px solid @disabled;
+}

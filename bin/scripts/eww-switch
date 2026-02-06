@@ -1,0 +1,12 @@
+#!/bin/bash
+
+[ $# -eq 0 ] && echo 'Usage: cmd <window-name>' && exit 1
+
+name="$1"
+
+eww active-windows | rg '^'"$name": >> /dev/null
+if [ $? -eq 0 ]; then
+    eww close "$name"
+else
+    eww open "$name"
+fi

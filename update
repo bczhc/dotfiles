@@ -12,7 +12,7 @@ cd ~
 cp .vimrc .zshrc .p10k.zsh .gitconfig "$basedir"
 
 cd ~/.config
-rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch htop yazi tmux-powerline hypr waybar \
+rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch htop yazi tmux-powerline hypr waybar eww \
   "$basedir/.config/"
 
 cd "$basedir"
