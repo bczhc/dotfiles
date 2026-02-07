@@ -1,0 +1,49 @@
+#!/bin/bash
+
+EWW_BIN="eww"
+# 获取脚本的绝对路径，防止调用 $0 时出错
+SCRIPT_PATH=$(readlink -f "$0")
+
+case $1 in
+    start)
+        # 1. 强力清理：杀死所有正在运行的同名 start 进程，除了当前进程 ($$)
+        # pgrep -f 会匹配整个命令行
+        PGREP_LOGIC="shutdown_action.sh start"
+        for pid in $(pgrep -f "$PGREP_LOGIC"); do
+            if [ "$pid" != "$$" ]; then
+                kill -9 "$pid" 2>/dev/null
+            fi
+        done
+
+        # 2. 初始化 eww 变量并打开窗口
+        $EWW_BIN update time_left=10
+        $EWW_BIN open confirm-shutdown
+        
+        # 3. 倒计时循环
+        for i in {9..0}; do
+            sleep 1
+            
+            # 检查窗口是否还开着，如果关了（手动取消）就停止脚本
+            if ! $EWW_BIN active-windows | grep -q "confirm-shutdown"; then
+                exit 0
+            fi
+            
+            $EWW_BIN update time_left=$i
+        done
+        
+        # 4. 时间到，调用自身执行 now
+        $SCRIPT_PATH now
+        ;;
+        
+    now)
+        # 先关闭窗口防止残留，再发通知
+        $EWW_BIN close confirm-shutdown
+        notify-send "系统通知" "正在关闭系统 (演示模式)"
+        # 实际关机命令: poweroff
+        ;;
+        
+    cancel)
+        $EWW_BIN close confirm-shutdown
+        notify-send "系统通知" "操作已取消"
+        ;;
+esac

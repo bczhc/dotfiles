@@ -3,7 +3,8 @@
   "position": "top",
   "height": 25,
   "spacing": 4,
-  "modules-left": ["hyprland/workspaces", "hyprland/window", "hyprland/submap"],
+  // "modules-left": ["hyprland/workspaces", "hyprland/window", "hyprland/submap"],
+  "modules-left": ["hyprland/workspaces", "hyprland/window"],
   "modules-center": [],
   "modules-right": [
     //"filesystem",

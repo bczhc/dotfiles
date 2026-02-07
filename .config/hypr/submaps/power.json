@@ -1,0 +1,6 @@
+[
+  {"mod": "", "key":"E","desc":"Exit (Logout)"},
+  {"mod": "",  "key":"S","desc":"Suspend"},
+  {"mod": "󰘶",  "key":"S","desc":"Shutdown"},
+  {"mod": "",  "key":"R","desc":"Reboot"}
+]

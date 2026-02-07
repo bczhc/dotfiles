@@ -1,0 +1,8 @@
+[
+  {"mod": "󰘶", "key":"Q","desc":"Power"},
+  {"mod": "",  "key":"S","desc":"Screenshot-Slurp"},
+  {"mod": "󰘶",  "key":"S","desc":"Screenshot-Delay"},
+  {"mod": "",  "key":"P","desc":"CPU-Power"},
+  {"mod": "",  "key":"T","desc":"Thunar"},
+  {"mod": "󰘶",  "key":"T","desc":"Terminal"}
+]

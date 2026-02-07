@@ -84,13 +84,13 @@ window#waybar {
 }
 
 #submap {
-    background: #ebdbb2; /* 醒目的底色 */
-    color: #282828;
+    /*background: #ebdbb2;*/
+    color: #aeaeae;
     padding: 0 15px;
-    margin: 5px 10px;
+    /* margin: 5px 10px; */
     border-radius: 5px;
     font-weight: bold;
-    animation: blinker 1s linear infinite; /* 甚至可以让它闪烁 */
+    /*animation: blinker 1s linear infinite;*/
 }
 
 @keyframes blinker {

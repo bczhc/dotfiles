@@ -46,3 +46,171 @@
   border-radius: 8px;
   &:hover { background: #565f89; }
 }
+
+.submap-card {
+  background-color: rgba(10, 10, 10, 0.85);
+  border: 2px solid #00ff41; // 经典的黑客绿
+  border-radius: 8px;
+  padding: 20px;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+}
+
+.title-submap {
+  color: #00ff41;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.hint {
+  color: #ffffff;
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+.status {
+  color: #555555;
+  margin-top: 20px;
+  font-style: italic;
+}
+
+// ================= submap visulizer =================
+$bg-light: rgba(255, 255, 255, 0.75);
+$text-main: #2d3436;
+$accent: #0984e3;
+$shift-color: #74b9ff;
+
+* { all: unset; font-family: "Inter", sans-serif; }
+
+.light-card {
+  background-color: $bg-light;
+  border-radius: 20px;
+  padding: 15px 0; // 上下留白
+  // box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+}
+
+.hint-row {
+  padding: 6px 0;
+  // background: red; // 调试开关：打开可以看到左右完全对称
+}
+
+.mod-pill {
+  background-color: rgba($shift-color, 0.15);
+  color: $shift-color;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+.key-pill-container {
+  background-color: $accent;
+  border-radius: 7px;
+  min-width: 32px; // 保持按键块的基本宽度
+  padding: 2px 4px;
+}
+
+.key-pill {
+  color: white;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.desc-text {
+  color: $text-main;
+  font-size: 14px;
+  font-weight: 600;
+  margin-left: 15px; // 与中线的距离
+}
+
+// ================ shutdown dialog ================
+// 定义颜色变量，方便修改
+$bg-color: rgba(15, 17, 26, 0.85); // 深色半透明背景
+$fg-color: #f8f8f2;
+$accent-color: #ff5555; // 警告红
+$cancel-color: #6272a4; // 莫兰迪蓝
+$shadow: 0px 10px 30px rgba(0, 0, 0, 0.5);
+
+.fullscreen-overlay {
+  background-color: $bg-color;
+  font-family: "Inter", "Source Han Sans CN", sans-serif;
+}
+
+.title-shutdown-confirm {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: $fg-color;
+  margin-bottom: 15px;
+  letter-spacing: 2px;
+}
+
+.timer {
+  font-size: 10rem;
+  font-weight: 900;
+  font-family: "JetBrains Mono", monospace; // 等宽字体防止跳动
+  color: $accent-color;
+  text-shadow: 0px 0px 30px rgba(255, 85, 85, 0.4);
+  margin: 20px 0;
+  
+  // 简单的“心跳”动画，每秒缩放一次
+  animation: heart-beat 1s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.button-box {
+  margin-top: 50px;
+  
+  button {
+    padding: 12px 40px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+
+    &.btn-confirm {
+      background: linear-gradient(135deg, #ff5555, #bd93f9);
+      color: white;
+      box-shadow: 0px 4px 15px rgba(255, 85, 85, 0.3);
+      
+      &:hover {
+        box-shadow: 0px 8px 25px rgba(255, 85, 85, 0.5);
+      }
+    }
+
+    &.btn-cancel {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 2px solid $cancel-color;
+      color: $fg-color;
+      margin-left: 20px;
+      
+      &:hover {
+        background-color: $cancel-color;
+      }
+    }
+  }
+}
+
+@keyframes heart-beat {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+// ================= resize indicator =================
+$bg-blue: rgba(26, 35, 50, 0.75);
+$border-blue: rgba(100, 149, 237, 0.4);
+$text-color: #e0def4;
+
+.resize-indicator-box {
+  background-color: $bg-blue;
+  color: $text-color;
+  border: 1px solid $border-blue;
+  border-radius: 12px;
+  padding: 10px 20px;
+  
+  .resize-text {
+    font-family: "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}

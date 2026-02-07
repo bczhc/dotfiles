@@ -1,0 +1,42 @@
+#!/bin/bash
+
+ACTION=$1
+NAME=$2
+
+# 定义更新 JSON 的函数，方便复用
+update_json() {
+    local target_name=$1
+    if [ -z "$target_name" ]; then
+        echo "错误: 未指定 name 参数"
+        return 1
+    fi
+
+    local file_path="$HOME/.config/hypr/submaps/$target_name.json"
+    
+    if [ -f "$file_path" ]; then
+        eww update sm_json="$(cat "$file_path")"
+    else
+        echo "错误: 找不到文件 $file_path"
+        return 1
+    fi
+}
+
+case "$ACTION" in
+    "open")
+        # 如果 open 后面接了参数，先执行更新
+        if [ -n "$NAME" ]; then
+            update_json "$NAME"
+        fi
+        eww open submap_visual
+        ;;
+    "update")
+        update_json "$NAME"
+        ;;
+    "close")
+        eww close submap_visual
+        ;;
+    *)
+        echo "用法: $0 {open [name]|update name|close}"
+        exit 1
+        ;;
+esac

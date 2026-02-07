@@ -54,3 +54,77 @@
   :namespace "eww-hypr-panel"
   (control_panel)
 )
+
+;; 定义一个初始的 JSON 数组变量
+(defvar sm_json '[]')
+
+(defwindow submap_visual
+  :monitor 0
+  :geometry (geometry :x "0%" :y "0%" :width "400px" :anchor "center")
+  :stacking "fg"
+  :wm-ignore true
+  :namespace "eww-submap-visual"
+  (box :class "light-card"
+    (box :orientation "v" :space-evenly false
+      (for entry in sm_json
+        (box :class "hint-row" :orientation "h" :space-evenly true
+          
+          ;; 左半部分：右对齐 (Mod 和 Key)
+          (box :halign "end" :space-evenly false :spacing 8
+            (label :visible {entry.mod != "" && entry.mod != "null"} 
+                   :class "mod-pill" 
+                   :text {entry.mod})
+            (box :class "key-pill-container"
+              (label :class "key-pill" :text {entry.key})))
+
+          ;; 右半部分：左对齐 (Description)
+          (box :halign "start" :space-evenly false
+            (label :class "desc-text" :text {entry.desc})))))))
+
+
+(defvar time_left 10)
+
+(defwindow confirm-shutdown
+  :monitor 0
+  :stacking "fg"
+  :windowtype "dialog"
+  :namespace "eww-shutdown-confirm"
+  :focusable false
+  :geometry (geometry :x "0%"
+                      :y "0%"
+                      :width "100%"
+                      :height "100%"
+                      :anchor "center")
+  (shutdown-ui))
+
+(defwidget shutdown-ui []
+  (box :class "fullscreen-overlay"
+       :orientation "v"
+       :space-evenly false
+       :halign "center"
+       :valign "center"
+    (label :class "title-shutdown-confirm" :text "Confirm shutdown?")
+    (label :class "timer" :text "${time_left}")
+    (box :class "button-box"
+         :orientation "h"
+         :spacing 20
+         :space-evenly true
+      (button :class "btn-confirm" 
+              :onclick "/home/bczhc/bin/scripts/eww/shutdown-action now" "立即执行")
+      (button :class "btn-cancel" 
+              :onclick "/home/bczhc/bin/scripts/eww/shutdown-action cancel" "取消 (Esc)"))))
+
+
+(defwindow resize_indicator
+  :monitor 0
+  :geometry (geometry :x "0%"
+                       :y "5px" ; 稍微向下偏移，避开你的顶栏
+                       :width "120px"
+                       :height "35px"
+                       :anchor "top center")
+  :stacking "fg"
+  :windowtype "dock"
+  :namespace "eww-resize-indicator"
+  :wm-ignore true
+  (box :class "resize-indicator-box"
+    (label :class "resize-text" :text "󰩨  Resize Mode")))
