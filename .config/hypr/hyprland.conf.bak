@@ -126,8 +126,8 @@ decoration {
     rounding_power = 2
 
     # Change transparency of focused and unfocused windows
-    active_opacity = 0.999999
-    inactive_opacity = 0.999999
+    active_opacity = 1.0
+    inactive_opacity = 1.0
 
     shadow {
         enabled = true
@@ -331,9 +331,6 @@ bind = $mod, C, togglespecialworkspace, common
 bind = $mainMod, mouse_down, workspace, e-1
 bind = $mainMod, mouse_up, workspace, e+1
 
-bind = $mod, n, workspace, e-1
-bind = $mod, m, workspace, e+1
-
 bind = $mod, grave, exec, hyprctl dispatch overview:toggle
 
 # Move/resize windows with mainMod + LMB/RMB and dragging
@@ -431,10 +428,6 @@ bind = , t, submap, reset
 bind = SHIFT, t, exec, $terminal --command=zsh
 bind = SHIFT, t, exec, $submap_tool close
 bind = SHIFT, t, submap, reset
-
-bind = , r, exec, /home/bczhc/bin/scripts/wf-recorder/wfstart-toggle
-bind = , r, exec, $submap_tool close
-bind = , r, submap, reset
 
 bind = , s, exec, my-screenshot --slurp
 bind = , s, exec, $submap_tool close
@@ -597,8 +590,6 @@ windowrule = match:class ^clash-verge$, float 1
 windowrule = match:class ^xdg-desktop-portal-gtk$, match:title ^Open.*$, float 1
 # Yad
 windowrule = match:class ^yad$, float 1
-# Steam at workspace 8
-windowrule = match:class ^steam$, match:title ^Steam$, workspace 8
 
 # Waybar
 layerrule = match:namespace waybar, blur on
@@ -645,7 +636,6 @@ plugin {
     }
 
     overview {
-        affectStrut = false
-        autoDrag = true
+        #affectStrut = false
     }
 }

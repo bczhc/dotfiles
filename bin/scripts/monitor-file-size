@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+
+def format_iec(bytes)
+  units = %w[B KiB MiB GiB TiB PiB]
+  return "0 B" if bytes == 0
+
+  # 计算 1024 的幂次方
+  i = (Math.log(bytes) / Math.log(1024)).floor
+  # 修正索引防止越界
+  i = units.size - 1 if i >= units.size
+  
+  size = bytes.to_f / (1024**i)
+  format("%.2f %s", size, units[i])
+end
+
+file_path = ARGV[0]
+
+if file_path.nil? || !File.exist?(file_path)
+  puts "用法: ruby monitor_speed.rb <文件路径>"
+  exit 1
+end
+
+puts "正在监控: #{file_path}"
+puts "按 Ctrl+C 停止..."
+puts "--------------------------------------"
+
+# 初始化大小
+last_size = File.size(file_path)
+
+loop do
+  sleep 1
+  current_size = File.size(file_path)
+  
+  # 计算增量
+  diff = current_size - last_size
+  # 如果文件被截断（rotate），增量可能为负，这里取 0 或实际值
+  growth = [diff, 0].max 
+  
+  timestamp = Time.now.strftime("%H:%M:%S")
+  puts "[#{timestamp}] 增长速度: #{format_iec(growth)}/s (当前总大小: #{format_iec(current_size)})"
+  
+  last_size = current_size
+rescue Interrupt
+  puts "\n监控结束。"
+  exit 0
+end

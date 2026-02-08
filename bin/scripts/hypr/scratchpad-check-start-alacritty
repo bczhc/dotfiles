@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #check=$(hyprctl clients -j | jq '.[] | select(.class == "alacritty-special").workspace.name == "special:special"')
-check=$(hyprctl clients -j | jq '[.[] | select(.workspace.name == "special:special").class] | any((. | ascii_downcase) == "alacritty" or . == "alacritty-special")')
+check=$(hyprctl clients -j | jq '[.[] | select(.workspace.name == "special:terminal").class] | any((. | ascii_downcase) == "alacritty" or . == "alacritty-special")')
 if [ "$check" != "true" ]; then
     echo 'Start alacritty-special'
     hyprctl dispatch exec 'alacritty --class alacritty-special'

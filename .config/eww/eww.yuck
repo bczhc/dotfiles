@@ -115,7 +115,8 @@
               :onclick "/home/bczhc/bin/scripts/eww/shutdown-action cancel" "取消 (Esc)"))))
 
 
-(defwindow resize_indicator
+(defvar simple_submap_name '')
+(defwindow simple_submap_indicator
   :monitor 0
   :geometry (geometry :x "0%"
                        :y "5px" ; 稍微向下偏移，避开你的顶栏
@@ -127,4 +128,4 @@
   :namespace "eww-resize-indicator"
   :wm-ignore true
   (box :class "resize-indicator-box"
-    (label :class "resize-text" :text "󰩨  Resize Mode")))
+    (label :class "resize-text" :text "󰩨  ${simple_submap_name} Mode")))

@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# 1. 检查是否为 root 用户
+if [ "$EUID" -ne 0 ]; then
+    echo "错误：请以 root 权限运行此脚本 (使用 sudo)。"
+    exit 1
+fi
+
+# 2. 定义基础路径
+BTRFS_ROOT="/btrfs"
+SNAPS_DIR="$BTRFS_ROOT/snaps"
+
+# 3. 自动获取当前根目录 (/) 挂载的 subvolume 名称
+# 通过 'btrfs subvolume show /' 的第一行输出获取
+SUBVOL_NAME=$(btrfs subvolume show / | head -n 1 | xargs)
+
+if [ -z "$SUBVOL_NAME" ]; then
+    echo "错误：无法识别当前根目录的 Btrfs 子卷名称。"
+    exit 1
+fi
+
+# 4. 确保快照存放目录存在
+if [ ! -d "$SNAPS_DIR" ]; then
+    echo "正在创建快照目录: $SNAPS_DIR"
+    mkdir -p "$SNAPS_DIR"
+fi
+
+# 5. 生成快照名称（日期时间格式）
+SNAPSHOT_NAME=$(date '+%Y-%m-%d %H:%M:%S')
+SNAPSHOT_PATH="$SNAPS_DIR/$SNAPSHOT_NAME"
+
+# 6. 执行创建只读快照操作
+echo "正在为 '$SUBVOL_NAME' 创建只读快照..."
+btrfs subvolume snapshot -r "$BTRFS_ROOT/$SUBVOL_NAME" "$SNAPSHOT_PATH"
+
+# 7. 结果检查
+if [ $? -eq 0 ]; then
+    echo "成功：快照已创建至 $SNAPSHOT_PATH"
+else
+    echo "失败：快照创建过程中出现错误。"
+    exit 1
+fi

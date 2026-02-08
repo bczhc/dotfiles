@@ -1,0 +1,6 @@
+#!/bin/bash
+
+[ $# -eq 0 ] && echo 'Usage: cmd open|close <submap_name>' && exit 1
+
+[ "$1" == 'open' ] && eww update simple_submap_name="$2" && eww open simple_submap_indicator
+[ "$1" == 'close' ] && eww close simple_submap_indicator

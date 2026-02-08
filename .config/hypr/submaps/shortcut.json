@@ -4,5 +4,6 @@
   {"mod": "󰘶",  "key":"S","desc":"Screenshot-Delay"},
   {"mod": "",  "key":"P","desc":"CPU-Power"},
   {"mod": "",  "key":"T","desc":"Thunar"},
-  {"mod": "󰘶",  "key":"T","desc":"Terminal"}
+  {"mod": "󰘶",  "key":"T","desc":"Terminal"},
+  {"mod": "",  "key":"R","desc":"Screenrecord"}
 ]
