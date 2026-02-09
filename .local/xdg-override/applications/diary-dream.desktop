@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=13.0
+Type=Application
+Terminal=false
+Exec=/home/bczhc/private-repo/diary/start-app dream
+Name=Diary-dream
+Icon=/home/bczhc/.local/xdg-override/icons/diary-tauri.icon

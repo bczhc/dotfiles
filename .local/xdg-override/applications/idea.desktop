@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=13.0
+Type=Application
+Terminal=false
+Exec=idea
+Name=IntelliJ IDEA
+Icon=/usr/local/lib/icons/idea.svg
+Keywords=Jetbrains

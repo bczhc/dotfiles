@@ -9,9 +9,9 @@ fi
 # 2. 定义基础路径
 BTRFS_ROOT="/btrfs"
 SNAPS_DIR="$BTRFS_ROOT/snaps"
+RW_SNAPS_DIR="$BTRFS_ROOT/rwsnaps"
 
 # 3. 自动获取当前根目录 (/) 挂载的 subvolume 名称
-# 通过 'btrfs subvolume show /' 的第一行输出获取
 SUBVOL_NAME=$(btrfs subvolume show / | head -n 1 | xargs)
 
 if [ -z "$SUBVOL_NAME" ]; then
@@ -20,23 +20,44 @@ if [ -z "$SUBVOL_NAME" ]; then
 fi
 
 # 4. 确保快照存放目录存在
-if [ ! -d "$SNAPS_DIR" ]; then
-    echo "正在创建快照目录: $SNAPS_DIR"
-    mkdir -p "$SNAPS_DIR"
-fi
+[ ! -d "$SNAPS_DIR" ] && mkdir -p "$SNAPS_DIR"
+[ ! -d "$RW_SNAPS_DIR" ] && mkdir -p "$RW_SNAPS_DIR"
 
-# 5. 生成快照名称（日期时间格式）
+# 5. 生成快照名称并检查冲突
 SNAPSHOT_NAME=$(date '+%Y-%m-%d %H:%M:%S')
+RW_SNAPSHOT_NAME=$(date '+%m%d-%H%M')
+
 SNAPSHOT_PATH="$SNAPS_DIR/$SNAPSHOT_NAME"
+RW_SNAPSHOT_PATH="$RW_SNAPS_DIR/$RW_SNAPSHOT_NAME"
 
-# 6. 执行创建只读快照操作
-echo "正在为 '$SUBVOL_NAME' 创建只读快照..."
-btrfs subvolume snapshot -r "$BTRFS_ROOT/$SUBVOL_NAME" "$SNAPSHOT_PATH"
-
-# 7. 结果检查
-if [ $? -eq 0 ]; then
-    echo "成功：快照已创建至 $SNAPSHOT_PATH"
-else
-    echo "失败：快照创建过程中出现错误。"
+# --- 新增：冲突检查逻辑 ---
+if [ -e "$SNAPSHOT_PATH" ] || [ -e "$RW_SNAPSHOT_PATH" ]; then
+    echo "错误：快照名称已存在 (可能在同一分钟内重复运行)。"
+    echo "冲突路径: "
+    [ -e "$SNAPSHOT_PATH" ] && echo "  - $SNAPSHOT_PATH"
+    [ -e "$RW_SNAPSHOT_PATH" ] && echo "  - $RW_SNAPSHOT_PATH"
+    echo "操作已终止，未创建任何快照。"
     exit 1
 fi
+
+# 6. 执行创建快照操作
+echo "正在创建快照..."
+
+# 创建只读快照
+if btrfs subvolume snapshot -r "$BTRFS_ROOT/$SUBVOL_NAME" "$SNAPSHOT_PATH" > /dev/null; then
+    echo "成功：只读快照 -> $SNAPSHOT_NAME"
+else
+    echo "失败：无法创建只读快照。"
+    exit 1
+fi
+
+# 创建可读写快照
+if btrfs subvolume snapshot "$BTRFS_ROOT/$SUBVOL_NAME" "$RW_SNAPSHOT_PATH" > /dev/null; then
+    echo "成功：可读写快照 -> $RW_SNAPSHOT_NAME"
+else
+    echo "失败：无法创建可读写快照。"
+    # 注意：如果这里失败，通常建议手动清理上面已经创建成功的只读快照
+    exit 1
+fi
+
+echo "--- 所有任务已完成 ---"

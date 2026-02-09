@@ -1,0 +1,6 @@
+[Desktop Entry]
+Version=1.0
+Name=Firefox NP
+Exec=env MOZ_USE_XINPUT2=1 firefox-non-proxy
+Type=Application
+Icon=firefox

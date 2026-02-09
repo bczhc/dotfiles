@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=13.0
+Type=Application
+Terminal=false
+Exec=clion
+Name=CLion
+Icon=/usr/local/lib/icons/clion.svg
+Keywords=Jetbrains

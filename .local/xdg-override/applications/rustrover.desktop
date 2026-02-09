@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=13.0
+Type=Application
+Terminal=false
+Exec=rustrover
+Name=Rustrover
+Icon=/usr/local/lib/icons/rustrover.svg
+Keywords=Jetbrains

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=13.0
+Type=Application
+Terminal=false
+Exec=rubymine
+Name=RubyMine
+Icon=/usr/local/lib/icons/rubymine.svg
+Keywords=Jetbrains

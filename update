@@ -22,3 +22,6 @@ rsync -a ~/.config/./tmux/tmux.conf .config --delete --relative
 
 mkdir -p usr/bin
 rsync -a /bin/ddask usr/bin
+
+mkdir -p .local
+rsync -a ~/.local/xdg-override .local

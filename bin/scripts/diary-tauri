@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+cd /home/bczhc/code/diary-tauri
+npm run tauri dev -- -- -- "$@"
+cd -
