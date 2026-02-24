@@ -4,5 +4,5 @@ set -e
 
 jobs=16
 
-make bzImage -j$jobs
-make modules -j$jobs
+make CC=/home/bczhc/cc-compat bzImage -j$jobs
+make CC=/home/bczhc/cc-compat modules -j$jobs

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+sleep 0.2
+
+date=`date "+%Y-%m-%d_%H-%M-%S"`
+ffmpeg -f x11grab -i $DISPLAY -frames:v 1 "/home/bczhc/Screenshots/$date.png" -y 2> /dev/null
+[ "$1" != "no-notify" ] && notify-send -t 1000 'Screenshot has been grabbed'
+echo Done

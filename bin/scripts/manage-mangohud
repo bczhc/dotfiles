@@ -1,0 +1,19 @@
+#!/bin/bash
+
+CONF="$HOME/.config/MangoHud/MangoHud.conf"
+
+case "$1" in
+    toggle)
+        # 切换 no_display 的值 (0 -> 1, 1 -> 0)
+        # 使用 sed 匹配并将结果通过 sponge 写回
+        sed 's/no_display=\([01]\)/echo "no_display=$((\1 ^ 1))"/e' "$CONF" | sponge "$CONF"
+        ;;
+    refresh)
+        # 刷新：原样读取并写回，触发 MangoHud 热重载
+        cat "$CONF" | sponge "$CONF"
+        ;;
+    *)
+        echo "Usage: $0 {toggle|refresh}"
+        exit 1
+        ;;
+esac

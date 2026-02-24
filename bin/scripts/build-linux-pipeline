@@ -6,6 +6,8 @@ function log() {
     colored-echo cyan bold "$1"
 }
 
+suffix='-test'
+
 [ $# -eq 0 ] && echo 'args: <version>' && exit 1
 
 [ "$EUID" -eq 0 ] && echo 'Please do not run as root' && exit 1
@@ -13,7 +15,7 @@ function log() {
 version="$1"
 
 log 'Altering CONFIG_LOCALVERSION...'
-cat .config | sed 's/CONFIG_LOCALVERSION=""/CONFIG_LOCALVERSION="-bczhc"/' | sponge .config
+cat .config | sed 's/CONFIG_LOCALVERSION=""/CONFIG_LOCALVERSION="'$suffix'"/' | sponge .config
 
 log 'Compiling...'
 "$(dirname "$0")"/build-linux

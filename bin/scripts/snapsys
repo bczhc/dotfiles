@@ -6,6 +6,9 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+sudo mkdir -p /espbak
+sudo rsync -a /boot /espbak --delete
+
 # 2. 定义基础路径
 BTRFS_ROOT="/btrfs"
 SNAPS_DIR="$BTRFS_ROOT/snaps"

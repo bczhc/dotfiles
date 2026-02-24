@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+require 'complex'
+
+Z0 = 50.0
+
+def process_nanovna_file(filename)
+  unless File.exist?(filename)
+    puts "错误: 找不到文件 '#{filename}'"
+    return
+  end
+
+  puts sprintf("%-12s | %-15s | %-15s | %-10s", "Freq(MHz)", "Real(Ω)", "Imag(Ω)", "SWR")
+  puts "-" * 60
+
+  File.open(filename, "r:utf-8") do |file|
+    file.each_line do |line|
+      # 1. 彻底清洗：去掉所有奇怪的 Unicode 空白并转为标准空格
+      clean_line = line.gsub(/[[:space:]]+/, ' ').strip
+      
+      # 2. 跳过注释和空行
+      next if clean_line.empty? || clean_line.start_with?('!', '#')
+
+      parts = clean_line.split(' ')
+      next if parts.size < 3
+
+      # 3. 解析数值
+      freq_hz = parts[0].to_f
+      gamma_r = parts[1].to_f
+      gamma_i = parts[2].to_f
+
+      # 跳过无效频率
+      next if freq_hz <= 0
+
+      freq_mhz = freq_hz / 1_000_000.0
+      gamma = Complex(gamma_r, gamma_i)
+
+      # 4. 计算阻抗 Z = Z0 * (1 + Gamma) / (1 - Gamma)
+      begin
+        z = Z0 * (1 + gamma) / (1 - gamma)
+        
+        # 5. 顺手算个 SWR (驻波比)
+        mag_gamma = gamma.abs
+        swr = (mag_gamma >= 1.0) ? Float::INFINITY : (1 + mag_gamma) / (1 - mag_gamma)
+
+        printf("%-12.3f | %-15.4f | %-15.4f | %-10.2f\n", 
+               freq_mhz, z.real, z.imaginary, swr)
+               
+      rescue ZeroDivisionError
+        printf("%-12.3f | %-15s | %-15s | %-10s\n", freq_mhz, "Open", "Circuit", "INF")
+      end
+    end
+  end
+end
+
+if ARGV.empty?
+  puts "用法: ./process-vna.rb vna"
+else
+  process_nanovna_file(ARGV[0])
+end

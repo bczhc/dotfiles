@@ -30,3 +30,10 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[sendemail]
+	smtpserver = smtp.126.com
+	smtpserverport = 465
+	smtpuser = bczhc0@126.com
+	smtpencryption = ssl
+[credential]
+	helper = store

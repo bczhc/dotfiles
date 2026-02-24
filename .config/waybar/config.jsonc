@@ -11,6 +11,7 @@
     "battery",
     //"backlight",
     "pulseaudio",
+    //"pulseaudio/slider",
     "memory",
     "cpu",
     "network",
@@ -70,6 +71,11 @@
     },
     "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
     "on-click-right": "pavucontrol",
+  },
+  "pulseaudio/slider": {
+    "min": 0,
+    "max": 100,
+    "orientation": "horizontal",
   },
   // 对应 [module/memory]
   "memory": {

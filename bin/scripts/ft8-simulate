@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+
+# --- 配置区 ---
+SAMPLE_RATE = 44100
+FREQUENCY   = 800.0
+DURATION    = 15
+# 你的 USB 设备关键字（用于 grep 匹配）
+DEVICE_KEY  = "usb-C-Media_Electronics_Inc._USB_Audio_Device-00"
+# aplay 完整设备路径
+DEVICE_PATH = "pulse:alsa_output.#{DEVICE_KEY}.analog-stereo"
+AMPLITUDE   = 0.5
+
+# --- 检测逻辑 ---
+def device_online?(key)
+  # 使用 pactl 检查当前的 sinks 列表中是否包含该设备
+  `pactl list sinks short`.include?(key)
+end
+
+SAMPLES_PER_STEP = (SAMPLE_RATE * DURATION).to_i
+
+puts "🚀 FT8 电池压力测试准备就绪..."
+puts "目标硬件: #{DEVICE_KEY}"
+
+cycle = 0
+start_time = Time.now
+
+loop do
+  cycle += 1
+  
+  # 1. 发射前硬检测
+  unless device_online?(DEVICE_KEY)
+    puts "\n❌ [致命错误] USB 设备已掉线！"
+    puts "电池电压可能已跌破临界点。测试停止。"
+    puts "总运行时间: #{(Time.now - start_time).round(1)} 秒"
+    exit
+  end
+
+  # 2. 启动 aplay (每次循环开启，确保只输出到目标设备)
+  # 使用 spawn + 管道，以便精确控制
+  IO.popen("aplay -f cd -c 1 --device=#{DEVICE_PATH}", "w") do |aplay|
+    begin
+      puts "[#{Time.now.strftime('%H:%M:%S')}] 周期 ##{cycle} | 发射中 (TX)..."
+      
+      # 写入 15s 正弦波
+      SAMPLES_PER_STEP.times do |i|
+        sample = Math.sin(2 * Math::PI * FREQUENCY * (i.to_f / SAMPLE_RATE))
+        aplay.write([ (sample * AMPLITUDE * 32767).round ].pack('s<'))
+      end
+      aplay.close # 15s 结束，主动关闭 aplay 释放设备
+      
+    rescue Errno::EPIPE
+      puts "⚠️ 写入时管道断开，设备可能在发射中途掉电。"
+      exit
+    end
+  end
+
+  # 3. 接收/冷却阶段
+  puts "[#{Time.now.strftime('%H:%M:%S')}] 休息中 (RX)..."
+  sleep DURATION 
+end

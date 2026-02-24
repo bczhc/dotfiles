@@ -1,0 +1,3 @@
+#!/bin/bash
+
+rm -rf target; d=`mktemp -d`; ln -s "$d" target
