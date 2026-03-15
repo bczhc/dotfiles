@@ -61,3 +61,7 @@ rsync $rsync_arg "$saves_path" "$bak_dir"'/zhc/gaming/Palworld saves' --info=pro
 # ~/code
 mkdir -p "$bak_dir"/zhc/code
 fd . ~/code -t d -d 1 -x rsync $rsync_arg --no-i-r --info=PROGRESS2 -a --filter=':- .gitignore' --exclude='/target' --delete-during "{}" "$bak_dir/zhc/code/"
+
+## sudo operations
+mkdir -p "$bak_dir"/zhc/linux/arch/var-log
+sudo rsync $rsync_arg -a /var/log/ "$bak_dir"/zhc/linux/arch/var-log --info=PROGRESS2 --no-i-r --delete-during -v

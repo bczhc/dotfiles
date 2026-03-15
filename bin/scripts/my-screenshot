@@ -6,6 +6,25 @@ function failure() {
     notify-send -t 10000 'Screenshot Failed!!'; exit 1
 }
 
+function hyprctl-info() {
+    jq -cn \
+      --argjson active "$(hyprctl activewindow -j)" \
+      --argjson clients "$(hyprctl clients -j)" \
+      --argjson monitors "$(hyprctl monitors -j)" \
+      --argjson layers "$(hyprctl layers -j)" \
+      --argjson version "$(hyprctl version -j)" \
+      --argjson workspaces "$(hyprctl workspaces -j)" \
+      --argjson activeworkspace "$(hyprctl activeworkspace -j)" \
+      --argjson cursorpos "$(hyprctl cursorpos -j)" \
+      '{"activewindow": $active, "clients": $clients, "monitors": $monitors, "layers": $layers, "version": $version, "workspaces": $workspaces, "$activeworkspace": $activeworkspace, "cursorpos": $cursorpos}'
+}
+
+function png-comment() {
+    jq -cn \
+      --argjson hyprctl "$(hyprctl-info)" \
+      '{"hyprctl": $hyprctl}'
+}
+
 slurp_and_get_ffmpeg_crop() {
     # 1. 从 hyprctl 获取主显示器的缩放比例 (scale)
     # 注意：这里默认取第一个显示器 [0]，你可以根据需要调整 jq 逻辑
@@ -47,13 +66,23 @@ SAVE_DIR="/home/bczhc/Screenshots"
 
 mkdir -p "$SAVE_DIR"
 
-# 1. 立即截图 (最小延迟)
-grim -c -l 0 "$TEMP_FILE"
+# 截图
+# 启用direct_scanout时截图，屏幕会闪烁并且截的图可能黑屏或不完整的workaround：暂时关闭direct_scanout
+ds_opt="$(hyprctl getoption render:direct_scanout | rg 'int: ' | awk '{ print $2 }')"
+if [ "$ds_opt" -eq 0 ]; then
+    grim -c -l 0 "$TEMP_FILE"
+else
+    hyprctl keyword render:direct_scanout false
+    sleep 0.1
+    grim -c -l 0 "$TEMP_FILE"
+    hyprctl keyword render:direct_scanout true
+fi
 
 # --- 如果开启了 slurp，执行裁剪并存入剪切板 ---
 if [ "$USE_SLURP" = true ]; then
     # 提取区域并送到剪切板 (不影响主流程)
-    ffmpeg -v error -i "$TEMP_FILE" -vf "crop=$ffmpeg_crop_param" -f image2pipe -vcodec png - | wl-copy -t image/png || failure
+    ffmpeg -v error -i "$TEMP_FILE" -vf "crop=$ffmpeg_crop_param" -f image2pipe -vcodec png - > /tmp/screenshot-croped.png
+    cat /tmp/screenshot-croped.png | wl-copy -t image/png || failure
     notify-send -t 2000 'Selected region copied to clipboard'
 fi
 
@@ -76,7 +105,8 @@ fi
 # 注意：使用 -y 强制覆盖，因为我们上面已经创建了空文件
 ffmpeg -v error -i "$TEMP_FILE" -pred mixed -compression_level 9 -y "$TARGET_FILE" || failure
 
-exiftool -overwrite_original_in_place -Comment="$(hyprctl activewindow -j | jq '{"hyprctl-activewindow": .}' -c)" "$TARGET_FILE" || failure
+comment_value="$(png-comment)"
+exiftool -overwrite_original_in_place -Comment="$comment_value" "$TARGET_FILE" || failure
 
 # 4. 清理并通知
 rm "$TEMP_FILE"

@@ -1,0 +1,73 @@
+#!/bin/env python3
+
+import subprocess
+import sys
+import matplotlib.pyplot as plt
+import numpy as np
+
+def plot_vbr(video_path):
+    # 构建你提供的 ffprobe 命令
+    cmd = [
+        'ffprobe', '-v', 'error', 
+        '-select_streams', 'v:0', 
+        '-show_packets', 
+        '-of', 'compact=p=0:nk=0', 
+        video_path
+    ]
+
+    times = []
+    sizes = []
+
+    print(f"正在解析: {video_path}...")
+
+    # 启动进程并实时读取输出
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    for line in process.stdout:
+        # 解析行：pts_time=0.028000|...|size=135582|...
+        # 我们寻找 pts_time 和 size 这两个关键字段
+        parts = line.split('|')
+        d = {}
+        for p in parts:
+            if '=' in p:
+                k, v = p.split('=', 1)
+                d[k] = v
+        
+        if 'pts_time' in d and 'size' in d:
+            times.append(float(d['pts_time']))
+            # 将字节转为 Mbps: (bytes * 8) / 1,000,000
+            sizes.append(int(d['size']) * 8 / 1_000_000)
+
+    process.wait()
+
+    if not times:
+        print("未发现数据，请检查文件路径或 ffprobe 是否能正常解析。")
+        return
+
+    # 绘图设置
+    plt.figure(figsize=(14, 7))
+    
+    # 原始数据（点图，淡色）展示帧间差异
+    plt.scatter(times, sizes, s=1, color='gray', alpha=0.3, label='Per-packet size')
+
+    # 平滑处理：计算滑动平均以显示“码率”
+    # 这里的 window 设置为 50 帧，你可以根据视频帧率调整
+    window = 50
+    if len(sizes) > window:
+        smoothed_bitrate = np.convolve(sizes, np.ones(window)/window, mode='same')
+        plt.plot(times, smoothed_bitrate, color='red', linewidth=1.5, label='Moving Average (approx. bitrate)')
+
+    plt.title(f"Bitrate Visualization: {video_path}")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Bitrate (Mbps)")
+    plt.legend()
+    plt.grid(True, which='both', linestyle='--', alpha=0.5)
+    
+    print("生成可视化图表中...")
+    plt.show()
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python vbr_plotter.py <video_file>")
+    else:
+        plot_vbr(sys.argv[1])

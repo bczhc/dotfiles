@@ -1,9 +1,10 @@
 [
   {"mod": "󰘶", "key":"Q","desc":"Power"},
-  {"mod": "",  "key":"S","desc":"Screenshot-Slurp"},
-  {"mod": "󰘶",  "key":"S","desc":"Screenshot-Delay"},
-  {"mod": "",  "key":"P","desc":"CPU-Power"},
+  {"mod": "",  "key":"S","desc":"Screenshot slurp"},
+  {"mod": "󰘶",  "key":"S","desc":"Screenshot delay"},
+  {"mod": "",  "key":"P","desc":"CPU Power"},
   {"mod": "",  "key":"T","desc":"Thunar"},
   {"mod": "󰘶",  "key":"T","desc":"Terminal"},
-  {"mod": "",  "key":"R","desc":"Screenrecord"}
+  {"mod": "",  "key":"R","desc":"Screenrecord"},
+  {"mod": "",  "key":"M","desc":"Monitor dpms toggle"}
 ]
