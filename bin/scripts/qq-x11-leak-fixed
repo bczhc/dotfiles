@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+cd /mnt/nvme/open-source/fix-linuxqq-x11-leak
+non-proxy make block QQ_X11_TARGET_OFFSET=0x5cb0c6b

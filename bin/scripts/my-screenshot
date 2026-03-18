@@ -2,6 +2,9 @@
 
 set -e
 
+GRIM_BIN=grim
+#GRIM_BIN=/bin/grim
+
 function failure() {
     notify-send -t 10000 'Screenshot Failed!!'; exit 1
 }
@@ -23,6 +26,30 @@ function png-comment() {
     jq -cn \
       --argjson hyprctl "$(hyprctl-info)" \
       '{"hyprctl": $hyprctl}'
+}
+
+wait_for_layer() {
+    local target="${1:-activate notification}"
+    local timeout_ms="${2:-1000}"
+
+    # 获取起始毫秒时间戳
+    local start_time=$(($(date +%s%N) / 1000000))
+    local end_time=$((start_time + timeout_ms))
+
+    while true; do
+        # 核心检查逻辑
+        if hyprctl layers -j | jq -e ".. | objects | select(.namespace == \"$target\")" >/dev/null 2>&1; then
+            echo 1
+            return 0
+        fi
+
+        # 检查是否超时
+        local current_time=$(($(date +%s%N) / 1000000))
+        if [ "$current_time" -ge "$end_time" ]; then
+            echo 0
+            return 1
+        fi
+    done
 }
 
 slurp_and_get_ffmpeg_crop() {
@@ -68,14 +95,20 @@ mkdir -p "$SAVE_DIR"
 
 # 截图
 # 启用direct_scanout时截图，屏幕会闪烁并且截的图可能黑屏或不完整的workaround：暂时关闭direct_scanout
-ds_opt="$(hyprctl getoption render:direct_scanout | rg 'int: ' | awk '{ print $2 }')"
-if [ "$ds_opt" -eq 0 ]; then
-    grim -c -l 0 "$TEMP_FILE"
+# ds_status非0时，代表正在direct scanout
+ds_status="$(hyprctl monitors -j | jq '.[0].directScanoutTo' -r)"
+if [ "$ds_status" -eq 0 ]; then
+    "$GRIM_BIN" -c -l 0 "$TEMP_FILE"
 else
-    hyprctl keyword render:direct_scanout false
-    sleep 0.1
-    grim -c -l 0 "$TEMP_FILE"
-    hyprctl keyword render:direct_scanout true
+    # When a app is in directScanout mode, switching this option to false won't exit the app's
+    # directScanout state. Using activate-linux to show an extra transparent layer as a trick,
+    # will trigger an exit of this directScanout state.
+    activate-linux -c 0-0-0-0 &
+    dummy_pid=$!
+    # Spin-wait until the overlay layer is present (registered on the desktop).
+    wait_for_layer || failure
+    "$GRIM_BIN" -c -l 0 "$TEMP_FILE"
+    kill $dummy_pid
 fi
 
 # --- 如果开启了 slurp，执行裁剪并存入剪切板 ---

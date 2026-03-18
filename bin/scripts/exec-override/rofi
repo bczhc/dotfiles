@@ -1,4 +1,4 @@
 #!/bin/bash
 
-export XDG_DATA_DIRS=$HOME/.local/xdg-override:$HOME/.local/share:/usr/local:/usr/share:/usr/local/share
+#export XDG_DATA_DIRS=$HOME/.local/xdg-override:$HOME/.local/share:/usr/local:/usr/share:/usr/local/share
 /bin/rofi -show-icons "$@"
