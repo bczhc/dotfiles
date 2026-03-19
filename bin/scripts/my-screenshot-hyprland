@@ -4,28 +4,10 @@ set -e
 
 GRIM_BIN=grim
 #GRIM_BIN=/bin/grim
+curr_dir="$(dirname "$0")"
 
 function failure() {
     notify-send -t 10000 'Screenshot Failed!!'; exit 1
-}
-
-function hyprctl-info() {
-    jq -cn \
-      --argjson active "$(hyprctl activewindow -j)" \
-      --argjson clients "$(hyprctl clients -j)" \
-      --argjson monitors "$(hyprctl monitors -j)" \
-      --argjson layers "$(hyprctl layers -j)" \
-      --argjson version "$(hyprctl version -j)" \
-      --argjson workspaces "$(hyprctl workspaces -j)" \
-      --argjson activeworkspace "$(hyprctl activeworkspace -j)" \
-      --argjson cursorpos "$(hyprctl cursorpos -j)" \
-      '{"activewindow": $active, "clients": $clients, "monitors": $monitors, "layers": $layers, "version": $version, "workspaces": $workspaces, "$activeworkspace": $activeworkspace, "cursorpos": $cursorpos}'
-}
-
-function png-comment() {
-    jq -cn \
-      --argjson hyprctl "$(hyprctl-info)" \
-      '{"hyprctl": $hyprctl}'
 }
 
 wait_for_layer() {
@@ -138,7 +120,7 @@ fi
 # 注意：使用 -y 强制覆盖，因为我们上面已经创建了空文件
 ffmpeg -v error -i "$TEMP_FILE" -pred mixed -compression_level 9 -y "$TARGET_FILE" || failure
 
-comment_value="$(png-comment)"
+comment_value="$("$curr_dir"/screenshot-png-comment)"
 exiftool -overwrite_original_in_place -Comment="$comment_value" "$TARGET_FILE" || failure
 
 # 4. 清理并通知

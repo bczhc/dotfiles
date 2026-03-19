@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# 定义标志类名
+CLASS="float-alacritty"
+
+# 检查是否存在该类名的窗口
+WINDOW_ID=$(niri msg -j windows | jq ".[] | select(.app_id == \"$CLASS\") | .id" | head -n 1)
+
+if [ -z "$WINDOW_ID" ]; then
+    # 情况 A: 窗口不存在，启动它
+    # 使用 --class 参数启动 alacritty
+    alacritty --class "$CLASS" &
+    
+    # 等待窗口出现并进行后续操作 (轮询一小会儿)
+    for i in {1..20}; do
+        WINDOW_ID=$(niri msg -j windows | jq ".[] | select(.class == \"$CLASS\") | .id" | head -n 1)
+        if [ -n "$WINDOW_ID" ]; then
+            # 设置为浮动
+            niri msg action set-window-floating id "$WINDOW_ID"
+            # 居中 (niri 默认浮动通常就在中间，或者你可以显式调用 move-window-to-center)
+            niri msg action center-window id "$WINDOW_ID"
+            # 聚焦
+            niri msg action focus-window --id "$WINDOW_ID"
+            break
+        fi
+        sleep 0.1
+    done
+else
+    # 情况 B: 窗口已存在，执行隐藏（关闭）
+    # niri 目前没有原生的 "hide" 到后台的功能，通常做法是直接关闭
+    niri msg action close-window --id "$WINDOW_ID"
+fi

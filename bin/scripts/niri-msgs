@@ -1,0 +1,41 @@
+#!/bin/bash
+set -e
+
+# 检查是否安装了 jq，因为处理 JSON 拼接时 jq 最可靠
+if ! command -v jq &> /dev/null; then
+    echo "错误: 本脚本需要 'jq' 来处理 JSON 格式化。" >&2
+    exit 1
+fi
+
+# 定义需要执行的子命令列表
+commands=(
+    "outputs"
+    "workspaces"
+    "windows"
+    "layers"
+    "keyboard-layouts"
+    "focused-output"
+    "focused-window"
+    "version"
+    "overview-state"
+    "casts"
+)
+
+# 初始化一个临时的 JSON 对象
+result_inner="{}"
+
+# 循环运行每个命令并收集结果
+for cmd in "${commands[@]}"; do
+    # 运行命令，捕获输出
+    output=$(niri msg --json "$cmd")
+    
+    # 使用 jq 将结果注入到 inner 对象中
+    # 这里使用 --argjson 来确保数据被正确处理为 JSON 对象而非字符串
+    result_inner=$(echo "$result_inner" | jq --argjson val "$output" ". + {\"$cmd\": \$val}")
+done
+
+# 封装成最终的层级结构：{niri: {msg: A}}
+final_output=$(echo "{}" | jq --argjson msg_content "$result_inner" "{niri: {msg: \$msg_content}}")
+
+# 输出最终结果
+echo "$final_output" | jq -c

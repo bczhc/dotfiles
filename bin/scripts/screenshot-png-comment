@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+
+function hyprctl-info() {
+    jq -cn \
+      --argjson active "$(hyprctl activewindow -j)" \
+      --argjson clients "$(hyprctl clients -j)" \
+      --argjson monitors "$(hyprctl monitors -j)" \
+      --argjson layers "$(hyprctl layers -j)" \
+      --argjson version "$(hyprctl version -j)" \
+      --argjson workspaces "$(hyprctl workspaces -j)" \
+      --argjson activeworkspace "$(hyprctl activeworkspace -j)" \
+      --argjson cursorpos "$(hyprctl cursorpos -j)" \
+      '{"activewindow": $active, "clients": $clients, "monitors": $monitors, "layers": $layers, "version": $version, "workspaces": $workspaces, "$activeworkspace": $activeworkspace, "cursorpos": $cursorpos}'
+}
+
+function png-comment() {
+    jq -cn \
+      --argjson hyprctl "$(hyprctl-info)" \
+      '{"hyprctl": $hyprctl}'
+}
+
+#png-comment
+
+echo '{}'
