@@ -280,6 +280,7 @@ spawn-at-startup "fcitx5" "-d"
 spawn-at-startup "eww" "daemon"
 spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
 spawn-at-startup "hyprpaper"
+spawn-at-startup "bash" "-c" "echo $NIRI_SOCKET > /tmp/niri-socket.txt"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
@@ -367,6 +368,7 @@ window-rule {
 ///// END WINDOW-RULE /////
 
 binds {
+    Mod+Shift+Slash { show-hotkey-overlay; }
     // --- 核心启动器 (对应你的 Rofi 配置) ---
     // 对应 bind = $mod, D, exec, rofi -show drun
     Mod+D { spawn "rofi" "-show" "drun"; }
@@ -383,6 +385,7 @@ binds {
     // --- 终端 (对应 $terminal = alacritty-sixel) ---
     Mod+Return { spawn "alacritty-sixel"; }
     Mod+Shift+Return { spawn "alacritty-sixel" "-e" "zsh"; }
+    Mod+T { spawn "alacritty-sixel" "-e" "zsh"; }
 
     // 关闭窗口 (对应 bind = $mod SHIFT, Q, killactive)
     Mod+Shift+Q { close-window; }
@@ -427,6 +430,7 @@ binds {
 
     Print { screenshot; }
     Mod+S { spawn "my-screenshot-niri"; }
+    Mod+Shift+S { spawn-sh "my-screenshot-niri --area"; }
 
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
     XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
@@ -465,22 +469,23 @@ binds {
 
     Mod+C { center-column; }
 
-    Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
-    Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+    Mod+Shift+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+    Mod+Shift+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+    Mod+WheelScrollDown      { focus-column-right; }
+    Mod+WheelScrollUp        { focus-column-left; }
+
     Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
     Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
-
-    Mod+WheelScrollRight      { focus-column-right; }
-    Mod+WheelScrollLeft       { focus-column-left; }
-    Mod+Ctrl+WheelScrollRight { move-column-right; }
-    Mod+Ctrl+WheelScrollLeft  { move-column-left; }
-
-    Mod+Shift+WheelScrollDown      { focus-column-right; }
-    Mod+Shift+WheelScrollUp        { focus-column-left; }
     Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
     Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
 
     Mod+W { spawn "~/bin/scripts/niri/toggle-floating-terminal"; }
+
+    Mod+R { switch-preset-column-width; }
+
+    // Powers off the monitors. To turn them back on, do any input like
+    // moving the mouse or pressing any other key.
+    Mod+Shift+P { power-off-monitors; }
 }
 
 ////// END BINDS /////
@@ -619,20 +624,13 @@ binds {
     // To avoid scrolling through workspaces really fast, you can use
     // the cooldown-ms property. The bind will be rate-limited to this value.
     // You can set a cooldown on any bind, but it's most useful for the wheel.
-    Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
-    Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+    Mod+Shift+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+    Mod+Shift+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+    Mod+WheelScrollDown      { focus-column-right; }
+    Mod+WheelScrollUp        { focus-column-left; }
+
     Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
     Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
-
-    Mod+WheelScrollRight      { focus-column-right; }
-    Mod+WheelScrollLeft       { focus-column-left; }
-    Mod+Ctrl+WheelScrollRight { move-column-right; }
-    Mod+Ctrl+WheelScrollLeft  { move-column-left; }
-
-    // Usually scrolling up and down with Shift in applications results in
-    // horizontal scrolling; these binds replicate that.
-    Mod+Shift+WheelScrollDown      { focus-column-right; }
-    Mod+Shift+WheelScrollUp        { focus-column-left; }
     Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
     Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
 
@@ -771,7 +769,7 @@ cursor {
 }
 
 overview {
-    /-workspace-shadow {
+    workspace-shadow {
         off
     }
 }

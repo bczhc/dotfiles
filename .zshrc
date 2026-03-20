@@ -164,7 +164,7 @@ hpp=16619
 export http_proxy='http://localhost:'$hpp
 export https_proxy="$http_proxy"
 export no_proxy=localhost,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
-export _JAVA_OPTIONS="-Dhttp.proxyHost=localhost -Dhttp.proxyPort=$hpp -Dhttps.proxyHost=localhost -Dhttps.proxyPort=$hpp"
+export _JAVA_OPTIONS="-Dhttp.proxyHost=localhost -Dhttp.proxyPort=$hpp -Dhttps.proxyHost=localhost -Dhttps.proxyPort=$hpp -Dawt.toolkit.name=WLToolkit"
 
 # Rust
 export RUSTUP_HOME=/home/bczhc/.rustup
