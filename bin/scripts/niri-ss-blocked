@@ -48,11 +48,9 @@ niri_area_screenshot_blocked() {
     while read -r line; do
         case "$line" in
             "SIGNAL_OPEN")
-                # 只有收到这个，才开始正式生效
                 is_ui_open=true
                 ;;
             "SIGNAL_CANCEL")
-                # 必须是 UI 打开过后的 Cancel 才有效
                 if [[ "$is_ui_open" == "true" ]]; then
                     captured_result="Canceled."
                     break
