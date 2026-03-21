@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=WGPU Image Viewer
+Exec=/home/bczhc/image-viewer %f
+Terminal=false
+Type=Application
+MimeType=image/jpeg;image/png;
+#Icon=qq
+StartupWMClass=wgpu-image-viewer
+Comment=Image Viewer with GPU output
