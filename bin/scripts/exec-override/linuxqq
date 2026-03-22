@@ -1,3 +1,3 @@
 #!/bin/bash
 
-non-proxy /bin/linuxqq --force-device-scale-factor=1.5 "$@"
+non-proxy /bin/linuxqq --force-device-scale-factor=1.15 "$@"

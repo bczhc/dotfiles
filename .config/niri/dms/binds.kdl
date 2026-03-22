@@ -2,7 +2,8 @@ binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
     // --- 核心启动器 (对应你的 Rofi 配置) ---
     // 对应 bind = $mod, D, exec, rofi -show drun
-    Mod+D { spawn "rofi" "-show" "drun"; }
+    // Mod+D { spawn "rofi" "-show" "drun"; }
+    Mod+D { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
 
     // 对应 bind = $mod SHIFT, E, exec, rofi -show emoji
     Mod+Shift+E { spawn "rofi" "-show" "emoji"; }

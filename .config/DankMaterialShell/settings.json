@@ -4,6 +4,7 @@
   "customThemeFile": "",
   "registryThemeVariants": {},
   "matugenScheme": "scheme-vibrant",
+  "matugenContrast": 0,
   "runUserMatugenTemplates": true,
   "matugenTargetMonitor": "",
   "popupTransparency": 1,
@@ -22,6 +23,8 @@
   "mangoLayoutGapsOverride": -1,
   "mangoLayoutRadiusOverride": -1,
   "mangoLayoutBorderSize": -1,
+  "firstDayOfWeek": -1,
+  "showWeekNumber": false,
   "use24HourClock": true,
   "showSeconds": true,
   "padHours12Hour": false,
@@ -36,6 +39,15 @@
   "modalAnimationSpeed": 1,
   "modalCustomAnimationDuration": 150,
   "enableRippleEffects": true,
+  "m3ElevationEnabled": true,
+  "m3ElevationIntensity": 12,
+  "m3ElevationOpacity": 30,
+  "m3ElevationColorMode": "default",
+  "m3ElevationLightDirection": "top",
+  "m3ElevationCustomColor": "#000000",
+  "modalElevationEnabled": true,
+  "popoutElevationEnabled": true,
+  "barElevationEnabled": true,
   "wallpaperFillMode": "Fill",
   "blurredWallpaperLayer": false,
   "blurWallpaperOnOverview": false,
@@ -128,6 +140,7 @@
   "showOccupiedWorkspacesOnly": true,
   "reverseScrolling": false,
   "dwlShowAllTags": false,
+  "workspaceActiveAppHighlightEnabled": false,
   "workspaceColorMode": "default",
   "workspaceOccupiedColorMode": "none",
   "workspaceUnfocusedColorMode": "default",
@@ -183,8 +196,10 @@
   "appLauncherGridColumns": 4,
   "spotlightCloseNiriOverview": true,
   "spotlightSectionViewModes": {},
-  "appDrawerSectionViewModes": {},
-  "niriOverviewOverlayEnabled": true,
+  "appDrawerSectionViewModes": {
+    "apps": "list"
+  },
+  "niriOverviewOverlayEnabled": false,
   "dankLauncherV2Size": "compact",
   "dankLauncherV2BorderEnabled": false,
   "dankLauncherV2BorderThickness": 2,
@@ -260,6 +275,10 @@
   "qtThemingEnabled": false,
   "syncModeWithPortal": true,
   "terminalsAlwaysDark": false,
+  "muxType": "tmux",
+  "muxUseCustomCommand": false,
+  "muxCustomCommand": "",
+  "muxSessionFilter": "",
   "runDmsMatugenTemplates": true,
   "matugenTemplateGtk": true,
   "matugenTemplateNiri": true,
@@ -283,10 +302,21 @@
   "matugenTemplateVscode": true,
   "matugenTemplateEmacs": true,
   "matugenTemplateZed": true,
+  "matugenTemplateNeovimSettings": {
+    "dark": {
+      "baseTheme": "github_dark",
+      "harmony": 0.5
+    },
+    "light": {
+      "baseTheme": "github_light",
+      "harmony": 0.5
+    }
+  },
   "showDock": true,
   "dockAutoHide": true,
   "dockSmartAutoHide": false,
   "dockGroupByApp": false,
+  "dockRestoreSpecialWorkspaceOnClick": false,
   "dockOpenOnOverview": false,
   "dockPosition": 1,
   "dockSpacing": 4,
@@ -329,6 +359,9 @@
   "lockScreenActiveMonitor": "all",
   "lockScreenInactiveColor": "#000000",
   "lockScreenNotificationMode": 0,
+  "lockScreenVideoEnabled": false,
+  "lockScreenVideoPath": "",
+  "lockScreenVideoCycling": false,
   "hideBrightnessSlider": false,
   "notificationTimeoutLow": 1000,
   "notificationTimeoutNormal": 5000,
@@ -353,6 +386,7 @@
       "urgency": "low"
     }
   ],
+  "notificationFocusedMonitor": false,
   "osdAlwaysShowValue": false,
   "osdPosition": 0,
   "osdVolumeEnabled": true,
@@ -412,6 +446,10 @@
       "showOnLastDisplay": true,
       "leftWidgets": [
         {
+          "id": "launcherButton",
+          "enabled": true
+        },
+        {
           "id": "workspaceSwitcher",
           "enabled": true
         },
@@ -430,10 +468,6 @@
       ],
       "rightWidgets": [
         {
-          "id": "systemTray",
-          "enabled": true
-        },
-        {
           "id": "cpuUsage",
           "enabled": true
         },
@@ -442,11 +476,11 @@
           "enabled": true
         },
         {
-          "id": "notificationButton",
+          "id": "battery",
           "enabled": true
         },
         {
-          "id": "battery",
+          "id": "separator",
           "enabled": true
         },
         {
@@ -458,6 +492,22 @@
           "enabled": true
         },
         {
+          "id": "separator",
+          "enabled": true
+        },
+        {
+          "id": "notificationButton",
+          "enabled": true
+        },
+        {
+          "id": "systemTray",
+          "enabled": true
+        },
+        {
+          "id": "separator",
+          "enabled": true
+        },
+        {
           "id": "notepadButton",
           "enabled": true
         }
@@ -465,17 +515,17 @@
       "spacing": 0,
       "innerPadding": -8,
       "bottomGap": -4,
-      "transparency": 0.9,
-      "widgetTransparency": 0.9,
+      "transparency": 1,
+      "widgetTransparency": 0,
       "squareCorners": true,
-      "noBackground": true,
+      "noBackground": false,
       "maximizeWidgetIcons": false,
       "maximizeWidgetText": false,
       "removeWidgetPadding": false,
-      "widgetPadding": 8,
+      "widgetPadding": 9,
       "gothCornersEnabled": false,
       "gothCornerRadiusOverride": false,
-      "gothCornerRadiusValue": 12,
+      "gothCornerRadiusValue": 17,
       "borderEnabled": false,
       "borderColor": "surfaceText",
       "borderOpacity": 1,
