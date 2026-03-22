@@ -15,3 +15,8 @@ window-rule {
     open-floating true
 }
 
+window-rule {
+    match title="^Mathematica$"
+    match title="^Welcome to Wolfram Mathematica$"
+    open-floating true
+}

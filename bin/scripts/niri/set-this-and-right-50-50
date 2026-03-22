@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# 1. 获取所有窗口的 JSON 数据
+WINDOWS_JSON=$(niri msg -j windows)
+
+# 2. 提取当前聚焦窗口的信息：ID 和它的水平位置 (x 坐标)
+# niri 的 pos_in_scrolling_layout 是 [x, y]
+FOCUSED_INFO=$(echo "$WINDOWS_JSON" | jq -r '.[] | select(.is_focused == true) | "\(.id) \(.layout.pos_in_scrolling_layout[0]) \(.workspace_id)"')
+
+if [ -z "$FOCUSED_INFO" ]; then
+    echo "未发现聚焦窗口。"
+    exit 1
+fi
+
+read -r FOCUSED_ID FOCUSED_X CURRENT_WORKSPACE <<< "$FOCUSED_INFO"
+
+# 3. 寻找右侧窗口：在同一个 workspace 且 x 坐标等于聚焦窗口 x + 1 的窗口
+RIGHT_ID=$(echo "$WINDOWS_JSON" | jq -r ".[] | select(.workspace_id == $CURRENT_WORKSPACE and .layout.pos_in_scrolling_layout[0] == $((FOCUSED_X + 1))) | .id")
+
+# 4. 执行设置
+echo "设置聚焦窗口 (ID: $FOCUSED_ID) 宽度为 50%..."
+niri msg action set-column-width "50%"
+
+if [ -n "$RIGHT_ID" ] && [ "$RIGHT_ID" != "null" ]; then
+    echo "发现右侧窗口 (ID: $RIGHT_ID)，设置其宽度为 50%..."
+    # 先把焦点移到右边，设置完再移回来，或者直接针对 ID 操作（如果 niri 支持，但通常 action 针对当前聚焦）
+    niri msg action focus-column-right
+    niri msg action set-column-width "50%"
+    niri msg action focus-column-left
+else
+    echo "右侧没有发现窗口。"
+fi

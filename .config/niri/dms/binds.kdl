@@ -123,6 +123,8 @@ binds {
 
     Mod+F11 { spawn-sh "/home/bczhc/bin/scripts/manage-mangohud refresh"; }
     Mod+F12 { spawn-sh "/home/bczhc/bin/scripts/manage-mangohud toggle"; }
+
+    Mod+A { spawn-sh "$HOMESCRIPT_DIR/niri/set-this-and-right-50-50"; }
 }
 
 // DMS BINDS
