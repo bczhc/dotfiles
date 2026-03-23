@@ -1,0 +1,107 @@
+#!/bin/bash
+
+## Blocked version of niri msg action screenshot*.
+##
+## Niri screenshot result: done, canceled, ignored
+##
+## Niri version: 0aa941f04d391089627798c74d0d510ed788a3fa
+##
+## Assisted-by: Gemini:Fast
+
+export RUST_LOG=info
+
+niri_screenshot_blocked() {
+    local path="$1"
+    local id
+    id=$(uuidgen)
+    local fifo="/tmp/${id}-result"
+
+    mkfifo "$fifo"
+    # niri msg action screenshot-screen [id] [path]
+    niri msg action screenshot-screen $id -d true -p true --path "$path"
+
+    read -r result < "$fifo"
+    rm "$fifo"
+
+    case "$result" in
+        done)
+            echo "Done"
+            return 0
+            ;;
+        canceled)
+            echo "Canceled"
+            return 1
+            ;;
+        ignored)
+            echo "Screenshot UI already shown"
+            return 1
+            ;;
+    esac
+}
+
+niri_area_screenshot_blocked() {
+    local path="$1"
+    local id
+    id=$(uuidgen)
+    local fifo="/tmp/${id}-result"
+
+    mkfifo "$fifo"
+    # niri msg action screenshot [id] [path]
+    niri msg action screenshot $id -p true --path "$path"
+
+    read -r result < "$fifo"
+    rm "$fifo"
+
+    case "$result" in
+        done)
+            echo "Done"
+            return 0
+            ;;
+        canceled)
+            echo "Canceled"
+            return 1
+            ;;
+        ignored)
+            echo "Screenshot UI already shown"
+            return 1
+            ;;
+    esac
+}
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") <command> <path>
+
+A blocked wrapper for Niri screenshots that waits for the capture to complete.
+
+Commands:
+  screen    Capture the entire screen (-d true -p true)
+  area      Interactively select a window or area to capture (-p true)
+
+Arguments:
+  path      Absolute path to save the screenshot.
+EOF
+}
+
+if [[ $# -lt 2 ]]; then
+    usage
+    exit 1
+fi
+
+case "$1" in
+    screen)
+        niri_screenshot_blocked "$2"
+        ;;
+    area)
+        niri_area_screenshot_blocked "$2"
+        ;;
+    -h|--help|help)
+        usage
+        exit 0
+        ;;
+    *)
+        echo "Error: Unknown command '$1'"
+        usage
+        exit 1
+        ;;
+esac

@@ -1,0 +1,19 @@
+[Desktop Entry]
+Name=MarkText
+Comment=Next generation markdown editor
+Exec=/home/bczhc/bin/marktext.AppImage %F
+Terminal=false
+Type=Application
+#Icon=marktext
+Icon=/home/bczhc/.local/xdg-override/icons/marktext.png
+Categories=Office;TextEditor;Utility;
+MimeType=text/markdown;
+Keywords=marktext;
+StartupWMClass=marktext
+Actions=NewWindow;
+
+[Desktop Action NewWindow]
+Name=New Window
+Exec=marktext --new-window %F
+Icon=marktext
+

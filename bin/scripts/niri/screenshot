@@ -18,34 +18,6 @@ interactive_canceled() {
     notify-send -t 2000 'Screenshot Canceled.'; exit 0
 }
 
-wait_and_verify_file() {
-    local FILE_PATH="$1"
-    local START_TIME=$(date +%s%N) # 获取纳秒级起始时间
-    local TIMEOUT_NS=10000000000    # 10秒
-
-    # 阶段 1: 等待文件存在
-    while [ ! -f "$FILE_PATH" ]; do
-        local CURRENT_TIME=$(date +%s%N)
-        if (( CURRENT_TIME - START_TIME > TIMEOUT_NS )); then
-            echo "Error: Timeout waiting for file to exist." >&2
-            return 1
-        fi
-        # 可选：sleep 0.05 以降低 CPU 占用，真正的 spin loop 则不加 sleep
-    done
-
-    # 阶段 2: 使用 ffmpeg 验证文件完整性
-    # 只要 ffmpeg 返回非 0（文件损坏或未写完），就继续重试直到超时
-    while ! ffmpeg -v error -i "$FILE_PATH" -f null - >/dev/null 2>&1; do
-        local CURRENT_TIME=$(date +%s%N)
-        if (( CURRENT_TIME - START_TIME > TIMEOUT_NS )); then
-            echo "Error: Timeout waiting for file to be valid (ffmpeg check failed)." >&2
-            return 1
-        fi
-        sleep 0.1
-    done
-    return 0
-}
-
 DATE_STR=$(date "+%Y-%m-%d_%H-%M-%S")
 TEMP_FILE="/tmp/$(uuidgen).png"
 SAVE_DIR="/home/bczhc/Screenshots"
@@ -70,8 +42,6 @@ else
     niri-ss-blocked screen "$TEMP_FILE" || failure 1
 fi
 
-# Handle spurious wakeups.
-wait_and_verify_file "$TEMP_FILE" || failure 2
 [ -f "$TEMP_FILE" ] || failure 2.1
 
 # 2. 安全地锁定目标文件名
