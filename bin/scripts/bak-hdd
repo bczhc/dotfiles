@@ -3,6 +3,7 @@
 set -e
 
 bak_dir=/mnt/4T/@backup
+# Note: rsync via ssh is broken now because `mkdir -p "$bak_dir"/...` is used.
 #bak_dir=bczhc@bczhc-eq:/mnt/bczhc-4T/@backup
 ssh_host=192.168.5.1
 rsync_arg=(-e 'ssh -p22')
@@ -61,6 +62,10 @@ rsync $rsync_arg "$saves_path" "$bak_dir"'/zhc/gaming/Palworld saves' --info=pro
 # ~/code
 mkdir -p "$bak_dir"/zhc/code
 fd . ~/code -t d -d 1 -x rsync $rsync_arg --no-i-r --info=PROGRESS2 -a --filter=':- .gitignore' --exclude='/target' --delete-during "{}" "$bak_dir/zhc/code/"
+
+# .local/state logs
+mkdir -p "$bak_dir"/home-local
+rsync $rsync_arg ~/.local/state "$bak_dir"/zhc/linux/arch/home-local
 
 ## sudo operations
 mkdir -p "$bak_dir"/zhc/linux/arch/var-log

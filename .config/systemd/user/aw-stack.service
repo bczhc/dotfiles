@@ -1,0 +1,15 @@
+[Unit]
+Description=ActivityWatch and AWatcher Stack
+After=graphical-session.target
+
+[Service]
+Type=exec
+# 使用 zsh 启动多个进程，注意我们让它们在后台运行
+ExecStart=/bin/zsh -c '~/bin/activitywatch/aw-qt & ~/bin/awatcher/target/release/awatcher'
+Restart=on-failure
+# 确保环境变量正确（可选）
+#Environment=DISPLAY=:0
+Environment=WAYLAND_DISPLAY=wayland-1
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Niri Window Activity Monitor
+After=graphical-session.target
+
+[Service]
+Type=exec
+ExecStart=/home/bczhc/bin/scripts/monitor-niri-window-activity
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target

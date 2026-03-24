@@ -204,6 +204,7 @@ environment {
     XDG_CURRENT_DESKTOP "niri"
     XDG_CONFIG_HOME "/home/bczhc/.config"
     XDG_DATA_DIRS "/home/bczhc/.local/xdg-override:/home/bczhc/.local/share:/usr/local:/usr/share:/usr/local/share"
+    XDG_STATE_HOME "/home/bczhc/.local/state"
 
     QUIRK_APP_DIR "/home/bczhc/bin/scripts/exec-override"
 

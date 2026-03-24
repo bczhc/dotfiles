@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+state_dir="$XDG_STATE_HOME"
+[ -z "$state_dir" ] && state_dir="$HOME"/.local/state
+wa_dir="$state_dir"/bczhc/niri-window-activity
+mkdir -p "$wa_dir"
+
+key_out="$wa_dir/keyd.log"
+niri_out="$wa_dir/niri.jsonl"
+
+keyd monitor | isots | tee -a "$key_out" &
+
+while :; do
+    niri msg -j focused-window | jq '{ts: now, niri: .}' -c
+    sleep 1
+done | tee -a "$niri_out"
