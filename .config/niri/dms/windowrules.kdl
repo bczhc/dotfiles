@@ -6,25 +6,53 @@ window-rule {
 }
 
 window-rule {
-    match app-id="^clash-verge$"
-    open-floating true
-}
-
-window-rule {
-    match title=r#"winit window"#
-    open-floating true
-}
-
-window-rule {
     match title="^Mathematica$"
     match title="^Welcome to Wolfram Mathematica$"
     open-floating true
 }
 
+// Windows to be floating
 window-rule {
-    match title="^Rename.*$"
-    match title="^.*- Properties$"
-    match title="^File Operation Progress.*$"
-    match app-id="^mpv$"
+    // === Thunar ===
+    match app-id=r#"[tT]hunar"# title=r#"^Rename.*$"#
+    match app-id=r#"[tT]hunar"# title=r#"^.*- Properties$"#
+    match app-id=r#"[tT]hunar"# title=r#"^File Operation Progress.*$"#
+
+    // === Inkscape ===
+    match app-id=r#"org.inkscape.Inkscape"# title=r#"^.*[iI]mport.*$"#
+    match app-id=r#"org.inkscape.Inkscape"# title=r#"^SVG Input.*$"#
+
+    // === Mathematica ===
+    match app-id=r#"com.wolfram.Mathematica.*"# title=r#"^Mathematica$"#
+    match app-id=r#"com.wolfram.Mathematica.*"# title=r#"^(Open)|(Save As)$"#
+    
+    match app-id=r#"[dD]arktable"# title=r#"^[dD]arktable starting$"#
+    match title=r#"Tiny Glade"#
+    match app-id=r#"ristretto"#
+    match app-id=r#"QQ"#
+    match app-id=r#"clash-verge"#
+    match app-id=r#"xdg-desktop-portal-gtk"# title=r#"^Open.*$"#
+    match app-id=r#"yad"#
+    match title=r#"^Export.*$"#
+    match title=r#"^Qalculate.*$"#
+    match title=r#"^winit window$"#
+    match title=r#"^iwgtk$"#
+    match title=r#"^xeyes$"#
+    //match app-id=r#"wps.*"#
+
+    open-floating true
+}
+
+// WPS 处理
+/-window-rule {
+    match app-id="^wps$" title="^wps$"
+    focus-on-done-shredding false
+}
+
+// Steam
+window-rule {
+    match app-id=r#"^[sS]team$"#
+    exclude title=r#"^[sS]team$"#
+
     open-floating true
 }
