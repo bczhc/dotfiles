@@ -20,3 +20,11 @@ window-rule {
     match title="^Welcome to Wolfram Mathematica$"
     open-floating true
 }
+
+window-rule {
+    match title="^Rename.*$"
+    match title="^.*- Properties$"
+    match title="^File Operation Progress.*$"
+    match app-id="^mpv$"
+    open-floating true
+}

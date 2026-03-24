@@ -11,15 +11,26 @@ export RUST_LOG=info
 curr_dir="$(dirname "$0")"
 
 failure() {
-    notify-send -t 10000 'Screenshot Failed!! Code: '"$1"; exit 1
+    notify-send -u critical 'Screenshot Failed!! Code: '"$1"; exit 1
 }
 
 interactive_canceled() {
-    notify-send -t 2000 'Screenshot Canceled.'; exit 0
+    notify-send -u low 'Screenshot Canceled.'; exit 0
+}
+
+notify_has_left_tmp_ss() {
+    notify-send -u critical "Previous temp screenshot exists." "$1"
+}
+
+check_left_tmp_ss() {
+    local result="$(fd '^niri-ss' /tmp || true)"
+    [ ! -z "$result" ] && notify_has_left_tmp_ss "$result"
+    return 0
 }
 
 DATE_STR=$(date "+%Y-%m-%d_%H-%M-%S")
-TEMP_FILE="/tmp/$(uuidgen).png"
+temp_file_uuid=$(uuidgen)
+TEMP_FILE="/tmp/niri-ss-$temp_file_uuid.png"
 SAVE_DIR="/home/bczhc/Screenshots"
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
@@ -35,6 +46,8 @@ area_mode=0
 
 mkdir -p "$SAVE_DIR"
 
+#check_left_tmp_ss
+
 # 截图
 if [[ "$area_mode" -eq 1 ]]; then
     niri-ss-blocked area "$TEMP_FILE" || interactive_canceled
@@ -43,6 +56,8 @@ else
 fi
 
 [ -f "$TEMP_FILE" ] || failure 2.1
+temp_file_on_fs="$SAVE_DIR"/$temp_file_uuid.png
+cp -av "$TEMP_FILE" "$temp_file_on_fs"
 
 # 2. 安全地锁定目标文件名
 TARGET_FILE="$SAVE_DIR/$DATE_STR.png"
@@ -66,7 +81,6 @@ ffmpeg -v error -i "$TEMP_FILE" -pred mixed -compression_level 9 -y "$TARGET_FIL
 comment_value="$(/home/bczhc/bin/scripts/niri/ipc-msgs)"
 exiftool -overwrite_original_in_place -Comment="$comment_value" "$TARGET_FILE" || failure 4
 
-# 4. 清理并通知
-rm "$TEMP_FILE"
+rm -v "$TEMP_FILE" "$temp_file_on_fs"
 
 echo "Done: $TARGET_FILE"
