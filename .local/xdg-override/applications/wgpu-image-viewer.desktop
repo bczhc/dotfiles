@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=WGPU Image Viewer
-Exec=/home/bczhc/image-viewer %f
+Exec=/home/bczhc/bin/wgpu-image-viewer %f
 Terminal=false
 Type=Application
 MimeType=image/jpeg;image/png;

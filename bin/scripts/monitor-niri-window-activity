@@ -10,9 +10,9 @@ mkdir -p "$wa_dir"
 key_out="$wa_dir/keyd.log"
 niri_out="$wa_dir/niri.jsonl"
 
-keyd monitor | isots | tee -a "$key_out" &
+keyd monitor | isots >> "$key_out" &
 
 while :; do
     niri msg -j focused-window | jq '{ts: now, niri: .}' -c
     sleep 1
-done | tee -a "$niri_out"
+done >> "$niri_out"

@@ -48,6 +48,8 @@ mkdir -p "$SAVE_DIR"
 
 #check_left_tmp_ss
 
+comment_value="$(/home/bczhc/bin/scripts/niri/ipc-msgs)"
+
 # 截图
 if [[ "$area_mode" -eq 1 ]]; then
     niri-ss-blocked area "$TEMP_FILE" || interactive_canceled
@@ -56,6 +58,7 @@ else
 fi
 
 [ -f "$TEMP_FILE" ] || failure 2.1
+# fs上做备份，万一后续处理出问题
 temp_file_on_fs="$SAVE_DIR"/$temp_file_uuid.png
 cp -av "$TEMP_FILE" "$temp_file_on_fs"
 
@@ -76,9 +79,9 @@ done
 
 # 3. 使用 ffmpeg 压缩并覆盖那个空文件
 # 注意：使用 -y 强制覆盖，因为我们上面已经创建了空文件
+# 这一步可能会很耗时
 ffmpeg -v error -i "$TEMP_FILE" -pred mixed -compression_level 9 -y "$TARGET_FILE" || failure 3
 
-comment_value="$(/home/bczhc/bin/scripts/niri/ipc-msgs)"
 exiftool -overwrite_original_in_place -Comment="$comment_value" "$TARGET_FILE" || failure 4
 
 rm -v "$TEMP_FILE" "$temp_file_on_fs"

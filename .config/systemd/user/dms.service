@@ -9,9 +9,12 @@ Type=dbus
 BusName=org.freedesktop.Notifications
 
 Environment="XDG_DATA_DIRS=/home/bczhc/.local/xdg-override:/home/bczhc/.local/share:/usr/local:/usr/share:/usr/local/share"
+# See: https://github.com/AvengeMedia/DankMaterialShell/issues/2056
 Environment="QSG_RHI_BACKEND=vulkan"
-#Environment="VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json"
-Environment="VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.json"
+# However, don't use this now... See: https://github.com/niri-wm/niri/discussions/3691
+#Environment="VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.json"
+# Only use this!
+Environment="VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json"
 
 ExecStart=/usr/bin/dms run --session
 ExecReload=/usr/bin/pkill -USR1 -x dms
