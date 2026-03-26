@@ -12,8 +12,9 @@ cd ~
 cp .vimrc .zshrc .p10k.zsh .gitconfig "$basedir"
 
 cd ~/.config
-rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch htop yazi tmux-powerline hypr niri waybar eww DankMaterialShell systemd \
-    MangoHud \
+rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch htop yazi tmux-powerline hypr \
+    niri waybar eww DankMaterialShell systemd MangoHud \
+    --exclude=DankMaterialShell/plugins \
   "$basedir/.config/"
 
 cd "$basedir"

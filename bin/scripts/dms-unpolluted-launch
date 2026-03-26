@@ -1,0 +1,6 @@
+#!/bin/bash
+
+unset VK_ICD_FILENAMES
+unset QSG_RHI_BACKEND
+
+exec "$@"
