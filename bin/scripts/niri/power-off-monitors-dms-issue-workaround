@@ -1,0 +1,20 @@
+#!/bin/bash
+# See: https://github.com/niri-wm/niri/discussions/3691
+
+dms_service=dms-igpu.service
+drm_device=card1-DP-2
+
+systemctl --user stop "$dms_service"
+niri msg action power-off-monitors
+
+sleep 1
+
+# Poll and wait for monitor reactivated.
+while :; do
+    status="$(cat /sys/class/drm/"$drm_device"/dpms)"
+    [ "$status" == "On" ] && break
+    sleep 1
+done
+
+# Monitor has been reactivated; restart DMS.
+systemctl --user start "$dms_service"

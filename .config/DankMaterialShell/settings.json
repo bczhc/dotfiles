@@ -14,7 +14,7 @@
   "controlCenterTileColorMode": "primary",
   "buttonColorMode": "primary",
   "cornerRadius": 12,
-  "niriLayoutGapsOverride": 8,
+  "niriLayoutGapsOverride": 6,
   "niriLayoutRadiusOverride": -1,
   "niriLayoutBorderSize": 2,
   "hyprlandLayoutGapsOverride": -1,
@@ -195,7 +195,9 @@
   "sortAppsAlphabetically": false,
   "appLauncherGridColumns": 4,
   "spotlightCloseNiriOverview": true,
-  "spotlightSectionViewModes": {},
+  "spotlightSectionViewModes": {
+    "plugin_emojiLauncher": "list"
+  },
   "appDrawerSectionViewModes": {
     "apps": "list"
   },
@@ -514,7 +516,7 @@
       ],
       "spacing": 0,
       "innerPadding": -8,
-      "bottomGap": -4,
+      "bottomGap": 0,
       "transparency": 1,
       "widgetTransparency": 0,
       "squareCorners": true,
@@ -523,7 +525,7 @@
       "maximizeWidgetText": false,
       "removeWidgetPadding": false,
       "widgetPadding": 9,
-      "gothCornersEnabled": false,
+      "gothCornersEnabled": true,
       "gothCornerRadiusOverride": false,
       "gothCornerRadiusValue": 17,
       "borderEnabled": false,

@@ -3,5 +3,15 @@
     "enabled": true,
     "recentEmojis": "🤪,😝,🤑,🤗,🤭,🤫,🤔,🤐,😡,😐",
     "useDMS": false
+  },
+  "commandRunner": {
+    "enabled": true,
+    "history": [
+      "xeyes",
+      "lepton",
+      "notify-send 1 2",
+      "notify-send 1 2 3 4",
+      "notify-send 1"
+    ]
   }
 }

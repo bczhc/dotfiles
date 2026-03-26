@@ -6,7 +6,8 @@ binds {
     Mod+D { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
 
     // 对应 bind = $mod SHIFT, E, exec, rofi -show emoji
-    Mod+Shift+E { spawn "rofi" "-show" "emoji"; }
+    // Use DMS Emoji plugins instead.
+    // Mod+Shift+E { spawn "rofi" "-show" "emoji"; }
 
     // 计算器
     Mod+Shift+U { spawn "rofi" "-show" "calc"; }
@@ -121,7 +122,10 @@ binds {
 
     // Powers off the monitors. To turn them back on, do any input like
     // moving the mouse or pressing any other key.
-    Mod+Shift+P { power-off-monitors; }
+    // Mod+Shift+P { power-off-monitors; }
+    // Due to https://github.com/niri-wm/niri/discussions/3691, use this
+    // workaround below.
+    Mod+Shift+P { spawn-sh "/home/bczhc/bin/scripts/niri/power-off-monitors-dms-issue-workaround"; }
 
     Mod+F11 { spawn-sh "/home/bczhc/bin/scripts/manage-mangohud refresh"; }
     Mod+F12 { spawn-sh "/home/bczhc/bin/scripts/manage-mangohud toggle"; }
@@ -286,8 +290,8 @@ binds {
     // === Mouse Wheel Navigation ===
     Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
     Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
-    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
-    Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
+    // Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
+    // Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
 
     Mod+WheelScrollRight      { focus-column-right; }
     Mod+WheelScrollLeft       { focus-column-left; }

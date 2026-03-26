@@ -47,8 +47,9 @@ spawn-at-startup "fcitx5" "-d"
 spawn-at-startup "bash" "-c" r##"echo $NIRI_SOCKET > /tmp/niri-socket.txt"##
 
 gestures {
+    // Enable this to open niri overview on mouse moved to the top-left corner.
     hot-corners {
-        off
+        // off
     }
 }
 
