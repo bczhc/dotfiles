@@ -206,6 +206,8 @@ environment {
     XDG_CONFIG_HOME "/home/bczhc/.config"
     XDG_DATA_DIRS "/home/bczhc/.local/xdg-override:/home/bczhc/.local/share:/usr/local:/usr/share:/usr/local/share"
     XDG_STATE_HOME "/home/bczhc/.local/state"
+    // For screencasting
+    XDG_CURRENT_DESKTOP "niri:GNOME"
 
     QUIRK_APP_DIR "/home/bczhc/bin/scripts/exec-override"
 
@@ -310,9 +312,16 @@ window-rule {
     open-floating true
 }
 
+window-rule {
+    match app-id="firefox$"
+
+    open-maximized-if-alone true
+}
+
 debug {
     render-drm-device "/dev/dri/card1"
     honor-xdg-activation-with-invalid-serial
+    //disable-direct-scanout
 }
 
 // Override to disable super+tab

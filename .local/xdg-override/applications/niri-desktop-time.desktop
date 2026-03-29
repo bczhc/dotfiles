@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=13.0
+Type=Application
+Terminal=false
+Exec=bash -c 'cd; cd .local/state/bczhc/niri-window-activity; streamlit run niri-window-activity.py'
+Name=Niri桌面使用统计
+#Icon=/home/bczhc/.local/xdg-override/icons/diary-tauri.icon

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo cpupower frequency-set --max 4600M
+cpufreq 4600M

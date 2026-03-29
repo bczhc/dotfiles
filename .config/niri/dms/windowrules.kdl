@@ -56,3 +56,11 @@ window-rule {
 
     open-floating true
 }
+
+// GPU Screen Recorder UI
+window-rule {
+    match app-id="^gsr-ui$"
+
+    open-floating true
+    open-fullscreen false
+}

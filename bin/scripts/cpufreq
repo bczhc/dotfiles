@@ -1,7 +1,11 @@
 #!/bin/bash
 
+set -e
+
 [ $# -eq 0 ] && \
     cpupower frequency-info | rg '^.*current policy.*should be within [0-9]* MHz and (.*).$' -r '$1' --color never && \
     exit 0
 
 sudo cpupower frequency-set --max "$1"
+
+notify-send -u low 'cpufreq: '"$(cpufreq)"

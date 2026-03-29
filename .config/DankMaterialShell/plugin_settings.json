@@ -1,12 +1,24 @@
 {
   "emojiLauncher": {
     "enabled": true,
-    "recentEmojis": "🤪,😝,🤑,🤗,🤭,🤫,🤔,🤐,😡,😐",
+    "recentEmojis": "👍,😞,😡,🤪,😝,🤑,🤗,🤭,🤫,🤔,🤐,😐",
     "useDMS": false
   },
   "commandRunner": {
     "enabled": true,
     "history": [
+      "cpu-high",
+      "cpufreq 2000M",
+      "cpufreq 800M",
+      "sdrpp-swrender",
+      "alacritty-cpu --command=zsh",
+      "alacritty-cpu",
+      "sdrpp-swerender",
+      "render",
+      "cpufreq 1000M",
+      "cpufreq 8008M",
+      "cpu-freq 800M",
+      "cpu-freq 2000M",
       "xeyes",
       "lepton",
       "notify-send 1 2",

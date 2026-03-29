@@ -282,3 +282,8 @@ alias zinkstart='MANGOHUD=1 __GLX_VENDOR_LIBRARY_NAME=mesa __EGL_VENDOR_LIBRARY_
 
 
 alias startn='niri-session'
+
+# depollute envs from alacritty-cpu
+unset __NV_PRIME_RENDER_OFFLOAD
+unset __GLX_VENDOR_LIBRARY_NAME
+unset __EGL_VENDOR_LIBRARY_FILENAMES
