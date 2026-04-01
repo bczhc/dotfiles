@@ -22,7 +22,10 @@ output "DP-2" {
     mode "2560x1440@165.001"
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
-    scale 1.33333
+    scale 1.333333333333333333
+    //scale 1.333333333333333
+    //scale 2
+    //scale 1.3333333
 
     // Transform allows to rotate the output counter-clockwise, valid values are:
     // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
@@ -222,9 +225,10 @@ hotkey-overlay {
     skip-at-startup
 }
 prefer-no-csd
-animations {
+include "animations/glide.kdl"
+/-animations {
     workspace-switch {
-        spring damping-ratio=0.80 stiffness=523 epsilon=0.0001
+        spring damping-ratio=0.80 stiffness=2000 epsilon=0.0001
     }
     window-open {
         duration-ms 150
@@ -235,23 +239,24 @@ animations {
         curve "ease-out-quad"
     }
     horizontal-view-movement {
-        spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
+        spring damping-ratio=0.85 stiffness=2000 epsilon=0.0001
+        //off
     }
     window-movement {
-        spring damping-ratio=0.75 stiffness=323 epsilon=0.0001
+        spring damping-ratio=0.75 stiffness=2000 epsilon=0.0001
     }
     window-resize {
-        spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
+        spring damping-ratio=0.85 stiffness=2000 epsilon=0.0001
     }
     config-notification-open-close {
-        spring damping-ratio=0.65 stiffness=923 epsilon=0.001
+        spring damping-ratio=0.65 stiffness=2000 epsilon=0.001
     }
     screenshot-ui-open {
         duration-ms 200
         curve "ease-out-quad"
     }
     overview-open-close {
-        spring damping-ratio=0.85 stiffness=800 epsilon=0.0001
+        spring damping-ratio=0.85 stiffness=2000 epsilon=0.0001
     }
 }
 // Window rules let you adjust behavior for individual windows.

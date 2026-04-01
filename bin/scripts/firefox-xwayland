@@ -1,4 +1,5 @@
 #!/bin/bash
 
 unset WAYLAND_DISPLAY
-GDK_DPI_SCALE=1.33333 non-proxy firefox --profile="$HOME"/.local/share/firefox-xwayland-profile
+#GDK_DPI_SCALE=1.33333 
+non-proxy firefox --profile="$HOME"/.local/share/firefox-xwayland-profile

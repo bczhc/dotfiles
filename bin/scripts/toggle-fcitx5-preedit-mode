@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# 配置文件绝对路径
+CONF_FILE="$HOME/.config/fcitx5/conf/rime.conf"
+
+# 检查文件是否存在
+if [ ! -f "$CONF_FILE" ]; then
+    echo "错误: 找不到配置文件 $CONF_FILE"
+    exit 1
+fi
+
+# 获取当前 PreeditMode 的值 (排除注释行)
+CURRENT_MODE=$(grep "^PreeditMode=" "$CONF_FILE" | cut -d'=' -f2 | tr -d '"')
+
+# 切换逻辑
+if [ "$CURRENT_MODE" = "Do not show" ]; then
+    NEW_MODE="Composing text"
+else
+    NEW_MODE="Do not show"
+fi
+
+# 使用 sed 直接修改文件
+# s/^PreeditMode=.*/.../ 匹配以 PreeditMode= 开头的整行并替换
+sed -i "s/^PreeditMode=.*/PreeditMode=\"$NEW_MODE\"/" "$CONF_FILE"
+
+# 打印新配置结果
+echo "Rime 配置已更新："
+new_config="$(grep "^PreeditMode=" "$CONF_FILE")"
+
+echo $new_config
+
+notify-send -u low "$new_config"
+
+# https://github.com/fcitx/fcitx5/discussions/746
+busctl --user call org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1 ReloadAddonConfig s rime

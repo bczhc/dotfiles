@@ -30,7 +30,6 @@ window-rule {
     match title=r#"Tiny Glade"#
     match app-id=r#"ristretto"#
     match app-id=r#"QQ"#
-    match app-id=r#"clash-verge"#
     match app-id=r#"xdg-desktop-portal-gtk"# title=r#"^Open.*$"#
     match app-id=r#"yad"#
     match title=r#"^Export.*$"#
@@ -63,4 +62,12 @@ window-rule {
 
     open-floating true
     open-fullscreen false
+}
+
+window-rule {
+    match title="Clash Verge"
+    match app-id=r#"clash-verge"#
+
+    open-fullscreen false
+    open-floating true
 }

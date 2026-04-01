@@ -1,12 +1,14 @@
 {
   "emojiLauncher": {
     "enabled": true,
-    "recentEmojis": "👍,😞,😡,🤪,😝,🤑,🤗,🤭,🤫,🤔,🤐,😐",
-    "useDMS": false
+    "recentEmojis": "👍,🎉,😂,😞,😡,🤪,😝,🤑,🤗,🤭,🤫,🤔,🤐,😐",
+    "useDMS": false,
+    "trigger": "`"
   },
   "commandRunner": {
     "enabled": true,
     "history": [
+      "xeyes",
       "cpu-high",
       "cpufreq 2000M",
       "cpufreq 800M",
@@ -19,7 +21,6 @@
       "cpufreq 8008M",
       "cpu-freq 800M",
       "cpu-freq 2000M",
-      "xeyes",
       "lepton",
       "notify-send 1 2",
       "notify-send 1 2 3 4",

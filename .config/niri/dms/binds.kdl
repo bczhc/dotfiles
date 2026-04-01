@@ -26,7 +26,9 @@ binds {
 
     // 焦点移动 (左/右滚动)
     Mod+H     { focus-column-left; }
+    Mod+Q     { focus-column-left; }
     Mod+L     { focus-column-right; }
+    Mod+E     { focus-column-right; }
     Mod+Left  { focus-column-left; }
     Mod+Right { focus-column-right; }
 
@@ -66,8 +68,8 @@ binds {
     Mod+S { spawn "my-screenshot-niri"; }
     Mod+Shift+S { spawn-sh "my-screenshot-niri --area"; }
 
-    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+ -l 1.0"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
     XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
 

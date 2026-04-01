@@ -211,7 +211,7 @@
   "useAutoLocation": false,
   "weatherEnabled": false,
   "networkPreference": "auto",
-  "iconTheme": "System Default",
+  "iconTheme": "rose-pine",
   "cursorSettings": {
     "theme": "System Default",
     "size": 24,
