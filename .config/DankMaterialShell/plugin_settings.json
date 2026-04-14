@@ -1,14 +1,17 @@
 {
   "emojiLauncher": {
     "enabled": true,
-    "recentEmojis": "👍,🎉,😂,😞,😡,🤪,😝,🤑,🤗,🤭,🤫,🤔,🤐,😐",
+    "recentEmojis": "😂,🤮,👍,😭,😢,😱,🎉,😞,😡,🤪,😝,🤑,🤗,🤭,🤫,🤔,🤐,😐",
     "useDMS": false,
-    "trigger": "`"
+    "trigger": ":e"
   },
   "commandRunner": {
     "enabled": true,
     "history": [
       "xeyes",
+      "firefox-xwayland",
+      "rime-add-words",
+      "tqs",
       "cpu-high",
       "cpufreq 2000M",
       "cpufreq 800M",
@@ -26,5 +29,13 @@
       "notify-send 1 2 3 4",
       "notify-send 1"
     ]
+  },
+  "alarmClock": {
+    "enabled": true
+  },
+  "niriWindows": {
+    "enabled": true,
+    "noTrigger": false,
+    "trigger": "!"
   }
 }

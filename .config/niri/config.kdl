@@ -7,7 +7,11 @@ config-notification {
 }
 // Outputs from existing configuration
 output "eDP-1" {
-    off
+    //off
+    scale 0.5
+}
+output "HEADLESS-12" {
+    scale 4
 }
 output "DP-2" {
     // Uncomment this line to disable this output.
@@ -20,11 +24,13 @@ output "DP-2" {
     // If the mode is omitted altogether or is invalid, niri will pick one automatically.
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
     mode "2560x1440@165.001"
+    //mode "640x480"
+//    mode "2560x1440@60"
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
     scale 1.333333333333333333
     //scale 1.333333333333333
-    //scale 2
+    //scale 3
     //scale 1.3333333
 
     // Transform allows to rotate the output counter-clockwise, valid values are:
@@ -76,6 +82,9 @@ input {
 
         // Enable numlock on startup, omitting this setting disables it.
         numlock
+
+        //repeat-delay 10000
+        //repeat-rate 25
     }
 
     // Next sections include libinput settings.
@@ -170,6 +179,15 @@ layout {
     //
     // Alternatively, you can override it with a window rule called
     // `draw-border-with-background`.
+    focus-ring {
+        //active-color   "#ff0000"
+        //inactive-color "#72777f"
+        //urgent-color   "#b3261e"
+      width 8
+      active-gradient from="#ff007f" to="#ff80bf" angle=45
+      inactive-gradient from="#402030" to="#603045" angle=45 in="srgb-linear"
+      urgent-gradient from="#ff0000" to="#ff00ff" angle=45
+    }
     border {
         off
         width 4
@@ -182,6 +200,11 @@ layout {
         spread 5
         offset x=0 y=5
         color "#0007"
+    }
+    tab-indicator {
+        active-color   "#ffffff"
+        inactive-color "#72777f"
+        urgent-color   "#b3261e"
     }
     struts {
     }
@@ -225,18 +248,10 @@ hotkey-overlay {
     skip-at-startup
 }
 prefer-no-csd
-include "animations/glide.kdl"
-/-animations {
+animations {
     workspace-switch {
-        spring damping-ratio=0.80 stiffness=2000 epsilon=0.0001
-    }
-    window-open {
-        duration-ms 150
-        curve "ease-out-expo"
-    }
-    window-close {
-        duration-ms 150
-        curve "ease-out-quad"
+        spring damping-ratio=0.80 stiffness=2000 epsilon=0.00001
+        //off
     }
     horizontal-view-movement {
         spring damping-ratio=0.85 stiffness=2000 epsilon=0.0001
@@ -245,20 +260,20 @@ include "animations/glide.kdl"
     window-movement {
         spring damping-ratio=0.75 stiffness=2000 epsilon=0.0001
     }
-    window-resize {
-        spring damping-ratio=0.85 stiffness=2000 epsilon=0.0001
-    }
     config-notification-open-close {
         spring damping-ratio=0.65 stiffness=2000 epsilon=0.001
     }
     screenshot-ui-open {
         duration-ms 200
         curve "ease-out-quad"
+        //off
     }
     overview-open-close {
         spring damping-ratio=0.85 stiffness=2000 epsilon=0.0001
+        //off
     }
 }
+include "animations/glide.kdl"
 // Window rules let you adjust behavior for individual windows.
 // Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
@@ -324,9 +339,11 @@ window-rule {
 }
 
 debug {
-    render-drm-device "/dev/dri/card1"
     honor-xdg-activation-with-invalid-serial
     //disable-direct-scanout
+    //wait-for-frame-completion-before-queueing
+    ignore-drm-device "/dev/dri/renderD129"
+    render-drm-device "/dev/dri/renderD128"
 }
 
 // Override to disable super+tab
@@ -334,13 +351,20 @@ recent-windows {
     binds {
         Alt+Tab         { next-window scope="output"; }
         Alt+Shift+Tab   { previous-window scope="output"; }
-        Alt+grave       { next-window filter="app-id"; }
-        Alt+Shift+grave { previous-window filter="app-id"; }
+        //Alt+grave       { next-window filter="app-id"; }
+        //Alt+Shift+grave { previous-window filter="app-id"; }
     }
 }
 
+zoom {
+   movement-mode "cursor-follow" // "on-edge" or "centered"
+   increment-type "exponential" // "exponential"
+   max-zoom 20.0
+   pinch-sensitivity 1.0
+}
+
 // Include dms files
-include "dms/colors.kdl"
+//include "dms/colors.kdl"
 include "dms/layout.kdl"
 include "dms/alttab.kdl"
 include "dms/binds.kdl"

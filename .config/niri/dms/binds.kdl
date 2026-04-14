@@ -35,6 +35,7 @@ binds {
     // 上下移动 (如果你有垂直堆叠的窗口)
     Mod+K     { focus-window-up; }
     Mod+J     { focus-window-down; }
+    Alt+grave { focus-window-down-or-top; }
 
     // 移动窗口位置 (对应 $mod SHIFT + HJKL)
     Mod+Shift+H { move-column-left; }
@@ -43,6 +44,8 @@ binds {
     // 全屏 (类似 Hyprland 的 fullscreen)
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
+    // Mod+Ctrl+F { expand-column-to-available-width; }
+    Mod+Ctrl+F { maximize-window-to-edges; }
 
     Mod+1 { focus-workspace 1; }
     Mod+2 { focus-workspace 2; }
@@ -133,6 +136,22 @@ binds {
     Mod+F12 { spawn-sh "/home/bczhc/bin/scripts/manage-mangohud toggle"; }
 
     Mod+A { spawn-sh "$HOMESCRIPT_DIR/niri/set-this-and-right-50-50"; }
+
+    Mod+Shift+W { toggle-column-tabbed-display; }
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+    Mod+Period { expel-window-from-column; }
+
+    // Zoom
+    Mod+Alt+WheelScrollUp   { set-zoom-level "+0.3"; }
+    Mod+Alt+WheelScrollDown { set-zoom-level "-0.3"; }
+    Mod+Z { set-zoom-level "1.0"; }
+    Mod+Shift+Z { toggle-zoom-lock; } // locks focal center, will also make it lock level
+
+    Mod+Shift+E { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" ":e"; }
+    Mod+grave { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" "!"; }
+    Mod+Delete { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
+    //Mod+Ctrl+L { spawn "dms" "ipc" "call" "lock" "lock"; } // buggy
 }
 
 // DMS BINDS
@@ -217,6 +236,7 @@ binds {
     Mod+Q repeat=false { close-window; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
+    Mod+Ctrl+F { toggle-windowed-fullscreen; }
     Mod+Shift+T { toggle-window-floating; }
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
     Mod+W { toggle-column-tabbed-display; }
@@ -336,7 +356,6 @@ binds {
     Mod+R { switch-preset-column-width; }
     Mod+Shift+R { switch-preset-window-height; }
     Mod+Ctrl+R { reset-window-height; }
-    Mod+Ctrl+F { expand-column-to-available-width; }
     Mod+C { center-column; }
     Mod+Ctrl+C { center-visible-columns; }
 

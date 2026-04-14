@@ -20,7 +20,7 @@ Environment="QSG_RHI_BACKEND=vulkan"
 # before niri action `power-off-monitors`.
 Environment="VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.json"
 
-ExecStart=/usr/bin/dms run --session
+ExecStart=/home/bczhc/bin/dms run --session
 ExecReload=/usr/bin/pkill -USR1 -x dms
 #Restart=on-failure
 #RestartSec=1.23

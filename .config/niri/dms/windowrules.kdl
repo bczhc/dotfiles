@@ -3,6 +3,7 @@ window-rule {
     open-floating true
     default-column-width { proportion 0.7; }
     default-window-height { proportion 0.8; }
+    opacity 0.8
 }
 
 window-rule {
@@ -37,15 +38,17 @@ window-rule {
     match title=r#"^winit window$"#
     match title=r#"^iwgtk$"#
     match title=r#"^xeyes$"#
-    //match app-id=r#"wps.*"#
 
     open-floating true
 }
 
 // WPS 处理
-/-window-rule {
+window-rule {
     match app-id="^wps$" title="^wps$"
-    focus-on-done-shredding false
+    open-focused false
+    open-floating true
+    tiled-state false
+
 }
 
 // Steam
@@ -70,4 +73,28 @@ window-rule {
 
     open-fullscreen false
     open-floating true
+}
+
+window-rule {
+    match title="Blender 渲染"
+
+    open-floating true
+}
+
+window-rule {
+    match app-id="gtk"
+
+    //open-floating false
+    tiled-state false
+}
+
+window-rule {
+    match app-id="com.dec05eba.gpu_screen_recorder"
+    open-floating false
+    tiled-state true
+}
+
+window-rule {
+    //match title="many_sprites"
+    //match app-id="^palworld-win64-shipping.exe$"
 }

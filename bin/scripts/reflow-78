@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+# 1. 从 wl-paste 获取剪贴板内容
+input = `wl-paste -p`.strip
+
+if input.empty?
+  `notify-send -u low "Error" "Clipboard is empty"`
+  exit
+end
+
+# 2. 合并文本：将换行符替换为空格，并将多个连续空格压缩为一个
+# 这解决了你担心的“中间加加删删”导致的乱码乱行问题
+flattened = input.gsub(/\n/, ' ').gsub(/\s+/, ' ')
+
+# 3. 按照 78 字符限制进行重排（以单词为单位）
+def wrap_text(text, width = 78)
+  words = text.split(' ')
+  lines = []
+  current_line = []
+  current_length = 0
+
+  words.each do |word|
+    # 如果当前行加上新单词超过长度（+1 是算上空格），则换行
+    if current_length + word.length + (current_line.empty? ? 0 : 1) > width
+      lines << current_line.join(' ')
+      current_line = [word]
+      current_length = word.length
+    else
+      current_line << word
+      current_length += word.length + (current_line.empty? ? 0 : 1)
+    end
+  end
+  lines << current_line.join(' ') unless current_line.empty?
+  lines.join("\n")
+end
+
+formatted_text = wrap_text(flattened, 78)
+
+# 4. 写回剪贴板并发送通知
+IO.popen('wl-copy', 'w') { |f| f.puts formatted_text }
+`notify-send -u low "Mail Formatter" "Text reformatted to 78 chars and copied."`

@@ -32,6 +32,10 @@ niri_screenshot_blocked() {
             echo "Canceled"
             return 1
             ;;
+        copied)
+            echo 'Copied'
+            return 0
+            ;;
         ignored)
             echo "Screenshot UI already shown"
             return 1
@@ -59,6 +63,10 @@ niri_area_screenshot_blocked() {
             ;;
         canceled)
             echo "Canceled"
+            return 1
+            ;;
+        copied)
+            echo 'Copied'
             return 1
             ;;
         ignored)
