@@ -210,7 +210,16 @@ layout {
         inactive-color "#72777f"
         urgent-color   "#b3261e"
     }
+    insert-hint {
+        // off
+        //color "#ffc87f80"
+        //gradient from="#ffbb6680" to="#ffc88080" angle=45 relative-to="workspace-view"
+    }
     struts {
+        left 0
+        right 0
+        top 0
+        bottom 0
     }
 }
 layer-rule {
@@ -338,8 +347,6 @@ window-rule {
 
 window-rule {
     match app-id="firefox$"
-
-    open-maximized-if-alone true
 }
 
 debug {

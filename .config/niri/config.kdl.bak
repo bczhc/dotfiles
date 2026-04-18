@@ -9,9 +9,11 @@ config-notification {
 output "eDP-1" {
     //off
     scale 1.5
+    mode "2560x1600@240.000"
 }
-output "HEADLESS-12" {
-    scale 4
+output "HEADLESS-1" {
+    scale 1.333333
+    //position x=0 y=0
 }
 output "DP-2" {
     // Uncomment this line to disable this output.
@@ -30,7 +32,6 @@ output "DP-2" {
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
     scale 1.333333333333333333
-    //scale 1
     //scale 1.333333333333333
     //scale 3
     //scale 1.3333333
@@ -48,6 +49,7 @@ output "DP-2" {
     // so to put another output directly adjacent to it on the right, set its x to 1920.
     // If the position is unset or results in an overlap, the output is instead placed
     // automatically.
+    //position x=1920 y=0
     position x=0 y=0
 }
 
@@ -342,8 +344,9 @@ window-rule {
 
 debug {
     honor-xdg-activation-with-invalid-serial
+    //disable-cursor-plane
     //disable-direct-scanout
-    //wait-for-frame-completion-before-queueing
+    wait-for-frame-completion-before-queueing
 
     // use Intel only
     //ignore-drm-device "/dev/dri/by-path/pci-0000:01:00.0-render"
@@ -366,7 +369,7 @@ recent-windows {
 }
 
 // cursor-zoom feature branch
-/-zoom {
+zoom {
    movement-mode "cursor-follow" // "on-edge" or "centered"
    increment-type "exponential" // "exponential"
    max-zoom 20.0

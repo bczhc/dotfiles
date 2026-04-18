@@ -11,6 +11,17 @@ window-rule {
     }
 }
 
+window-rule {
+    match app-id="^[aA]lacritty$"
+    opacity 0.8
+    open-floating false
+
+    background-effect {
+        blur true
+        xray true
+    }
+}
+
 // Mathematica
 /-window-rule {
     match title="^Welcome to Wolfram Mathematica$"
@@ -67,6 +78,7 @@ window-rule {
     exclude title=r#"^[sS]team$"#
 
     open-floating true
+    //open-fullscreen true
 }
 
 // GPU Screen Recorder UI (Shadowplay like)
@@ -134,4 +146,25 @@ window-rule {
 }
 
 window-rule {
+}
+
+
+/// LAYER RULES
+
+/-layer-rule {
+    match namespace="^quickshell"
+
+    background-effect {
+        blur true
+        xray false
+    }
+}
+
+layer-rule {
+    match layer="top"
+    match layer="overlay"
+
+    background-effect {
+        xray false
+    }
 }
