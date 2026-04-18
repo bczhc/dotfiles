@@ -4,12 +4,24 @@ window-rule {
     default-column-width { proportion 0.7; }
     default-window-height { proportion 0.8; }
     opacity 0.8
+    
+    /-background-effect {
+        xray false
+        blur true
+    }
 }
 
-window-rule {
-    match title="^Mathematica$"
+// Mathematica
+/-window-rule {
     match title="^Welcome to Wolfram Mathematica$"
     open-floating true
+}
+
+// Mathematica starting window
+window-rule {
+    match title="^Mathematica$"
+    open-floating true
+    focus-ring { off; }
 }
 
 // Windows to be floating
@@ -23,10 +35,6 @@ window-rule {
     match app-id=r#"org.inkscape.Inkscape"# title=r#"^.*[iI]mport.*$"#
     match app-id=r#"org.inkscape.Inkscape"# title=r#"^SVG Input.*$"#
 
-    // === Mathematica ===
-    match app-id=r#"com.wolfram.Mathematica.*"# title=r#"^Mathematica$"#
-    match app-id=r#"com.wolfram.Mathematica.*"# title=r#"^(Open)|(Save As)$"#
-    
     match app-id=r#"[dD]arktable"# title=r#"^[dD]arktable starting$"#
     match title=r#"Tiny Glade"#
     match app-id=r#"ristretto"#
@@ -38,6 +46,8 @@ window-rule {
     match title=r#"^winit window$"#
     match title=r#"^iwgtk$"#
     match title=r#"^xeyes$"#
+    match title="^Save [aA]s"
+    match title="^Open"
 
     open-floating true
 }
@@ -59,7 +69,7 @@ window-rule {
     open-floating true
 }
 
-// GPU Screen Recorder UI
+// GPU Screen Recorder UI (Shadowplay like)
 window-rule {
     match app-id="^gsr-ui$"
 
@@ -80,21 +90,48 @@ window-rule {
 
     open-floating true
 }
-
-window-rule {
+/-window-rule {
     match app-id="gtk"
 
     //open-floating false
     tiled-state false
 }
 
+// GPU Screen Recorder GTK workaround
+// See: https://github.com/niri-wm/niri/issues/3778
 window-rule {
     match app-id="com.dec05eba.gpu_screen_recorder"
-    open-floating false
-    tiled-state true
+    open-floating true
+    tiled-state false
 }
 
 window-rule {
     //match title="many_sprites"
     //match app-id="^palworld-win64-shipping.exe$"
+}
+
+window-rule {
+    match app-id="firefox"
+
+     /-background-effect {
+        xray true
+        blur true
+        noise 0.05
+        saturation 3
+    }
+
+    /-popups {
+        opacity 0.9
+        geometry-corner-radius 15
+
+        background-effect {
+            xray true
+            blur true
+            noise 0.05
+            saturation 3
+        }
+    }
+}
+
+window-rule {
 }

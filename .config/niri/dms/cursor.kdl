@@ -1,5 +1,6 @@
 cursor {
     xcursor-theme "BreezeX-RosePine-Linux"
     xcursor-size 26
+    // cursor-zoom feature branch
     scale-with-zoom
 }

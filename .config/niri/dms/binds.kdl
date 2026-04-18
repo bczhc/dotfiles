@@ -70,6 +70,7 @@ binds {
     Print { screenshot; }
     Mod+S { spawn "my-screenshot-niri"; }
     Mod+Shift+S { spawn-sh "my-screenshot-niri --area"; }
+    //Mod+Shift+S { spawn-sh "niri msg action screenshot"; }
 
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+ -l 1.0"; }
     XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
@@ -142,7 +143,7 @@ binds {
     Mod+BracketRight { consume-or-expel-window-right; }
     Mod+Period { expel-window-from-column; }
 
-    // Zoom
+    // cursor zoom
     Mod+Alt+WheelScrollUp   { set-zoom-level "+0.3"; }
     Mod+Alt+WheelScrollDown { set-zoom-level "-0.3"; }
     Mod+Z { set-zoom-level "1.0"; }
