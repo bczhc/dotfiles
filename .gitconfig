@@ -37,3 +37,5 @@
 	smtpencryption = ssl
 [credential]
 	helper = store
+[rerere]
+	enabled = true

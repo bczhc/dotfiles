@@ -137,6 +137,7 @@ binds {
     Mod+F12 { spawn-sh "/home/bczhc/bin/scripts/manage-mangohud toggle"; }
 
     Mod+A { spawn-sh "$HOMESCRIPT_DIR/niri/set-this-and-right-50-50"; }
+    Mod+Shift+A { spawn-sh "$HOMESCRIPT_DIR/niri/set-this-and-right-100-100"; }
 
     Mod+Shift+W { toggle-column-tabbed-display; }
     Mod+BracketLeft  { consume-or-expel-window-left; }

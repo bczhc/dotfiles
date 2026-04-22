@@ -32,6 +32,7 @@ output "DP-2" {
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
     scale 1.333333333333333333
+    //scale 1
     //scale 1.333333333333333
     //scale 3
     //scale 1.3333333
@@ -147,6 +148,7 @@ input {
 // Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
 layout {
+    //always-center-single-column
     // Set gaps around windows in logical pixels.
     background-color "transparent"
     // When to center a column when changing focus, options are:

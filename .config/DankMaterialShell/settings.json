@@ -218,7 +218,7 @@
   "networkPreference": "auto",
   "iconTheme": "Adwaita",
   "cursorSettings": {
-    "theme": "System Default",
+    "theme": "BreezeX-RosePine-Linux",
     "size": 24,
     "niri": {
       "hideWhenTyping": false,
