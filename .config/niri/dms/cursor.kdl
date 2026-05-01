@@ -6,12 +6,4 @@
 cursor {
     xcursor-theme "BreezeX-RosePine-Linux"
     xcursor-size 24
-
-    /-shake {
-        // off
-        max-multiplier 4.5
-        shake-interval-ms 200
-        min-diagonal 10.0
-        sensitivity 5.0
-    }
 }

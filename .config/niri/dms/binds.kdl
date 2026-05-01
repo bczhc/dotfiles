@@ -15,7 +15,7 @@ binds {
     // 对应剪贴板 bind = $mod, V, exec, cliphist list...
     Mod+V { spawn "bash" "-c" "cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"; }
 
-    // --- 终端 (对应 $terminal = alacritty-sixel) ---
+    // --- 终端（alacritty-graphics） ---
     Mod+Return { spawn "alacritty-cpu"; }
     Mod+Shift+Return { spawn "alacritty-cpu" "-e" "zsh"; }
     Mod+T { spawn "alacritty-cpu" "-e" "zsh"; }
@@ -131,7 +131,9 @@ binds {
     // Mod+Shift+P { power-off-monitors; }
     // Due to https://github.com/niri-wm/niri/discussions/3691, use this
     // workaround below.
-    Mod+Shift+P { spawn-sh "/home/bczhc/bin/scripts/niri/power-off-monitors-dms-issue-workaround"; }
+    //Mod+Shift+P { spawn-sh "/home/bczhc/bin/scripts/niri/power-off-monitors-dms-issue-workaround"; }
+    // 20260427 update: https://github.com/niri-wm/niri/pull/3910 fixes this somehow.
+    Mod+Shift+P { power-off-monitors; }
 
     Mod+F11 { spawn-sh "/home/bczhc/bin/scripts/manage-mangohud refresh"; }
     Mod+F12 { spawn-sh "/home/bczhc/bin/scripts/manage-mangohud toggle"; }
@@ -153,6 +155,7 @@ binds {
     Mod+Shift+E { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" ":e"; }
     Mod+grave { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" "!"; }
     Mod+Delete { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
+    Mod+Shift+Delete { spawn-sh "systemctl --user stop niri.service"; }
     //Mod+Ctrl+L { spawn "dms" "ipc" "call" "lock" "lock"; } // buggy
 }
 
@@ -164,7 +167,6 @@ binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     // === Application Launchers ===
-    Mod+T hotkey-overlay-title="Open Terminal" { spawn "alacritty"; }
     Mod+Space hotkey-overlay-title="Application Launcher" {
         spawn "dms" "ipc" "call" "spotlight" "toggle";
     }

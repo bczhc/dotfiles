@@ -54,7 +54,8 @@ window-rule {
     match app-id=r#"yad"#
     match title=r#"^Export.*$"#
     match title=r#"^Qalculate.*$"#
-    //match title=r#"^winit window$"#
+    match title=r#"^winit window$"#
+    match title="WGPU Image Viewer"
     match title=r#"^iwgtk$"#
     match title=r#"^xeyes$"#
     match title="^Save [aA]s"
@@ -143,9 +144,19 @@ window-rule {
             saturation 3
         }
     }
+
+    open-maximized-if-alone true
 }
 
 window-rule {
+    match app-id="^diary-tauri$"
+    default-column-width { proportion 0.75; }
+}
+
+/-window-rule {
+    match title="fcitx"
+    match app-id="fcitx"
+    opacity 0.5
 }
 
 
