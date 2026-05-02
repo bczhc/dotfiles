@@ -57,3 +57,8 @@ x = 5
 y = 5
 
 [terminal]
+
+[[keyboard.bindings]]
+key = "Enter"
+mods = "Shift"
+chars = "\x0a"

@@ -146,6 +146,7 @@ window-rule {
     }
 
     open-maximized-if-alone true
+    //default-column-width { proportion 1.00; }
 }
 
 window-rule {

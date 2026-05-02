@@ -1,0 +1,5 @@
+debug {
+    // use Intel only
+    ignore-drm-device "/dev/dri/by-path/pci-0000:01:00.0-render"
+    render-drm-device "/dev/dri/by-path/pci-0000:00:02.0-render"
+}

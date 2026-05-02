@@ -280,9 +280,6 @@ sudo() {
 alias dd='echo $dd_warn_msg'
 alias zinkstart='MANGOHUD=1 __GLX_VENDOR_LIBRARY_NAME=mesa __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json MESA_LOADER_DRIVER_OVERRIDE=zink GALLIUM_DRIVER=zink LIBGL_KOPPER_DRI2=1'
 
-
-alias startn='niri-session'
-
 # depollute envs from alacritty-cpu
 unset __NV_PRIME_RENDER_OFFLOAD
 unset __GLX_VENDOR_LIBRARY_NAME

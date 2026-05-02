@@ -40,6 +40,8 @@ binds {
     // 移动窗口位置 (对应 $mod SHIFT + HJKL)
     Mod+Shift+H { move-column-left; }
     Mod+Shift+L { move-column-right; }
+    Mod+Shift+J { move-window-down; }
+    Mod+Shift+K { move-window-up; }
 
     // 全屏 (类似 Hyprland 的 fullscreen)
     Mod+F { maximize-column; }

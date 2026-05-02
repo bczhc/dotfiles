@@ -1,0 +1,15 @@
+#!/bin/bash
+
+## startn: Start niri ##
+
+set -e
+
+drm_switch="$1"
+
+if [[ "$drm_switch" == "i" ]]; then
+    echo 'include "/home/bczhc/.config/niri/drm-intel.kdl"' > /tmp/niri-drm-switch.kdl
+else
+    echo 'include "/home/bczhc/.config/niri/drm-nvidia.kdl"' > /tmp/niri-drm-switch.kdl
+fi
+
+niri-session

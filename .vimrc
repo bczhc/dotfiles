@@ -11,3 +11,8 @@ set backspace=indent,eol,start
 
 syntax enable
 filetype plugin indent on
+
+nnoremap <M-h> <C-w>h
+nnoremap <M-j> <C-w>j
+nnoremap <M-k> <C-w>k
+nnoremap <M-l> <C-w>l
