@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# https://github.com/niri-wm/niri/discussions/3331#discussioncomment-15974148
+insert_to_new() {
+    # Fetch the workspaces JSON once to prevent race conditions
+    WS_JSON=$(niri msg -j workspaces)
+
+    CURR_IDX=$(echo "$WS_JSON" | jq -r '.[] | select(.is_focused == true) | .idx')
+    CURR_OUT=$(echo "$WS_JSON" | jq -r '.[] | select(.is_focused == true) | .output')
+
+    LAST_WS=$(echo "$WS_JSON" | jq -r "[.[] | select(.output == \"$CURR_OUT\")] | length")
+    NEW_WSPACE=$((CURR_IDX + "$1"))
+
+    niri msg action set-workspace-name _tempws --workspace "$LAST_WS"
+    niri msg action move-workspace-to-index "$NEW_WSPACE" --reference _tempws 
+    niri msg action move-column-to-workspace _tempws
+    niri msg action unset-workspace-name _tempws
+}
+
+[ $# -eq 0 ] && echo 'Usage: cmd <offset>' && exit 1
+
+offset="$1"
+
+insert_to_new "$offset"

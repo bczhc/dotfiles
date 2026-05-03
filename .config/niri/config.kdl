@@ -12,7 +12,7 @@ output "eDP-1" {
     mode "2560x1600@240.000"
 }
 output "HEADLESS-1" {
-    scale 1.333333
+    scale 1.5
     position x=1920 y=0
 }
 output "DP-2" {
@@ -350,10 +350,6 @@ window-rule {
     open-floating true
 }
 
-window-rule {
-    match app-id="firefox$"
-}
-
 debug {
     honor-xdg-activation-with-invalid-serial
     //disable-cursor-plane
@@ -417,4 +413,5 @@ include "dms/cursor.kdl"
 include "dms/windowrules.kdl"
 
 // drm switch
+// This include file is instantly created in `startn`.
 include "/tmp/niri-drm-switch.kdl"

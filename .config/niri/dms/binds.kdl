@@ -111,6 +111,8 @@ binds {
     // Mod+I              { focus-workspace-up; }
     Mod+Shift+M         { move-column-to-workspace-down; }
     Mod+Shift+N         { move-column-to-workspace-up; }
+    Mod+Ctrl+N { spawn-sh "$HOMESCRIPT_DIR/niri/insert-to-new-workspace 0"; }
+    Mod+Ctrl+M { spawn-sh "$HOMESCRIPT_DIR/niri/insert-to-new-workspace 1"; }
 
     Mod+C { center-column; }
 
@@ -119,10 +121,10 @@ binds {
     Mod+WheelScrollDown      { focus-column-right; }
     Mod+WheelScrollUp        { focus-column-left; }
 
-    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
-    Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
-    Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
-    Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+    //Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
+    //Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
+    //Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
+    //Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
 
     Mod+W { spawn "~/bin/scripts/niri/toggle-floating-terminal"; }
 
