@@ -1,7 +1,7 @@
 {
-  "currentThemeName": "blue",
-  "currentThemeCategory": "generic",
-  "customThemeFile": "",
+  "currentThemeName": "custom",
+  "currentThemeCategory": "registry",
+  "customThemeFile": "/home/bczhc/.config/DankMaterialShell/themes/custom-pink/theme.json",
   "registryThemeVariants": {},
   "matugenScheme": "scheme-vibrant",
   "matugenContrast": 0,
@@ -174,7 +174,38 @@
   "runningAppsCurrentWorkspace": true,
   "runningAppsGroupByApp": false,
   "runningAppsCurrentMonitor": false,
-  "appIdSubstitutions": [],
+  "appIdSubstitutions": [
+    {
+      "pattern": "jetbrains-rustrover",
+      "replacement": "/usr/local/lib/icons/rustrover.svg",
+      "type": "exact"
+    },
+    {
+      "pattern": "^(float-)?([aA]lacritty)$",
+      "replacement": "/usr/share/icons/alacritty-term+scanlines.svg",
+      "type": "regex"
+    },
+    {
+      "pattern": "jetbrains-idea",
+      "replacement": "/usr/local/lib/icons/idea.svg",
+      "type": "exact"
+    },
+    {
+      "pattern": "jetbrains-clion",
+      "replacement": "/usr/local/lib/icons/clion.svg",
+      "type": "exact"
+    },
+    {
+      "pattern": "jetbrains-rubymine",
+      "replacement": "/usr/local/lib/icons/rubymine.svg",
+      "type": "exact"
+    },
+    {
+      "pattern": "diary-tauri",
+      "replacement": "/home/bczhc/.local/xdg-override/icons/diary-tauri.icon",
+      "type": "exact"
+    }
+  ],
   "centeringMode": "index",
   "clockDateFormat": "MMM d",
   "lockDateFormat": "",

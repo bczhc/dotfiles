@@ -1,1 +1,13 @@
-/dev/null
+[Unit]
+Description=GPU Screen Recorder Overlay UI
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+
+[Service]
+Type=exec
+ExecStart=/bin/gsr-ui
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,0 +1,49 @@
+#!/bin/bash
+
+present="$(niri msg -j windows | jq '.[] | select (.app_id == "gsr-ui") | 1')"
+if [ "$present" == "1" ]; then
+    # close the GSR overlay
+    gsr-ui-cli toggle-show
+    exit 0
+fi
+
+gsr-ui-cli toggle-show &
+
+gsr_ui_id=''
+timeout=5
+start=$SECONDS
+while :; do
+    gsr_ui_id="$(niri msg -j windows | jq '.[] | select (.app_id == "gsr-ui")' | jq '.id')"
+    [ ! -z "$gsr_ui_id" ] && break
+    if (( SECONDS - start >= timeout )); then
+        echo "Timeout waiting for gsr-ui window to appear" >&2
+        exit 1
+    fi
+done
+
+start=$SECONDS
+while :; do
+    result="$(niri msg -j windows | jq ".[] | select (.id == $gsr_ui_id).layout.pos_in_scrolling_layout")"
+    [ "$result" != "null" ] && break
+    if (( SECONDS - start >= timeout )); then
+        echo "Timeout waiting for window layout" >&2
+        exit 1
+    fi
+done
+
+start=$SECONDS
+while :; do
+    niri msg action move-window-to-floating --id "$gsr_ui_id"
+    result="$(niri msg -j windows | jq ".[] | select (.id == $gsr_ui_id).is_floating")"
+    [ "$result" == "true" ] && break
+    if (( SECONDS - start >= timeout )); then
+        echo "Timeout waiting for window to become floating" >&2
+        exit 1
+    fi
+done
+
+niri msg action set-window-width --id "$gsr_ui_id" 1920
+niri msg action set-window-height --id "$gsr_ui_id" 1080
+niri msg action move-floating-window --id "$gsr_ui_id" -x 0 -y 0
+niri msg action focus-window --id "$gsr_ui_id"
+echo done

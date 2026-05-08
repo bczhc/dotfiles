@@ -1,7 +1,7 @@
 {
   "emojiLauncher": {
     "enabled": true,
-    "recentEmojis": "😂,🤮,😭,🤔,🤣,😳,👍,😢,😱,🎉,😞,😡,🤪,😝,🤑,🤗,🤭,🤫,🤐,😐",
+    "recentEmojis": "🤚,🖐️,😭,🤣,📅,😂,🤮,🤔,😳,👍,😢,😱,🎉,😞,😡,🤪,😝,🤑,🤗,🤭",
     "useDMS": false,
     "trigger": ":e"
   },
@@ -9,6 +9,7 @@
     "enabled": true,
     "history": [
       "xeyes",
+      "glxgears",
       "firefox-xwayland",
       "rime-add-words",
       "tqs",
@@ -26,8 +27,7 @@
       "cpu-freq 2000M",
       "lepton",
       "notify-send 1 2",
-      "notify-send 1 2 3 4",
-      "notify-send 1"
+      "notify-send 1 2 3 4"
     ]
   },
   "alarmClock": {

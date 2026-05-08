@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ "$1" == "left" ]; then
+    niri msg action focus-column-left
+    niri msg action focus-column-right
+else
+    niri msg action focus-column-right
+    niri msg action focus-column-left
+fi

@@ -9,6 +9,8 @@ window-rule {
         xray false
         blur true
     }
+
+    //float-above-fullscreen false
 }
 
 window-rule {
@@ -82,14 +84,6 @@ window-rule {
     //open-fullscreen true
 }
 
-// GPU Screen Recorder UI (Shadowplay like)
-window-rule {
-    match app-id="^gsr-ui$"
-
-    open-floating true
-    open-fullscreen false
-}
-
 window-rule {
     match title="Clash Verge"
     match app-id=r#"clash-verge"#
@@ -158,6 +152,13 @@ window-rule {
     match title="fcitx"
     match app-id="fcitx"
     opacity 0.5
+}
+
+window-rule {
+    match app-id="^firefox$"
+    match title="^Picture-in-Picture$"
+
+    //float-above-fullscreen true
 }
 
 

@@ -8,6 +8,7 @@ set tabstop=4
 set autoread
 set expandtab
 set backspace=indent,eol,start
+set hlsearch
 
 syntax enable
 filetype plugin indent on
