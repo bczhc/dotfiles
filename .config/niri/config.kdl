@@ -59,7 +59,7 @@ spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
 spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
 spawn-at-startup "fcitx5" "-d"
 spawn-at-startup "bash" "-c" r##"echo $NIRI_SOCKET > /tmp/niri-socket.txt"##
-//spawn-at-startup "bash" "-c" r##"$HOMESCRIPT_DIR/niri/gsr-ui"##
+spawn-at-startup "bash" "-c" r##"XDG_CURRENT_DESKTOP=niri gsr-ui"##
 
 gestures {
     // Enable this to open niri overview on mouse moved to the top-left corner.
