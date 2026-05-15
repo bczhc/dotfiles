@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo ydotool mousemove -x 417 -y 235 -a

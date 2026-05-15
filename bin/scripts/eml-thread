@@ -1,0 +1,610 @@
+#!/usr/bin/env python3
+"""Build threaded HTML archives from .eml files.
+
+Parses a directory of .eml files, builds the full thread forest, and
+generates HTML pages — one per thread.  Narrow the output by pointing
+to a single thread with --msg-id or --eml-file.
+
+Usage:
+  eml-thread --all [directory]
+  eml-thread --msg-id '<message-id>' [directory]
+  eml-thread --eml-file file.eml [directory]
+"""
+
+import argparse
+import email
+import email.header
+import email.policy
+import email.utils
+import glob
+import hashlib
+import html as html_mod
+import os
+import re
+import sys
+from collections import defaultdict
+from datetime import datetime, timezone
+
+
+# ── email parsing ──────────────────────────────────────────────────
+
+def _decode_header(value):
+    """Decode RFC 2047 encoded-words (and email.header.Header objects)."""
+    if value is None:
+        return ""
+    if isinstance(value, email.header.Header):
+        return str(value)
+    try:
+        parts = email.header.decode_header(str(value))
+    except Exception:
+        return str(value)
+    result = []
+    for part, charset in parts:
+        if isinstance(part, bytes):
+            cs = charset or "utf-8"
+            try:
+                result.append(part.decode(cs, errors="replace"))
+            except (LookupError, UnicodeDecodeError):
+                result.append(part.decode("utf-8", errors="replace"))
+        else:
+            result.append(str(part))
+    return "".join(result)
+
+
+def extract_msg_id(msg):
+    return _decode_header(msg.get("Message-ID", "")).strip().strip("<>")
+
+
+def _unfold_header(value):
+    return re.sub(r"\r?\n\s*", " ", value)
+
+
+def extract_in_reply_to(msg):
+    irt = _unfold_header(_decode_header(msg.get("In-Reply-To", "")))
+    if not irt:
+        return []
+    ids = re.findall(r"<([^>]+)>", irt)
+    if not ids:
+        ids = [irt.strip()]
+    return ids
+
+
+def extract_references(msg):
+    refs = _unfold_header(_decode_header(msg.get("References", "")))
+    if not refs:
+        return []
+    return re.findall(r"<([^>]+)>", refs)
+
+
+def html_to_text(html_body):
+    """Strip HTML tags and decode entities. No external deps."""
+    text = re.sub(
+        r"<(script|style|head)[^>]*>.*?</\1>",
+        "", html_body, flags=re.DOTALL | re.IGNORECASE,
+    )
+    text = re.sub(
+        r"<(br|p|div|h[1-6]|li|tr|hr|section|article|header|footer|pre|blockquote)[^>]*/?>",
+        "\n", text, flags=re.IGNORECASE,
+    )
+    text = re.sub(r"<[^>]+>", "", text)
+    text = html_mod.unescape(text)
+    text = re.sub(r"&(nbsp|#160);", " ", text, flags=re.IGNORECASE)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def get_plain_body(msg):
+    """Extract best text body: text/plain > text/html > fallback."""
+
+    # helpers for walking parts
+    text_plain_payload = None
+    text_html_payload = None
+
+    def _decode(payload, charset):
+        if not payload:
+            return ""
+        try:
+            return payload.decode(charset or "utf-8")
+        except (UnicodeDecodeError, LookupError):
+            return payload.decode("utf-8", errors="replace")
+
+    if msg.is_multipart():
+        for part in msg.walk():
+            ct = part.get_content_type()
+            payload = part.get_payload(decode=True)
+            if not payload:
+                continue
+            if ct == "text/plain":
+                text_plain_payload = _decode(payload, part.get_content_charset())
+                break  # prefer plain immediately
+        if not text_plain_payload:
+            for part in msg.walk():
+                ct = part.get_content_type()
+                payload = part.get_payload(decode=True)
+                if not payload:
+                    continue
+                if ct == "text/html":
+                    text_html_payload = _decode(payload, part.get_content_charset())
+                    break
+        # last-ditch: any text
+        if not text_plain_payload and not text_html_payload:
+            for part in msg.walk():
+                payload = part.get_payload(decode=True)
+                if payload:
+                    try:
+                        text_plain_payload = payload.decode("utf-8", errors="replace")
+                        break
+                    except Exception:
+                        pass
+    else:
+        payload = msg.get_payload(decode=True)
+        if payload:
+            ct = msg.get_content_type()
+            decoded = _decode(payload, msg.get_content_charset())
+            if ct == "text/plain":
+                text_plain_payload = decoded
+            elif ct == "text/html":
+                text_html_payload = decoded
+            else:
+                text_plain_payload = decoded  # try as-is
+
+    if text_plain_payload:
+        return text_plain_payload
+    if text_html_payload:
+        return html_to_text(text_html_payload)
+    return "(no text body)"
+
+
+def parse_date(msg):
+    date_str = _decode_header(msg.get("Date", ""))
+    dt = datetime.min.replace(tzinfo=timezone.utc)
+    if date_str:
+        try:
+            dt = email.utils.parsedate_to_datetime(date_str)
+        except Exception:
+            dt = datetime.min.replace(tzinfo=timezone.utc)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt, date_str or "(no date)"
+
+
+# ── parsing & threading ────────────────────────────────────────────
+
+def parse_all_emails(directory):
+    """Parse every .eml file in *directory*."""
+    messages = {}
+    for filepath in sorted(glob.glob(os.path.join(directory, "*.eml"))):
+        with open(filepath, "rb") as f:
+            msg = email.message_from_binary_file(f, policy=email.policy.compat32)
+
+        mid = extract_msg_id(msg)
+        if not mid:
+            continue
+
+        dt, date_str = parse_date(msg)
+        body = get_plain_body(msg)
+
+        messages[mid] = {
+            "mid": mid,
+            "filepath": filepath,
+            "subject": _decode_header(msg.get("Subject", "(no subject)")),
+            "from": _decode_header(msg.get("From", "(no from)")),
+            "date": date_str,
+            "dt": dt,
+            "body": body,
+            "in_reply_to": extract_in_reply_to(msg),
+            "references": extract_references(msg),
+        }
+
+    return messages
+
+
+def build_threads(messages):
+    """Build the full forest. Returns (roots, children).
+
+    Messages whose parent is missing from the archive are grouped under
+    virtual root nodes when they share a common In-Reply-To.
+    """
+    msg_ids = set(messages.keys())
+    children = defaultdict(list)
+    orphans = {}  # common_missing_irt -> [mids]
+
+    for mid, info in messages.items():
+        parent = None
+        for irt in info["in_reply_to"]:
+            if irt in msg_ids and irt != mid:
+                parent = irt
+                break
+        if parent is None:
+            for ref in reversed(info["references"]):
+                if ref in msg_ids and ref != mid:
+                    parent = ref
+                    break
+        if parent:
+            children[parent].append(mid)
+        else:
+            # No known parent — try to create a virtual root keyed by
+            # the first In-Reply-To (or first Reference if none).
+            key = None
+            if info["in_reply_to"]:
+                key = info["in_reply_to"][0]
+            elif info["references"]:
+                key = info["references"][0]
+            if key:
+                orphans.setdefault(key, []).append(mid)
+            else:
+                # truly standalone
+                children.setdefault("__root__", []).append(mid)
+
+    # Create virtual roots for orphan groups
+    virtual_roots = []
+
+    for key, mids in orphans.items():
+        if len(mids) <= 1:
+            # single orphan — treat as stand-alone root
+            virtual_roots.extend(mids)
+        else:
+            # multiple replies to the same missing parent → group them
+            mids.sort(key=lambda m: messages[m]["dt"])
+            earliest = messages[mids[0]]
+            subj = re.sub(r"^(Re:\s*)+", "", earliest["subject"]).strip()
+            messages[key] = {
+                "mid": key,
+                "filepath": "",
+                "subject": subj,
+                "from": "(message not in archive)",
+                "date": earliest["date"],
+                "dt": earliest["dt"],
+                "body": f"(Original message <{key}> not in archive)",
+                "in_reply_to": [],
+                "references": [],
+            }
+            children[key] = mids
+            virtual_roots.append(key)
+
+    # truly standalone (no IRT, no refs)
+    standalone = [m for m in children.pop("__root__", [])]
+
+    all_roots = virtual_roots + standalone
+
+    for parent in children:
+        children[parent].sort(key=lambda m: messages[m]["dt"])
+
+    # Sort roots by earliest in thread
+    def _root_date(r):
+        earliest = messages.get(r, {}).get("dt", datetime.min.replace(tzinfo=timezone.utc))
+        stack = [r]
+        while stack:
+            m = stack.pop()
+            if m in messages:
+                t = messages[m]["dt"]
+                if t < earliest:
+                    earliest = t
+            stack.extend(children.get(m, []))
+        return earliest
+
+    all_roots.sort(key=_root_date)
+    return all_roots, children
+
+
+def find_thread_root(mid, children):
+    """Walk up from *mid* to the root of its thread."""
+    # Build reverse mapping: child → parent
+    parent_of = {}
+    for p, kids in children.items():
+        for k in kids:
+            parent_of[k] = p
+    # Walk up
+    current = mid
+    while current in parent_of:
+        current = parent_of[current]
+    return current
+
+
+def collect_thread_mids(root_mid, children):
+    """DFS pre-order collection of all message-ids in a thread."""
+    result = []
+    def dfs(m):
+        result.append(m)
+        for child in children.get(m, []):
+            dfs(child)
+    dfs(root_mid)
+    return result
+
+
+def thread_msg_count(root_mid, children):
+    return len(collect_thread_mids(root_mid, children))
+
+
+# ── HTML generation ────────────────────────────────────────────────
+
+def make_anchor(messages):
+    """Short stable anchors for each message-id."""
+    anchors = {}
+    for info in messages.values():
+        m = re.search(r"-(\d+)\.eml$", info["filepath"])
+        if m:
+            anchors[info["mid"]] = m.group(1)
+    for mid in messages:
+        if mid not in anchors:
+            h = hashlib.sha256(mid.encode()).hexdigest()[:8]
+            anchors[mid] = f"m{h}"
+    return anchors
+
+
+CSS = """\
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         margin: 0; padding: 0; background: #f9f9f9; color: #222; }
+  .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+  h1 { font-size: 1.15em; border-bottom: 1px solid #ccc; padding-bottom: 6px; }
+  .msg { margin: 0 0 24px 0; background: #fff; border: 1px solid #ddd; border-radius: 2px; }
+  .msg-header { background: #e8e8e8; padding: 6px 12px; font-size: 0.83em; }
+  .msg-header .from { font-weight: bold; }
+  .msg-header .date { color: #666; margin-left: 1.5em; }
+  .msg-subject { padding: 6px 12px; font-weight: bold; font-size: 0.9em;
+                 background: #f0f0f0; border-bottom: 1px solid #ddd; }
+  .msg-body { padding: 10px 14px; white-space: pre-wrap; font-family: monospace, monospace;
+              font-size: 0.85em; line-height: 1.5; overflow-x: auto; }
+  hr.sep { margin: 36px 0 24px 0; border: none; border-top: 2px solid #ccc; }
+  .nav-title { font-size: 1em; font-weight: bold; margin-bottom: 10px; color: #444; }
+  .thread-tree { padding-left: 0; list-style: none; font-size: 0.88em; }
+  .thread-tree ul { padding-left: 20px; list-style: none; border-left: 1px solid #ddd;
+                    margin-left: 6px; }
+  .thread-tree li { margin: 4px 0; padding: 1px 0; }
+  .thread-tree a { text-decoration: none; color: #36c; }
+  .thread-tree a:hover { text-decoration: underline; }
+  .thread-tree .tree-info { color: #888; font-size: 0.85em; }"""
+
+
+def render_msg_div(info, anchor):
+    return (
+        f'<div class="msg" id="msg-{anchor}">\n'
+        f'<div class="msg-header">\n'
+        f'  <span class="from">{html_mod.escape(info["from"])}</span>\n'
+        f'  <span class="date">{html_mod.escape(info["date"])}</span>\n'
+        f'</div>\n'
+        f'<div class="msg-subject">{html_mod.escape(info["subject"])}</div>\n'
+        f'<div class="msg-body">{html_mod.escape(info["body"])}</div>\n'
+        f'</div>'
+    )
+
+
+def render_tree(mid, children, messages, anchors):
+    info = messages[mid]
+    anchor = anchors.get(mid, mid)
+    short_subj = info["subject"]
+    if len(short_subj) > 65:
+        short_subj = short_subj[:62] + "..."
+    short_from = re.sub(r"\s*<.*", "", info["from"]).strip()
+    if len(short_from) > 28:
+        short_from = short_from[:25] + "..."
+
+    result = (
+        f'<li><a href="#msg-{anchor}">{html_mod.escape(short_subj)}</a>'
+        f' <span class="tree-info">{html_mod.escape(short_from)}</span>'
+    )
+    kids = children.get(mid, [])
+    if kids:
+        result += "<ul>"
+        for child in kids:
+            result += render_tree(child, children, messages, anchors)
+        result += "</ul>"
+    result += "</li>"
+    return result
+
+
+def sanitize_filename(subject, root_dt=None):
+    """Build a safe filename with optional date prefix.
+
+    Date format: YYYY-MM-DD_HH-MM-SS Subject.html
+    Only strips NTFS-illegal characters; keeps spaces.
+    """
+    s = subject.strip()
+    # Replace NTFS/Windows illegal filename chars
+    s = re.sub(r'[\\/:*?"<>|]', "", s)
+    # Replace control chars
+    s = re.sub(r"[\x00-\x1f]", "", s)
+    # Collapse multiple spaces
+    s = re.sub(r"\s+", " ", s).strip()
+    # Truncate if too long for some filesystems
+    max_subject = 120
+    if len(s) > max_subject:
+        s = s[:max_subject].rsplit(" ", 1)[0]
+
+    # Prepend date if available
+    if root_dt and root_dt != datetime.min.replace(tzinfo=timezone.utc):
+        date_prefix = root_dt.strftime("%Y-%m-%d_%H-%M-%S")
+        s = date_prefix + " " + s
+
+    return s
+
+
+def generate_html(root_mid, children, messages, sort_mode, output_dir):
+    """Generate a single-thread HTML file."""
+    os.makedirs(output_dir, exist_ok=True)
+
+    thread_mids = collect_thread_mids(root_mid, children)
+    anchors = make_anchor(messages)
+
+    root_info = messages[root_mid]
+    subject_base = root_info["subject"].strip()
+    filename = sanitize_filename(subject_base, root_info["dt"]) + ".html"
+    filepath = os.path.join(output_dir, filename)
+
+    lines = [
+        "<!DOCTYPE html>",
+        '<html lang="en">',
+        "<head>",
+        '<meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width, initial-scale=1">',
+        f"<title>{html_mod.escape(subject_base)}</title>",
+        "<style>",
+        CSS,
+        "</style>",
+        "</head>",
+        "<body>",
+        '<div class="container">',
+        f"<h1>{html_mod.escape(subject_base)}</h1>",
+    ]
+
+    # messages
+    if sort_mode == "chronological":
+        display_order = sorted(thread_mids, key=lambda m: messages[m]["dt"])
+    else:
+        display_order = thread_mids
+
+    for mid in display_order:
+        lines.append(render_msg_div(messages[mid], anchors.get(mid, mid)))
+
+    # tree
+    lines.append('<hr class="sep">')
+    lines.append('<div class="nav-title">Thread Overview</div>')
+    lines.append('<ul class="thread-tree">')
+    lines.append(render_tree(root_mid, children, messages, anchors))
+    lines.append("</ul>")
+
+    lines.append("</div>")
+    lines.append("</body>")
+    lines.append("</html>")
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+
+    return filepath, len(thread_mids)
+
+
+# ── CLI ─────────────────────────────────────────────────────────────
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Build threaded HTML archives from .eml files.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  eml-thread --all
+  eml-thread --all ~/Maildir -o out/
+  eml-thread --msg-id '<40377716-25d8-43b0-bfda-0c8fb7ff9112@126.com>'
+  eml-thread --eml-file some-reply.eml
+  eml-thread --eml-file file.eml . --sort chronological
+        """,
+    )
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--all", action="store_true", help="Process every thread in the directory")
+    group.add_argument(
+        "--msg-id",
+        help="Message-ID of any email in the thread (angle brackets optional)",
+    )
+    group.add_argument(
+        "--eml-file",
+        help="Path to an .eml file — its Message-ID is read from headers",
+    )
+    parser.add_argument(
+        "directory", nargs="?", default=".",
+        help="Directory containing .eml files (default: current dir)",
+    )
+    parser.add_argument(
+        "-o", "--output", default="thread_output",
+        help="Output directory (default: thread_output/)",
+    )
+    parser.add_argument(
+        "--sort", choices=["threaded", "chronological"], default="threaded",
+        help="Message display order: threaded (default) or chronological (by Date)",
+    )
+    return parser.parse_args()
+
+
+def _lookup_msg_id(needle, messages):
+    """Find a full Message-ID in *messages* by exact or fuzzy match."""
+    for mid in messages:
+        if mid == needle or needle in mid:
+            return mid
+    # try fuzzy: match only the local-part (before @)
+    local = needle.split("@")[0]
+    for mid in messages:
+        if mid.split("@")[0] == local:
+            return mid
+    return None
+
+
+def main():
+    args = parse_args()
+    directory = os.path.abspath(args.directory)
+
+    if not os.path.isdir(directory):
+        print(f"Error: '{directory}' is not a directory", file=sys.stderr)
+        sys.exit(1)
+
+    # Resolve needle from --msg-id or --eml-file
+    needle = None
+    if args.msg_id:
+        needle = args.msg_id.strip().strip("<>")
+    elif args.eml_file:
+        eml_path = args.eml_file
+        if not os.path.isfile(eml_path):
+            print(f"Error: '{eml_path}' is not a file", file=sys.stderr)
+            sys.exit(1)
+        with open(eml_path, "rb") as f:
+            eml_msg = email.message_from_binary_file(f, policy=email.policy.compat32)
+        needle = extract_msg_id(eml_msg)
+        if not needle:
+            print(f"Error: no Message-ID header found in '{eml_path}'", file=sys.stderr)
+            sys.exit(1)
+        print(f"Message-ID from --eml-file: {needle}")
+
+    # 1. parse all .eml files
+    print(f"Scanning: {directory}")
+    messages = parse_all_emails(directory)
+    print(f"  parsed {len(messages)} messages")
+
+    if not messages:
+        print("No .eml files found.")
+        sys.exit(0)
+
+    # 2. build the full forest
+    roots, children = build_threads(messages)
+    print(f"  found {len(roots)} thread(s)")
+
+    # 3. determine which roots to process
+    if args.all:
+        target_roots = roots
+    else:
+        matched_mid = _lookup_msg_id(needle, messages)
+        if matched_mid is None:
+            print(f"Error: Message-ID not found in any .eml file", file=sys.stderr)
+            print(f"  looked for: {needle}", file=sys.stderr)
+            print(f"  first few known IDs:", file=sys.stderr)
+            for i, mid in enumerate(sorted(messages.keys())):
+                if i >= 5:
+                    break
+                print(f"    {mid}", file=sys.stderr)
+            sys.exit(1)
+        target_roots = [find_thread_root(matched_mid, children)]
+
+    # 4. generate HTML — one per root
+    output_dir = os.path.abspath(args.output)
+    total = len(target_roots)
+
+    for i, root_mid in enumerate(target_roots):
+        count = thread_msg_count(root_mid, children)
+        root_info = messages[root_mid]
+        subject = root_info["subject"][:70]
+
+        prefix = f"[{i+1}/{total}]" if total > 1 else ""
+        info = f"{prefix} ({count} msgs) {subject}" if total > 1 else f"  ({count} msgs) {subject}"
+        if prefix:
+            print(prefix, end=" ")
+        else:
+            print("  ", end="")
+        print(f"({count} msgs) {subject}")
+
+        filepath, _ = generate_html(root_mid, children, messages, args.sort, output_dir)
+
+    if total > 1:
+        print(f"\nDone. {total} files written to {output_dir}")
+    else:
+        print(f"\nOutput:  {filepath}")
+        print("Done.")
+
+
+if __name__ == "__main__":
+    main()

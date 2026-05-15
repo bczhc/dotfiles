@@ -149,7 +149,6 @@ binds {
     // GPU Screen Recorder hotkey
     Mod+F10 { spawn-sh "gsr-ui-cli toggle-record"; }
     Mod+F9 { spawn-sh "gsr-ui-cli toggle-pause"; }    
-    Mod+F8 { spawn-sh "DISPLAY=:1 gsr-notify --text 'Hello' --timeout 1"; }
 
     Mod+A { spawn-sh "$HOMESCRIPT_DIR/niri/set-this-and-right-50-50"; }
     Mod+Shift+A { spawn-sh "$HOMESCRIPT_DIR/niri/set-this-and-right-100-100"; }
@@ -169,10 +168,9 @@ binds {
     Mod+Shift+E { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" ":e"; }
     Mod+grave { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" "!"; }
     Mod+Delete { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
-    Mod+Shift+Delete { spawn-sh "systemctl --user stop niri.service"; }
     //Mod+Ctrl+L { spawn "dms" "ipc" "call" "lock" "lock"; } // buggy
 
-    Alt+Z { spawn-sh "gsr-ui-cli toggle-show"; }
+    Alt+Z { spawn-sh "$HOMESCRIPT_DIR/niri/toggle-gsr-ui"; }
 }
 
 // DMS BINDS

@@ -1,0 +1,16 @@
+[Unit]
+Description=Monitor directory changes and log events
+
+[Service]
+# 执行脚本的路径
+ExecStart=/home/bczhc/inotify
+
+# 如果脚本意外停止，5秒后自动重启
+Restart=always
+RestartSec=5
+
+# 设置运行用户（建议使用有权限读取目标目录的用户，不一定是root）
+User=bczhc
+
+[Install]
+WantedBy=multi-user.target

@@ -9,6 +9,7 @@ config-notification {
 output "eDP-1" {
     //off
     scale 1.5
+    //scale 1
     mode "2560x1600@240.000"
 }
 output "HEADLESS-1" {
@@ -57,14 +58,14 @@ output "DP-2" {
 spawn-at-startup "wl-clip-persist" "--clipboard" "regular" "--all-mime-type-regex" r#"(?i)^(?!image/x-inkscape-svg).+"#
 spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
 spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
-spawn-at-startup "fcitx5" "-d"
+spawn-at-startup "bash" "-c" r##"sleep 5 && fcitx5"##
 spawn-at-startup "bash" "-c" r##"echo $NIRI_SOCKET > /tmp/niri-socket.txt"##
-spawn-at-startup "bash" "-c" r##"XDG_CURRENT_DESKTOP=niri gsr-ui"##
+spawn-at-startup "gsr-ui"
 
 gestures {
     // Enable this to open niri overview on mouse moved to the top-left corner.
     hot-corners {
-        // off
+        off
     }
 }
 
@@ -137,6 +138,7 @@ input {
     // Focus windows and outputs automatically when moving the mouse into them.
     // Setting max-scroll-amount="0%" makes it work only on windows already fully on screen.
     // focus-follows-mouse max-scroll-amount="95%"
+    //focus-follows-mouse
 }
 // You can configure outputs by their name, which you can find
 // by running `niri msg outputs` while inside a niri instance.
@@ -356,7 +358,7 @@ debug {
     honor-xdg-activation-with-invalid-serial
     //disable-cursor-plane
     //disable-direct-scanout
-    wait-for-frame-completion-before-queueing 
+    //wait-for-frame-completion-before-queueing 
     //disable-resize-throttling
 }
 

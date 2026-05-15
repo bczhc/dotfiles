@@ -1,6 +1,6 @@
 {
-  "currentThemeName": "custom",
-  "currentThemeCategory": "registry",
+  "currentThemeName": "red",
+  "currentThemeCategory": "generic",
   "customThemeFile": "/home/bczhc/.config/DankMaterialShell/themes/custom-pink/theme.json",
   "registryThemeVariants": {},
   "matugenScheme": "scheme-vibrant",
@@ -568,7 +568,7 @@
       "spacing": 0,
       "innerPadding": -8,
       "bottomGap": 0,
-      "transparency": 0.85,
+      "transparency": 1,
       "widgetTransparency": 0,
       "squareCorners": true,
       "noBackground": false,

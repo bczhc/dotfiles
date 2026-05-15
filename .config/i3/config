@@ -211,7 +211,7 @@ bindsym $mod+r mode "resize"
 #        position top
 #}
 
-exec_always --no-startup-id bash -c 'pkill polybar; sleep 1 && polybar' &
+#exec_always --no-startup-id bash -c 'pkill polybar; sleep 1 && polybar' &
 exec_always --no-startup-id bash -c 'pkill flameshot; sleep 1 && flameshot' &
 exec_always --no-startup-id bash -c 'pkill dunst; sleep 1 && dunst' &
 #exec_always --no-startup-id feh --bg-scale /home/bczhc/Pictures/wp.jpg &

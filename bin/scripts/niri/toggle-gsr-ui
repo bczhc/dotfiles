@@ -1,0 +1,5 @@
+#!/bin/bash
+
+locked="$(niri msg -j has-pointer-constraints | jq '.has_pointer_constraints')"
+[ "$locked" = "true" ] && niri msg action set-pointer $((1920/2)) $((1080/2))
+gsr-ui-cli toggle-show
