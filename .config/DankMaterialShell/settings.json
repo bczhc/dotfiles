@@ -1,6 +1,6 @@
 {
-  "currentThemeName": "dynamic",
-  "currentThemeCategory": "dynamic",
+  "currentThemeName": "custom",
+  "currentThemeCategory": "custom",
   "customThemeFile": "/home/bczhc/.config/DankMaterialShell/themes/custom-pink/theme.json",
   "registryThemeVariants": {},
   "matugenScheme": "scheme-expressive",
@@ -712,10 +712,10 @@
       },
       "positions": {
         "DP-2": {
-          "width": 470.28515625,
-          "height": 238.03515625,
-          "x": 9.4609375,
-          "y": 329.7421875
+          "width": 457.37109375,
+          "height": 250.53515625,
+          "x": 26.8125,
+          "y": 333.1796875
         },
         "eDP-1": {
           "width": 320,
@@ -958,8 +958,8 @@
         "DP-2": {
           "width": 470.71484375,
           "height": 376.03515625,
-          "x": 1444.30859375,
-          "y": 54.9765625
+          "x": 1423.3359375,
+          "y": 52.05859375
         }
       }
     },

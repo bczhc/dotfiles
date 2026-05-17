@@ -108,14 +108,16 @@ binds {
     Mod+Shift+Space { toggle-window-floating; }
     Mod+Ctrl+Space { switch-focus-between-floating-and-tiling; }
 
-    Mod+M              { focus-workspace-down; }
-    Mod+N              { focus-workspace-up; }
+    //Mod+M              { focus-workspace-down; }
+    //Mod+N              { focus-workspace-up; }
     // Mod+U              { focus-workspace-down; }
     // Mod+I              { focus-workspace-up; }
+    Mod+N { spawn-sh "$HOMESCRIPT_DIR/niri/focus-workspace -1"; }
+    Mod+M { spawn-sh "$HOMESCRIPT_DIR/niri/focus-workspace 1"; }
     Mod+Shift+M         { move-column-to-workspace-down; }
     Mod+Shift+N         { move-column-to-workspace-up; }
-    Mod+Ctrl+N { spawn-sh "$HOMESCRIPT_DIR/niri/insert-to-new-workspace 0"; }
-    Mod+Ctrl+M { spawn-sh "$HOMESCRIPT_DIR/niri/insert-to-new-workspace 1"; }
+    Mod+Ctrl+N { spawn-sh "$HOMESCRIPT_DIR/niri/insert-to-new-workspace 0 move"; }
+    Mod+Ctrl+M { spawn-sh "$HOMESCRIPT_DIR/niri/insert-to-new-workspace 1 move"; }
 
     Mod+C { center-column; }
 

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+[ $# -ne 1 ] && echo 'Usage: cmd <direction (-1 or 1)>' && exit 1
+
+direction="$1"
+
+currdir="$(dirname "$0")"
+leftmost="$(niri msg -j workspaces | jq '.[] | select(.idx == 1).is_focused')"
+
+if [ "$direction" = "-1" ]; then
+    if [ "$leftmost" = "true" ]; then
+        wid="$(niri msg -j workspaces | jq '.[] | select(.is_focused).id')"
+        has_window="$(niri msg -j windows | jq ".[] | select(.workspace_id == $wid) | true")"
+        [ "$has_window" = "true" ] && "$currdir"/insert-to-new-workspace 0 focus || exit 0
+    else
+        niri msg action focus-workspace-up
+    fi
+elif [ "$direction" = "1" ]; then
+    niri msg action focus-workspace-down
+else
+    echo "Unknown direction: $direction" && exit 1
+fi
