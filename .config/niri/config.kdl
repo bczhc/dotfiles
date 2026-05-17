@@ -7,7 +7,7 @@ config-notification {
 }
 // Outputs from existing configuration
 output "eDP-1" {
-    //off
+    off
     scale 1.5
     //scale 1
     mode "2560x1600@240.000"
@@ -60,7 +60,9 @@ spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
 spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
 spawn-at-startup "bash" "-c" r##"sleep 5 && fcitx5"##
 spawn-at-startup "bash" "-c" r##"echo $NIRI_SOCKET > /tmp/niri-socket.txt"##
-spawn-at-startup "gsr-ui"
+spawn-at-startup "bash" "-c" r##"sleep 1; pgrep gsr-ui || gsr-ui"##
+spawn-at-startup "bash" "-c" r##"$HOMESCRIPT_DIR/niri/desktop-alacritty"##
+spawn-at-startup "bash" "-c" r##"sleep 5 && systemctl --user restart xdg-desktop-portal"##
 
 gestures {
     // Enable this to open niri overview on mouse moved to the top-left corner.
@@ -358,7 +360,7 @@ debug {
     honor-xdg-activation-with-invalid-serial
     //disable-cursor-plane
     //disable-direct-scanout
-    //wait-for-frame-completion-before-queueing 
+    wait-for-frame-completion-before-queueing 
     //disable-resize-throttling
 }
 
@@ -397,13 +399,13 @@ zoom {
 
 cursor {
     scale-with-zoom;
-    /-shake {
-        off
-        max-multiplier 4.5
+    shake {
+        on
+        max-multiplier 4.0
         behavior "hold"
-        shake-interval-ms 200
+        shake-interval-ms 300
         min-diagonal 100.0
-        sensitivity 3.0
+        sensitivity 2.0
     }
 }
 

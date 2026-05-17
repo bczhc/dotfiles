@@ -284,3 +284,5 @@ alias zinkstart='MANGOHUD=1 __GLX_VENDOR_LIBRARY_NAME=mesa __EGL_VENDOR_LIBRARY_
 unset __NV_PRIME_RENDER_OFFLOAD
 unset __GLX_VENDOR_LIBRARY_NAME
 unset __EGL_VENDOR_LIBRARY_FILENAMES
+
+alias execquit="exec bash -c 'sleep 0'"

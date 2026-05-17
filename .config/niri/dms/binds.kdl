@@ -16,9 +16,9 @@ binds {
     Mod+V { spawn "bash" "-c" "cliphist list | rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"; }
 
     // --- 终端（alacritty-graphics） ---
-    Mod+Return { spawn "alacritty-cpu"; }
-    Mod+Shift+Return { spawn "alacritty-cpu" "-e" "zsh"; }
-    Mod+T { spawn "alacritty-cpu" "-e" "zsh"; }
+    Mod+Return { spawn "alacritty"; }
+    //Mod+Shift+Return { spawn "alacritty-cpu" "-e" "zsh"; }
+    Mod+T { spawn "alacritty"; }
     // Mod+Shift+T { spawn "xfce4-terminal"; }
 
     // 关闭窗口 (对应 bind = $mod SHIFT, Q, killactive)

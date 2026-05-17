@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Alacritty
+Exec=alacritty
+Terminal=false
+Type=Application
+Icon=/usr/share/icons/alacritty-term+scanlines.svg
+StartupWMClass=alacritty
+Categories=Terminall;
+Comment=Alacritty Terminal Emulator

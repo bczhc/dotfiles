@@ -1,0 +1,12 @@
+#!/bin/bash
+
+w=2560
+h=1440
+
+dirname="`dirname "$0"`"
+
+file=$(mktemp /tmp/wallpaper.XXX.jpg)
+wget https://unsplash.it/$w/$h/?random -O "$file"
+#feh --bg-scale "$file"
+echo "$file"
+dms ipc call wallpaper set "$file"

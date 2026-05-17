@@ -48,9 +48,8 @@ family = "Iosevka Term Extended"
 [scrolling]
 history = 100000
 
-[terminal.shell]
-args = ["-l", "-c", "tmux attach || tmux"]
-program = "/bin/zsh"
+[window]
+opacity = 0.8
 
 [window.padding]
 x = 5

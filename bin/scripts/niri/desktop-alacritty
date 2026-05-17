@@ -1,0 +1,13 @@
+#!/bin/zsh
+
+margins=(
+    --margin-top 20 --margin-bottom 700 \
+    --margin-left 540 --margin-right 540
+)
+wl-paper \
+    --namespace alacritty-bottom \
+    --exclusive-zone 0 \
+    --layer bottom \
+    --keyboard-interactivity on-demand \
+    $margins \
+    alacritty --config-file /home/bczhc/.config/alacritty-bottom/alacritty.toml --command zsh -c 'tty-clock -sc; exec zsh -i'

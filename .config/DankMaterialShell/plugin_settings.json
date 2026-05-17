@@ -8,6 +8,7 @@
   "commandRunner": {
     "enabled": true,
     "history": [
+      "alacritty-cpu",
       "xeyes",
       "typora",
       "gsr-ui",
@@ -21,7 +22,6 @@
       "cpufreq 800M",
       "sdrpp-swrender",
       "alacritty-cpu --command=zsh",
-      "alacritty-cpu",
       "sdrpp-swerender",
       "render",
       "cpufreq 1000M",
@@ -37,5 +37,14 @@
     "enabled": true,
     "noTrigger": false,
     "trigger": "!"
+  },
+  "archLogo": {
+    "enabled": true
+  },
+  "calendarWidget": {
+    "enabled": true
+  },
+  "stickyNoteWidget": {
+    "enabled": true
   }
 }

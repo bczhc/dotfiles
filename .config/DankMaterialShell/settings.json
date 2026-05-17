@@ -1,10 +1,10 @@
 {
-  "currentThemeName": "red",
-  "currentThemeCategory": "generic",
+  "currentThemeName": "dynamic",
+  "currentThemeCategory": "dynamic",
   "customThemeFile": "/home/bczhc/.config/DankMaterialShell/themes/custom-pink/theme.json",
   "registryThemeVariants": {},
-  "matugenScheme": "scheme-vibrant",
-  "matugenContrast": 0,
+  "matugenScheme": "scheme-expressive",
+  "matugenContrast": 0.23,
   "runUserMatugenTemplates": true,
   "matugenTargetMonitor": "",
   "popupTransparency": 0.85,
@@ -133,15 +133,15 @@
   ],
   "showWorkspaceIndex": true,
   "showWorkspaceName": false,
-  "showWorkspacePadding": false,
+  "showWorkspacePadding": true,
   "workspaceScrolling": false,
   "showWorkspaceApps": true,
   "workspaceDragReorder": true,
   "maxWorkspaceIcons": 5,
-  "workspaceAppIconSizeOffset": 0,
+  "workspaceAppIconSizeOffset": 1,
   "groupWorkspaceApps": true,
   "workspaceFollowFocus": false,
-  "showOccupiedWorkspacesOnly": true,
+  "showOccupiedWorkspacesOnly": false,
   "reverseScrolling": false,
   "dwlShowAllTags": false,
   "workspaceActiveAppHighlightEnabled": false,
@@ -250,7 +250,7 @@
   "iconTheme": "Adwaita",
   "cursorSettings": {
     "theme": "BreezeX-RosePine-Linux",
-    "size": 24,
+    "size": 26,
     "niri": {
       "hideWhenTyping": false,
       "hideAfterInactiveMs": 0
@@ -351,8 +351,8 @@
     }
   },
   "showDock": true,
-  "dockAutoHide": true,
-  "dockSmartAutoHide": false,
+  "dockAutoHide": false,
+  "dockSmartAutoHide": true,
   "dockGroupByApp": false,
   "dockRestoreSpecialWorkspaceOnClick": false,
   "dockOpenOnOverview": true,
@@ -563,6 +563,10 @@
         {
           "id": "alarmClock",
           "enabled": true
+        },
+        {
+          "id": "archLogo",
+          "enabled": true
         }
       ],
       "spacing": 0,
@@ -681,7 +685,7 @@
       "id": "dw_1774097121551_yjoxng4cx",
       "widgetType": "systemMonitor",
       "name": "System Monitor",
-      "enabled": false,
+      "enabled": true,
       "config": {
         "showHeader": true,
         "transparency": 0.8,
@@ -708,10 +712,16 @@
       },
       "positions": {
         "DP-2": {
+          "width": 470.28515625,
+          "height": 238.03515625,
+          "x": 9.4609375,
+          "y": 329.7421875
+        },
+        "eDP-1": {
           "width": 320,
           "height": 480,
-          "x": 32.01953125,
-          "y": 53.734375
+          "x": 693.5,
+          "y": 293.5
         }
       }
     },
@@ -719,25 +729,258 @@
       "id": "dw_1774097140371_65vgee7fv",
       "widgetType": "desktopClock",
       "name": "Desktop Clock",
-      "enabled": false,
+      "enabled": true,
       "config": {
         "style": "analog",
         "transparency": 0.8,
         "colorMode": "primary",
         "customColor": "#ffffff",
         "showDate": true,
-        "showAnalogNumbers": false,
+        "showAnalogNumbers": true,
         "showAnalogSeconds": true,
         "displayPreferences": [
           "all"
-        ]
+        ],
+        "showOnOverviewOnly": false
       },
       "positions": {
         "DP-2": {
           "width": 222.3671875,
           "height": 222.3671875,
-          "x": 36.1171875,
-          "y": 577.48828125
+          "x": 149.78515625,
+          "y": 51.515625
+        },
+        "eDP-1": {
+          "width": 200,
+          "height": 200,
+          "x": 753.5,
+          "y": 433.5
+        }
+      }
+    },
+    {
+      "id": "dw_1778921439832_uhp5tz4rp",
+      "widgetType": "quranWidget",
+      "name": "Quran Widget",
+      "enabled": false,
+      "config": {
+        "displayPreferences": [
+          "all"
+        ],
+        "showOnOverlay": false,
+        "showOnOverview": false,
+        "showOnOverviewOnly": false
+      },
+      "positions": {
+        "DP-2": {
+          "width": 640,
+          "height": 360,
+          "x": 640,
+          "y": 360
+        },
+        "eDP-1": {
+          "width": 640,
+          "height": 360,
+          "x": 533.5,
+          "y": 353.5
+        }
+      }
+    },
+    {
+      "id": "dw_1778921482552_ky6n2m4f6",
+      "widgetType": "cavaVisualizer",
+      "name": "Cava Visualizer",
+      "enabled": true,
+      "config": {
+        "displayPreferences": [
+          "all"
+        ],
+        "showOnOverlay": false,
+        "clickThrough": true,
+        "barWidth": 6,
+        "barSpacing": 4,
+        "barCount": 26,
+        "showOnOverviewOnly": false,
+        "showOnOverview": false
+      },
+      "positions": {
+        "DP-2": {
+          "width": 200,
+          "height": 200,
+          "x": 59.9765625,
+          "y": 826.765625
+        },
+        "eDP-1": {
+          "width": 200,
+          "height": 200,
+          "x": 753.5,
+          "y": 433.5
+        }
+      }
+    },
+    {
+      "id": "dw_1778921687363_iy7tdbbvs",
+      "widgetType": "processList",
+      "name": "Process List",
+      "enabled": false,
+      "config": {
+        "displayPreferences": [
+          "all"
+        ],
+        "processScope": "all",
+        "sortBy": "memory",
+        "sortDescending": true,
+        "hideIdleProcesses": false,
+        "clickThrough": false,
+        "syncPositionAcrossScreens": false
+      },
+      "positions": {
+        "DP-2": {
+          "width": 694.609375,
+          "height": 755.91796875,
+          "x": 557.484375,
+          "y": 167.4765625
+        },
+        "_synced": {
+          "x": 0.6369669596354167,
+          "y": 0.026725260416666667,
+          "width": 697.0234375,
+          "height": 763.44140625
+        },
+        "eDP-1": {
+          "width": 560,
+          "height": 640,
+          "x": 573.5,
+          "y": 213.5
+        }
+      }
+    },
+    {
+      "id": "dw_1778921835446_mjk3ql457",
+      "widgetType": "appShortcut",
+      "name": "Application Shortcut",
+      "enabled": true,
+      "config": {
+        "displayPreferences": [
+          "all"
+        ],
+        "shortcutApp": "firefox",
+        "drawOutlines": false,
+        "drawBorder": false,
+        "followTheme": false
+      },
+      "positions": {
+        "DP-2": {
+          "width": 100,
+          "height": 100,
+          "x": 0,
+          "y": 32.1484375
+        },
+        "eDP-1": {
+          "width": 200,
+          "height": 200,
+          "x": 753.5,
+          "y": 433.5
+        }
+      }
+    },
+    {
+      "id": "dw_1778922137402_ey0l4sgji",
+      "widgetType": "appShortcut",
+      "name": "Application Shortcut (Copy)",
+      "enabled": true,
+      "config": {
+        "displayPreferences": [
+          "all"
+        ],
+        "shortcutApp": "qq",
+        "drawOutlines": false,
+        "drawBorder": false,
+        "followTheme": false
+      },
+      "positions": {
+        "DP-2": {
+          "width": 100,
+          "height": 100,
+          "x": 0,
+          "y": 194.30078125
+        },
+        "eDP-1": {
+          "width": 200,
+          "height": 200,
+          "x": 753.5,
+          "y": 433.5
+        }
+      }
+    },
+    {
+      "id": "dw_1778926696697_fisza8n67",
+      "widgetType": "appShortcut",
+      "name": "Application Shortcut (Copy)",
+      "enabled": true,
+      "config": {
+        "displayPreferences": [
+          "all"
+        ],
+        "shortcutApp": "steam-np",
+        "drawOutlines": false,
+        "drawBorder": false,
+        "followTheme": false
+      },
+      "positions": {
+        "DP-2": {
+          "width": 100,
+          "height": 100,
+          "x": 0,
+          "y": 114.1796875
+        },
+        "eDP-1": {
+          "width": 200,
+          "height": 200,
+          "x": 753.5,
+          "y": 433.5
+        }
+      }
+    },
+    {
+      "id": "dw_1779010574291_96cichvi3",
+      "widgetType": "calendarWidget",
+      "name": "Calendar",
+      "enabled": true,
+      "config": {
+        "displayPreferences": [
+          "all"
+        ],
+        "showOnOverlay": false,
+        "showOnOverview": false
+      },
+      "positions": {
+        "DP-2": {
+          "width": 470.71484375,
+          "height": 376.03515625,
+          "x": 1444.30859375,
+          "y": 54.9765625
+        }
+      }
+    },
+    {
+      "id": "dw_1779010605351_p8l5bpty4",
+      "widgetType": "stickyNoteWidget",
+      "name": "Sticky Note",
+      "enabled": false,
+      "config": {
+        "displayPreferences": [
+          "all"
+        ],
+        "content": "",
+        "folded": true
+      },
+      "positions": {
+        "DP-2": {
+          "width": 415.75,
+          "height": 459.86328125,
+          "x": 1258.77734375,
+          "y": 449.08203125
         }
       }
     }

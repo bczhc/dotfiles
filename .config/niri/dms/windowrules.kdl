@@ -3,7 +3,7 @@ window-rule {
     open-floating true
     default-column-width { proportion 0.7; }
     default-window-height { proportion 0.8; }
-    opacity 0.8
+    //opacity 0.8
     
     /-background-effect {
         xray false
@@ -16,7 +16,12 @@ window-rule {
 window-rule {
     match app-id="^[aA]lacritty$"
 
-    float-above-fullscreen true
+    //float-above-fullscreen true
+
+    background-effect {
+        xray true
+        blur true
+    }
 }
 
 window-rule {
@@ -28,7 +33,6 @@ window-rule {
 
 window-rule {
     match app-id="^[aA]lacritty$"
-    opacity 0.8
     open-floating false
 
     background-effect {
@@ -175,7 +179,6 @@ window-rule {
     float-above-fullscreen true
 }
 
-
 /// LAYER RULES
 
 /-layer-rule {
@@ -193,5 +196,15 @@ layer-rule {
 
     background-effect {
         xray false
+    }
+}
+
+layer-rule {
+    match namespace="^alacritty-bottom$"
+    //match namespace="dms:desktop-widget:calendarWidget:dw_1779010574291_96cichvi3"
+
+    opacity 0.8
+    background-effect {
+        //blur true
     }
 }
