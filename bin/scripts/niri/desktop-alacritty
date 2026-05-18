@@ -10,4 +10,4 @@ wl-paper \
     --layer bottom \
     --keyboard-interactivity on-demand \
     $margins \
-    alacritty --config-file /home/bczhc/.config/alacritty-bottom/alacritty.toml --command zsh -c 'tty-clock -sc; exec zsh -i'
+    alacritty --config-file /home/bczhc/.config/alacritty-bottom/alacritty.toml --command zsh -c 'tty-clock -sc -C6; exec zsh -i'

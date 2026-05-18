@@ -7,7 +7,18 @@ config-notification {
 }
 // Outputs from existing configuration
 output "eDP-1" {
-    off
+    /*
+       This is SO SILLY.
+
+       20260518
+
+       Comment from https://github.com/niri-wm/niri/issues/3997#issuecomment-4475713110:
+
+       Somewhat similar.. it's a drama; I needed to use my laptop portably today so I disconnected the daily external monitor and brought the laptop with me. Later when I started it in tty, in a class, niri just started as a black screen. Removing extra drm devices, checking journalctl, eliminating unneeded services and spawn-at-startup, tweaking here and there, in a hurry, ... but found nothing special. I also tested Hyprland and i3wm, and they all work.
+
+Finally it turned out that I had an off in the config output "eDP-1" which I added it before for some debugging purposes.. So silly am i.
+    */
+    // off
     scale 1.5
     //scale 1
     mode "2560x1600@240.000"
