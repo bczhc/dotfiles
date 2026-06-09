@@ -250,7 +250,7 @@
   "iconTheme": "Adwaita",
   "cursorSettings": {
     "theme": "BreezeX-RosePine-Linux",
-    "size": 26,
+    "size": 28,
     "niri": {
       "hideWhenTyping": false,
       "hideAfterInactiveMs": 0
@@ -714,8 +714,8 @@
         "DP-2": {
           "width": 457.37109375,
           "height": 250.53515625,
-          "x": 26.8125,
-          "y": 333.1796875
+          "x": 40.5859375,
+          "y": 420.04296875
         },
         "eDP-1": {
           "width": 366.3125,
@@ -753,8 +753,8 @@
         "DP-2": {
           "width": 222.3671875,
           "height": 222.3671875,
-          "x": 149.78515625,
-          "y": 51.515625
+          "x": 152.87890625,
+          "y": 93.94140625
         },
         "eDP-1": {
           "width": 200,
@@ -814,25 +814,31 @@
           "all"
         ],
         "showOnOverlay": false,
-        "clickThrough": true,
+        "clickThrough": false,
         "barWidth": 6,
         "barSpacing": 4,
-        "barCount": 26,
+        "barCount": 43,
         "showOnOverviewOnly": false,
-        "showOnOverview": false
+        "showOnOverview": false,
+        "channels": "mono",
+        "colorChoice": "primary",
+        "silenceTimeout": 1,
+        "bgOpacity": 0,
+        "opacity": 100,
+        "sensitivity": 79
       },
       "positions": {
         "DP-2": {
-          "width": 200,
-          "height": 200,
-          "x": 59.9765625,
-          "y": 826.765625
+          "width": 416.046875,
+          "height": 209.6796875,
+          "x": 46.80078125,
+          "y": 825.66796875
         },
         "eDP-1": {
           "width": 200,
           "height": 200,
-          "x": 753.5,
-          "y": 433.5
+          "x": 33.0625,
+          "y": 563.05078125
         },
         "": {
           "width": 100,
@@ -1004,10 +1010,10 @@
       },
       "positions": {
         "DP-2": {
-          "width": 470.71484375,
-          "height": 376.03515625,
-          "x": 1423.3359375,
-          "y": 52.05859375
+          "width": 456.45703125,
+          "height": 362.0703125,
+          "x": 1418.4375,
+          "y": 48.203125
         },
         "": {
           "width": 260,
@@ -1024,33 +1030,32 @@
       }
     },
     {
-      "id": "dw_1779010605351_p8l5bpty4",
-      "widgetType": "stickyNoteWidget",
-      "name": "Sticky Note",
-      "enabled": false,
+      "id": "dw_1779103998419_pivgrtgaq",
+      "widgetType": "appShortcut",
+      "name": "Application Shortcut",
+      "enabled": true,
       "config": {
         "displayPreferences": [
           "all"
         ],
-        "content": "",
-        "folded": true
+        "shortcutApp": "alacritty"
       },
       "positions": {
         "DP-2": {
-          "width": 415.75,
-          "height": 459.86328125,
-          "x": 1258.77734375,
-          "y": 449.08203125
+          "width": 100,
+          "height": 100,
+          "x": 0,
+          "y": 282.34765625
         },
         "eDP-1": {
-          "width": 260,
-          "height": 260,
-          "x": 723.5,
-          "y": 403.5
+          "width": 200,
+          "height": 200,
+          "x": 178.484375,
+          "y": 531.80859375
         },
         "": {
-          "width": 160,
-          "height": 120,
+          "width": 100,
+          "height": 100,
           "x": 0,
           "y": 0
         }

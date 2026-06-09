@@ -1,0 +1,3 @@
+#!/bin/bash
+
+([ ! -p /tmp/ss-id-result ] && mkfifo /tmp/ss-id-result); niri msg action screenshot-screen -d true -p false --path /tmp/ss.png ss-id && chronic cat /tmp/ss-id-result && cat /tmp/ss.png | zbarimg --raw -q -

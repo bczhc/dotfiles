@@ -1,5 +1,7 @@
 #!/bin/env ruby
 
+## combine(1) from `moreutils` can also achieve this!
+
 argv = ARGV
 self_name = File.basename($0)
 

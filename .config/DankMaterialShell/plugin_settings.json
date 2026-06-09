@@ -1,21 +1,25 @@
 {
   "emojiLauncher": {
     "enabled": true,
-    "recentEmojis": "😂,🙂,🥺,♥️,😭,😡,🤚,🖐️,🤣,📅,🤮,🤔,😳,👍,😢,😱,🎉,😞,🤪,😝",
+    "recentEmojis": "😭,😂,😵‍💫,😵,😳,🤣,🉑,🙂,🥺,♥️,😡,🤚,🖐️,📅,🤮,🤔,👍,😢,😱,🎉",
     "useDMS": false,
     "trigger": ":e"
   },
   "commandRunner": {
     "enabled": true,
     "history": [
-      "alacritty-cpu",
       "xeyes",
+      "xetes",
+      "glxgears",
+      "rime-add-words",
+      "virt-manager",
+      "wayneko",
+      "thu",
+      "alacritty-cpu",
       "typora",
       "gsr-ui",
-      "glxgears",
       "glxgea",
       "firefox-xwayland",
-      "rime-add-words",
       "tqs",
       "cpu-high",
       "cpufreq 2000M",
@@ -23,11 +27,7 @@
       "sdrpp-swrender",
       "alacritty-cpu --command=zsh",
       "sdrpp-swerender",
-      "render",
-      "cpufreq 1000M",
-      "cpufreq 8008M",
-      "cpu-freq 800M",
-      "cpu-freq 2000M"
+      "render"
     ]
   },
   "alarmClock": {

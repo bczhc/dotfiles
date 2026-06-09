@@ -16,7 +16,7 @@ window-rule {
 window-rule {
     match app-id="^[aA]lacritty$"
 
-    //float-above-fullscreen true
+    float-above-fullscreen true
 
     background-effect {
         xray true
@@ -157,13 +157,13 @@ window-rule {
         }
     }
 
-    //open-maximized-if-alone true
+    open-maximized-if-alone true
     //default-column-width { proportion 1.00; }
 }
 
 window-rule {
     match app-id="^diary-tauri$"
-    default-column-width { proportion 0.75; }
+    default-column-width { proportion 1.0; }
 }
 
 /-window-rule {
@@ -176,6 +176,20 @@ window-rule {
     match app-id="^firefox$"
     match title="^Picture-in-Picture$"
 
+    float-above-fullscreen true
+}
+
+/-window-rule {
+    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=10 y=10 relative-to="bottom-right"
+
+    float-above-fullscreen true
+    open-floating true
+}
+
+// Wine 'wineconsole'
+window-rule {
+    match app-id=r#"^conhost\.exe$"#
     float-above-fullscreen true
 }
 

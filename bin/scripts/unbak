@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+require 'fileutils'
+
+d = ARGV.delete("-d")
+src = ARGV.first
+dst = src.end_with?(".bak") ? src[0..-5] : src
+bak = src.end_with?(".bak") ? src : "#{src}.bak"
+FileUtils.cp(bak, dst)
+File.delete(bak) if d

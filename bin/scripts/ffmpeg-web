@@ -1,5 +1,10 @@
-#!/bin/bash
+#!/bin/zsh
 
-[ $# -eq 0 ] && echo 'Usage: <src> <dst> <cq>' && exit 1
+[ $# -eq 0 ] && echo 'Usage: <src> <cq> ...' && exit 1
 
-ffmpeg -i "$1" -c:v hevc_nvenc -b:v 0 -rc vbr -cq "$3" -c:a aac -b:a 0 "$2"
+src="$1"
+cq="$2"
+
+shift 2
+
+ffmpeg -i $src -c:v hevc_nvenc -b:v 0 -rc vbr -cq $cq -c:a aac -b:a 0 "$@"

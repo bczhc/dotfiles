@@ -2,7 +2,7 @@
 
 # 检查是否传入参数
 if [[ $# -eq 0 ]]; then
-    echo "Usage: $0 [dd parameters...]"
+    echo "Usage: $0 [dd parameters...]" >&2
     exit 1
 fi
 
@@ -20,30 +20,30 @@ for arg in "$@"; do
     fi
 done
 
-echo "--- 准备执行 DD 任务 ---"
-echo "完整命令: dd $@"
+echo "--- 准备执行 DD 任务 ---" >&2
+echo "完整命令: dd $@" >&2
 
 # 如果找到了目标设备，显示其分区表
 if [[ -n "$TARGET_DEV" ]]; then
-    echo "\n--- 目标设备状态 ($TARGET_DEV) ---"
+    echo "\n--- 目标设备状态 ($TARGET_DEV) ---" >&2
     if true; then
         # 如果是块设备，调用 fdisk
-        fdisk -l "$TARGET_DEV" 2>/dev/null || echo "无法获取 fdisk 信息（可能权限不足或非磁盘设备）"
+        fdisk -l "$TARGET_DEV" 2>/dev/null || echo "无法获取 fdisk 信息（可能权限不足或非磁盘设备）" >&2
     else
-        echo "提示: $TARGET_DEV 看起来像是一个普通文件而非块设备。"
+        echo "提示: $TARGET_DEV 看起来像是一个普通文件而非块设备。" >&2
     fi
 else
-    echo "\n警告: 未在参数中检测到 'of=' 目标。"
+    echo "\n警告: 未在参数中检测到 'of=' 目标。" >&2
 fi
 
-echo "\n--- 确认 ---"
-echo -n "确定要继续吗？请输入大写 **YES** 执行: "
+echo "\n--- 确认 ---" >&2
+echo -n "确定要继续吗？请输入大写 **YES** 执行: " >&2
 read CONFIRM
 
 if [[ "$CONFIRM" == "YES" ]]; then
-    echo "正在启动 dd..."
+    echo "正在启动 dd..." >&2
     /bin/dd "$@"
 else
-    echo "操作已取消。"
+    echo "操作已取消。" >&2
     exit 1
 fi

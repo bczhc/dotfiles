@@ -26,7 +26,7 @@ sudo cp -v arch/x86/boot/bzImage /boot/vmlinuz-linux-"$version"
 
 log 'Processing mkinitcpio...'
 cd /etc/mkinitcpio.d
-cat template.preset | sed "s/linuxver/linux-"$version"/g" | sudo tee linux-"$version".preset > /dev/null
+cat .template | sed "s/linuxver/linux-"$version"/g" | sudo tee linux-"$version".preset > /dev/null
 sudo mkinitcpio -p linux-"$version"
 
 log 'Generating grub...'

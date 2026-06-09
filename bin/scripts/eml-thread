@@ -17,6 +17,7 @@ import email.header
 import email.policy
 import email.utils
 import glob
+import base64
 import hashlib
 import html as html_mod
 import os
@@ -155,6 +156,39 @@ def get_plain_body(msg):
     return "(no text body)"
 
 
+def extract_images(msg):
+    """Extract inline PNG/JPG parts as [(mime, base64_str), ...]."""
+    images = []
+    if msg.is_multipart():
+        for part in msg.walk():
+            ct = part.get_content_type()
+            payload = part.get_payload(decode=True)
+            if not payload:
+                continue
+            if ct in ("image/png", "image/jpeg"):
+                images.append((ct, base64.b64encode(payload).decode("ascii")))
+            elif ct in ("application/octet-stream", "application/octet-stream/png"):
+                filename = part.get_filename() or ""
+                if filename.lower().endswith((".jpg", ".jpeg")):
+                    images.append(("image/jpeg", base64.b64encode(payload).decode("ascii")))
+                elif filename.lower().endswith(".png"):
+                    images.append(("image/png", base64.b64encode(payload).decode("ascii")))
+    else:
+        ct = msg.get_content_type()
+        payload = msg.get_payload(decode=True)
+        if not payload:
+            return images
+        if ct in ("image/png", "image/jpeg"):
+            images.append((ct, base64.b64encode(payload).decode("ascii")))
+        elif ct in ("application/octet-stream", "application/octet-stream/png"):
+            filename = msg.get_filename() or ""
+            if filename.lower().endswith((".jpg", ".jpeg")):
+                images.append(("image/jpeg", base64.b64encode(payload).decode("ascii")))
+            elif filename.lower().endswith(".png"):
+                images.append(("image/png", base64.b64encode(payload).decode("ascii")))
+    return images
+
+
 def parse_date(msg):
     date_str = _decode_header(msg.get("Date", ""))
     dt = datetime.min.replace(tzinfo=timezone.utc)
@@ -183,6 +217,7 @@ def parse_all_emails(directory):
 
         dt, date_str = parse_date(msg)
         body = get_plain_body(msg)
+        images = extract_images(msg)
 
         messages[mid] = {
             "mid": mid,
@@ -192,6 +227,7 @@ def parse_all_emails(directory):
             "date": date_str,
             "dt": dt,
             "body": body,
+            "images": images,
             "in_reply_to": extract_in_reply_to(msg),
             "references": extract_references(msg),
         }
@@ -335,7 +371,16 @@ def make_anchor(messages):
 CSS = """\
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
          margin: 0; padding: 0; background: #f9f9f9; color: #222; }
-  .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+  .container { max-width: 100%; margin: 0 auto; padding: 20px 16px;
+               display: flex; align-items: flex-start; }
+  .content-area { flex: 1; min-width: 0; }
+  .resizer { width: 6px; cursor: col-resize; flex-shrink: 0; user-select: none;
+             align-self: stretch; background: transparent; position: relative;
+             margin: 0 2px; }
+  .resizer:hover, .resizer.active { background: #ccc; }
+  .sidebar { width: 340px; flex-shrink: 0; position: sticky; top: 16px;
+             background: #fff; border: 1px solid #ddd; border-radius: 2px;
+             padding: 12px; max-height: calc(100vh - 32px); overflow-y: auto; }
   h1 { font-size: 1.15em; border-bottom: 1px solid #ccc; padding-bottom: 6px; }
   .msg { margin: 0 0 24px 0; background: #fff; border: 1px solid #ddd; border-radius: 2px; }
   .msg-header { background: #e8e8e8; padding: 6px 12px; font-size: 0.83em; }
@@ -345,18 +390,27 @@ CSS = """\
                  background: #f0f0f0; border-bottom: 1px solid #ddd; }
   .msg-body { padding: 10px 14px; white-space: pre-wrap; font-family: monospace, monospace;
               font-size: 0.85em; line-height: 1.5; overflow-x: auto; }
-  hr.sep { margin: 36px 0 24px 0; border: none; border-top: 2px solid #ccc; }
+  .msg img { max-width: min(100%, 600px); max-height: 80vh; height: auto; display: block; margin: 8px 14px 0 14px; }
   .nav-title { font-size: 1em; font-weight: bold; margin-bottom: 10px; color: #444; }
   .thread-tree { padding-left: 0; list-style: none; font-size: 0.88em; }
-  .thread-tree ul { padding-left: 20px; list-style: none; border-left: 1px solid #ddd;
-                    margin-left: 6px; }
-  .thread-tree li { margin: 4px 0; padding: 1px 0; }
+  .thread-tree ul { padding-left: 16px; list-style: none; border-left: 1px solid #ddd;
+                    margin-left: 4px; }
+  .thread-tree li { margin: 3px 0; padding: 1px 0; }
   .thread-tree a { text-decoration: none; color: #36c; }
   .thread-tree a:hover { text-decoration: underline; }
-  .thread-tree .tree-info { color: #888; font-size: 0.85em; }"""
+  .thread-tree .tree-info { color: #888; font-size: 0.85em; display: block; }
+  .thread-tree a.active { background: #e0e8f0; font-weight: bold; border-radius: 3px; padding: 1px 4px; }
+  .toggle-sidebar { cursor: pointer; border: 1px solid #ccc; background: #fff;
+                    border-radius: 3px; padding: 2px 8px; font-size: 0.8em;
+                    color: #666; user-select: none; margin-left: 8px; }
+  .toggle-sidebar:hover { background: #e8e8e8; }
+  .sidebar.collapsed, .resizer.collapsed { display: none; }"""
 
 
 def render_msg_div(info, anchor):
+    images_html = ""
+    for mime, b64 in info.get("images", []):
+        images_html += f'<img src="data:{mime};base64,{b64}" alt="">\n'
     return (
         f'<div class="msg" id="msg-{anchor}">\n'
         f'<div class="msg-header">\n'
@@ -365,6 +419,7 @@ def render_msg_div(info, anchor):
         f'</div>\n'
         f'<div class="msg-subject">{html_mod.escape(info["subject"])}</div>\n'
         f'<div class="msg-body">{html_mod.escape(info["body"])}</div>\n'
+        f'{images_html}'
         f'</div>'
     )
 
@@ -419,9 +474,61 @@ def sanitize_filename(subject, root_dt=None):
     return s
 
 
+INDEX_CSS = """\
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         margin: 0; padding: 0; background: #f9f9f9; color: #222; }
+  .container { max-width: 800px; margin: 0 auto; padding: 20px 16px; }
+  h1 { font-size: 1.3em; border-bottom: 1px solid #ccc; padding-bottom: 6px; }
+  ul { padding-left: 0; list-style: none; }
+  li { padding: 8px 12px; background: #fff; border: 1px solid #ddd;
+       border-radius: 2px; margin-bottom: 6px; }
+  li:hover { background: #f0f4f8; }
+  a { text-decoration: none; color: #36c; font-weight: bold; }
+  a:hover { text-decoration: underline; }
+  .info { color: #888; font-size: 0.85em; margin-left: 1em; }"""
+
+
+def generate_index(output_dir, threads_info):
+    """Generate an index.html listing all threads sorted by date (oldest first)."""
+    threads_info.sort(key=lambda t: t["dt"])
+    lines = [
+        "<!DOCTYPE html>",
+        '<html lang="en">',
+        "<head>",
+        '<meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width, initial-scale=1">',
+        "<title>Thread Index</title>",
+        "<style>",
+        INDEX_CSS,
+        "</style>",
+        "</head>",
+        "<body>",
+        '<div class="container">',
+        "<h1>Thread Index</h1>",
+        "<ul>",
+    ]
+    for t in threads_info:
+        date_str = t["dt"].strftime("%Y-%m-%d %H:%M") if t["dt"].year > 1 else ""
+        lines.append(
+            f'<li><a href="messages/{html_mod.escape(t["filename"])}">'
+            f'{html_mod.escape(t["subject"])}</a>'
+            f'<span class="info">{html_mod.escape(date_str)} &mdash; {t["count"]} msg{"s" if t["count"] > 1 else ""}</span></li>'
+        )
+    lines.append("</ul>")
+    lines.append("</div>")
+    lines.append("</body>")
+    lines.append("</html>")
+
+    filepath = os.path.join(output_dir, "index.html")
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+    return filepath
+
+
 def generate_html(root_mid, children, messages, sort_mode, output_dir):
     """Generate a single-thread HTML file."""
-    os.makedirs(output_dir, exist_ok=True)
+    msg_dir = os.path.join(output_dir, "messages")
+    os.makedirs(msg_dir, exist_ok=True)
 
     thread_mids = collect_thread_mids(root_mid, children)
     anchors = make_anchor(messages)
@@ -429,7 +536,7 @@ def generate_html(root_mid, children, messages, sort_mode, output_dir):
     root_info = messages[root_mid]
     subject_base = root_info["subject"].strip()
     filename = sanitize_filename(subject_base, root_info["dt"]) + ".html"
-    filepath = os.path.join(output_dir, filename)
+    filepath = os.path.join(msg_dir, filename)
 
     lines = [
         "<!DOCTYPE html>",
@@ -444,7 +551,8 @@ def generate_html(root_mid, children, messages, sort_mode, output_dir):
         "</head>",
         "<body>",
         '<div class="container">',
-        f"<h1>{html_mod.escape(subject_base)}</h1>",
+        '<div class="content-area">',
+        f"<h1>{html_mod.escape(subject_base)}<span class=\"toggle-sidebar\" id=\"toggleSidebar\">☰</span></h1>",
     ]
 
     # messages
@@ -456,14 +564,92 @@ def generate_html(root_mid, children, messages, sort_mode, output_dir):
     for mid in display_order:
         lines.append(render_msg_div(messages[mid], anchors.get(mid, mid)))
 
-    # tree
-    lines.append('<hr class="sep">')
+    lines.append("</div>")  # content-area
+
+    # resizer
+    lines.append('<div class="resizer"></div>')
+
+    # sidebar tree
+    lines.append('<div class="sidebar">')
+    lines.append('<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">')
+    lines.append('<div style="font-size:0.85em"><a href="../index.html">&larr; Back to Index</a></div>')
+    lines.append('<span class="toggle-sidebar" id="closeSidebar" style="margin-left:0">✕</span>')
+    lines.append('</div>')
     lines.append('<div class="nav-title">Thread Overview</div>')
     lines.append('<ul class="thread-tree">')
     lines.append(render_tree(root_mid, children, messages, anchors))
     lines.append("</ul>")
-
     lines.append("</div>")
+
+    lines.append("</div>")  # container
+    lines.append("<script>")
+    lines.append("(function(){")
+    lines.append("function highlight(id){")
+    lines.append("  if(!id)return;")
+    lines.append("  document.querySelectorAll('.thread-tree a').forEach(function(a){a.classList.remove('active')});")
+    lines.append("  var m=document.querySelector('.thread-tree a[href=\"#'+id+'\"]');")
+    lines.append("  if(m)m.classList.add('active')")
+    lines.append("}")
+    lines.append("function onHash(){")
+    lines.append("  var h=window.location.hash;")
+    lines.append("  if(h)highlight(h.slice(1))")
+    lines.append("}")
+    lines.append("window.addEventListener('hashchange',onHash);")
+    lines.append("if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',onHash);else onHash();")
+    lines.append("if(window.innerWidth<768){document.querySelector('.sidebar').classList.add('collapsed');var rr=document.querySelector('.resizer');if(rr)rr.classList.add('collapsed')}")
+    lines.append("var r=document.querySelector('.resizer'),s=document.querySelector('.sidebar');")
+    lines.append("if(r&&s){")
+    lines.append("  r.addEventListener('mousedown',function(e){")
+    lines.append("    e.preventDefault();r.classList.add('active');")
+    lines.append("    var sx=e.clientX,cs=getComputedStyle(s),sw=parseFloat(cs.width);")
+    lines.append("    function onMove(e){")
+    lines.append("      var w=sw-(e.clientX-sx);")
+    lines.append("      if(w<200)w=200;if(w>600)w=600;")
+    lines.append("      s.style.width=w+'px';r.style.background='#ccc'")
+    lines.append("    }")
+    lines.append("    function onUp(){")
+    lines.append("      r.classList.remove('active');r.style.background='';")
+    lines.append("      document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp)")
+    lines.append("    }")
+    lines.append("    document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp)")
+    lines.append("  })")
+    lines.append("}")
+    lines.append("document.querySelector('.thread-tree').addEventListener('click',function(e){")
+    lines.append("  var t=e.target;")
+    lines.append("  if(t.tagName==='A'&&t.getAttribute('href').startsWith('#')){")
+    lines.append("    e.preventDefault();")
+    lines.append("    var id=t.getAttribute('href').slice(1);")
+    lines.append("    history.replaceState(null,'','#'+id);")
+    lines.append("    highlight(id);")
+    lines.append("    document.getElementById(id).scrollIntoView({behavior:'smooth'})")
+    lines.append("  }")
+    lines.append("})")
+    lines.append("var tick=false;")
+    lines.append("window.addEventListener('scroll',function(){")
+    lines.append("  if(!tick){")
+    lines.append("    requestAnimationFrame(function(){")
+    lines.append("      var msgs=document.querySelectorAll('.msg'),best=null,bestTop=-Infinity;")
+    lines.append("      msgs.forEach(function(el){")
+    lines.append("        var top=el.getBoundingClientRect().top;")
+    lines.append("        if(top<=100&&top>bestTop){bestTop=top;best=el}")
+    lines.append("      });")
+    lines.append("      if(best){")
+    lines.append("        var id=best.id;")
+    lines.append("        if(window.location.hash!=='#'+id){history.replaceState(null,'','#'+id);highlight(id)}")
+    lines.append("      }")
+    lines.append("      tick=false")
+    lines.append("    });tick=true")
+    lines.append("  }")
+    lines.append("})")
+    lines.append("document.getElementById('toggleSidebar').addEventListener('click',toggleSidebar)")
+    lines.append("var cs=document.getElementById('closeSidebar');if(cs)cs.addEventListener('click',toggleSidebar)")
+    lines.append("function toggleSidebar(){")
+    lines.append("  var s=document.querySelector('.sidebar'),r=document.querySelector('.resizer');")
+    lines.append("  s.classList.toggle('collapsed');")
+    lines.append("  if(r)r.classList.toggle('collapsed')")
+    lines.append("}")
+    lines.append("})();")
+    lines.append("</script>")
     lines.append("</body>")
     lines.append("</html>")
 
@@ -583,6 +769,7 @@ def main():
     # 4. generate HTML — one per root
     output_dir = os.path.abspath(args.output)
     total = len(target_roots)
+    threads_info = []
 
     for i, root_mid in enumerate(target_roots):
         count = thread_msg_count(root_mid, children)
@@ -597,13 +784,21 @@ def main():
             print("  ", end="")
         print(f"({count} msgs) {subject}")
 
-        filepath, _ = generate_html(root_mid, children, messages, args.sort, output_dir)
+        generate_html(root_mid, children, messages, args.sort, output_dir)
+
+        filename = sanitize_filename(root_info["subject"].strip(), root_info["dt"]) + ".html"
+        threads_info.append({
+            "subject": root_info["subject"].strip(),
+            "dt": root_info["dt"],
+            "count": count,
+            "filename": filename,
+        })
 
     if total > 1:
-        print(f"\nDone. {total} files written to {output_dir}")
+        print(f"\nDone. {total} threads written to {output_dir}")
     else:
-        print(f"\nOutput:  {filepath}")
-        print("Done.")
+        print(f"\nDone. Output written to {output_dir}")
+    generate_index(output_dir, threads_info)
 
 
 if __name__ == "__main__":
