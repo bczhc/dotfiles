@@ -1,3 +1,6 @@
 #!/bin/bash
 
+# Typora can only launch under X
+unset GDK_BACKEND
+
 /usr/local/bin/typora --no-sandbox "$@"

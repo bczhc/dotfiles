@@ -1,0 +1,340 @@
+#compdef btc-tools
+
+autoload -U is-at-least
+
+_btc-tools() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+":: :_btc-tools_commands" \
+"*::: :->btc-tools" \
+&& ret=0
+    case $state in
+    (btc-tools)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:btc-tools-command-$line[1]:"
+        case $line[1] in
+            (wif-to-ec)
+_arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+':wif -- Private key in WIF format:' \
+&& ret=0
+;;
+(ec-to-wif)
+_arguments "${_arguments_options[@]}" \
+'-c[]' \
+'--compressed[]' \
+'-h[Print help]' \
+'--help[Print help]' \
+':hex -- Raw 32-byte hex-encoded private key:' \
+&& ret=0
+;;
+(wif-to-public)
+_arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+':wif -- Private key in WIF format:' \
+&& ret=0
+;;
+(base58-encode)
+_arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+':data -- Hex-encoded bytes:' \
+&& ret=0
+;;
+(base58-encode-check)
+_arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+':data -- Hex-encoded bytes:' \
+&& ret=0
+;;
+(base58-decode)
+_arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+':base58 -- Base58-encoded string:' \
+&& ret=0
+;;
+(base58-decode-check)
+_arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+':base58 -- Base58-encoded string:' \
+&& ret=0
+;;
+(public-to-address)
+_arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+':key -- Raw hex-encoded public key:' \
+':type -- Address type:(p2pkh p2wpkh)' \
+&& ret=0
+;;
+(wif-to-address)
+_arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+':wif -- Private key in WIF format:' \
+':type -- Address type:(p2pkh p2wpkh)' \
+&& ret=0
+;;
+(ec-to-address)
+_arguments "${_arguments_options[@]}" \
+'-c[]' \
+'--compressed[]' \
+'-h[Print help]' \
+'--help[Print help]' \
+':hex -- Raw 32-byte hex-encoded private key:' \
+':type -- Address type:(p2pkh p2wpkh)' \
+&& ret=0
+;;
+(generate-address)
+_arguments "${_arguments_options[@]}" \
+'-b[Use BIP-38]' \
+'--bip38[Use BIP-38]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+':substring -- The string to be contained in the address (p2wpkh):' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+":: :_btc-tools__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:btc-tools-help-command-$line[1]:"
+        case $line[1] in
+            (wif-to-ec)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(ec-to-wif)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(wif-to-public)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(base58-encode)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(base58-encode-check)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(base58-decode)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(base58-decode-check)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(public-to-address)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(wif-to-address)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(ec-to-address)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(generate-address)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_btc-tools_commands] )) ||
+_btc-tools_commands() {
+    local commands; commands=(
+'wif-to-ec:' \
+'ec-to-wif:' \
+'wif-to-public:' \
+'base58-encode:' \
+'base58-encode-check:' \
+'base58-decode:' \
+'base58-decode-check:' \
+'public-to-address:' \
+'wif-to-address:' \
+'ec-to-address:' \
+'generate-address:Generate bitcoin addresses' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'btc-tools commands' commands "$@"
+}
+(( $+functions[_btc-tools__base58-decode_commands] )) ||
+_btc-tools__base58-decode_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools base58-decode commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__base58-decode_commands] )) ||
+_btc-tools__help__base58-decode_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help base58-decode commands' commands "$@"
+}
+(( $+functions[_btc-tools__base58-decode-check_commands] )) ||
+_btc-tools__base58-decode-check_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools base58-decode-check commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__base58-decode-check_commands] )) ||
+_btc-tools__help__base58-decode-check_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help base58-decode-check commands' commands "$@"
+}
+(( $+functions[_btc-tools__base58-encode_commands] )) ||
+_btc-tools__base58-encode_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools base58-encode commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__base58-encode_commands] )) ||
+_btc-tools__help__base58-encode_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help base58-encode commands' commands "$@"
+}
+(( $+functions[_btc-tools__base58-encode-check_commands] )) ||
+_btc-tools__base58-encode-check_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools base58-encode-check commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__base58-encode-check_commands] )) ||
+_btc-tools__help__base58-encode-check_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help base58-encode-check commands' commands "$@"
+}
+(( $+functions[_btc-tools__ec-to-address_commands] )) ||
+_btc-tools__ec-to-address_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools ec-to-address commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__ec-to-address_commands] )) ||
+_btc-tools__help__ec-to-address_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help ec-to-address commands' commands "$@"
+}
+(( $+functions[_btc-tools__ec-to-wif_commands] )) ||
+_btc-tools__ec-to-wif_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools ec-to-wif commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__ec-to-wif_commands] )) ||
+_btc-tools__help__ec-to-wif_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help ec-to-wif commands' commands "$@"
+}
+(( $+functions[_btc-tools__generate-address_commands] )) ||
+_btc-tools__generate-address_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools generate-address commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__generate-address_commands] )) ||
+_btc-tools__help__generate-address_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help generate-address commands' commands "$@"
+}
+(( $+functions[_btc-tools__help_commands] )) ||
+_btc-tools__help_commands() {
+    local commands; commands=(
+'wif-to-ec:' \
+'ec-to-wif:' \
+'wif-to-public:' \
+'base58-encode:' \
+'base58-encode-check:' \
+'base58-decode:' \
+'base58-decode-check:' \
+'public-to-address:' \
+'wif-to-address:' \
+'ec-to-address:' \
+'generate-address:Generate bitcoin addresses' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'btc-tools help commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__help_commands] )) ||
+_btc-tools__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help help commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__public-to-address_commands] )) ||
+_btc-tools__help__public-to-address_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help public-to-address commands' commands "$@"
+}
+(( $+functions[_btc-tools__public-to-address_commands] )) ||
+_btc-tools__public-to-address_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools public-to-address commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__wif-to-address_commands] )) ||
+_btc-tools__help__wif-to-address_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help wif-to-address commands' commands "$@"
+}
+(( $+functions[_btc-tools__wif-to-address_commands] )) ||
+_btc-tools__wif-to-address_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools wif-to-address commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__wif-to-ec_commands] )) ||
+_btc-tools__help__wif-to-ec_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help wif-to-ec commands' commands "$@"
+}
+(( $+functions[_btc-tools__wif-to-ec_commands] )) ||
+_btc-tools__wif-to-ec_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools wif-to-ec commands' commands "$@"
+}
+(( $+functions[_btc-tools__help__wif-to-public_commands] )) ||
+_btc-tools__help__wif-to-public_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools help wif-to-public commands' commands "$@"
+}
+(( $+functions[_btc-tools__wif-to-public_commands] )) ||
+_btc-tools__wif-to-public_commands() {
+    local commands; commands=()
+    _describe -t commands 'btc-tools wif-to-public commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_btc-tools" ]; then
+    _btc-tools "$@"
+else
+    compdef _btc-tools btc-tools
+fi

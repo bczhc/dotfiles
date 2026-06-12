@@ -1,13 +1,15 @@
 {
   "emojiLauncher": {
     "enabled": true,
-    "recentEmojis": "😭,😂,😵‍💫,😵,😳,🤣,🉑,🙂,🥺,♥️,😡,🤚,🖐️,📅,🤮,🤔,👍,😢,😱,🎉",
+    "recentEmojis": "📅,😹,🥲,👶🏿,🤐,😭,😂,😵‍💫,😵,😳,🤣,🉑,🙂,🥺,♥️,😡,🤚,🖐️,🤮,🤔",
     "useDMS": false,
     "trigger": ":e"
   },
   "commandRunner": {
     "enabled": true,
     "history": [
+      "vkcube",
+      "vkcubej",
       "xeyes",
       "xetes",
       "glxgears",
@@ -25,9 +27,7 @@
       "cpufreq 2000M",
       "cpufreq 800M",
       "sdrpp-swrender",
-      "alacritty-cpu --command=zsh",
-      "sdrpp-swerender",
-      "render"
+      "alacritty-cpu --command=zsh"
     ]
   },
   "alarmClock": {

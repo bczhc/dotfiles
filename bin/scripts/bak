@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
-require 'fileutils'
-
-d = ARGV.delete("-d")
+if ARGV.empty? || ARGV.include?("-h") || ARGV.include?("--help")
+  puts "Usage: bak <file>  # rename <file> to <file>.bak"
+  exit
+end
 src = ARGV.first
-dst = "#{src}.bak"
-FileUtils.cp(src, dst)
-File.delete(src) if d
+File.rename(src, "#{src}.bak")

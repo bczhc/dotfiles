@@ -1,0 +1,6 @@
+#!/bin/bash
+
+while :; do
+    btrfs filesystem usage / 2>/dev/null | rg Metadata,DUP | rg '.*\((.*?)%\)$' -r '$1'
+    sleep 1
+done | isots >> ~/.local/state/bczhc/btrfs-meta.log

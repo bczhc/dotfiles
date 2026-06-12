@@ -1,0 +1,201 @@
+#compdef bcachefs
+
+autoload -U is-at-least
+
+_bcachefs() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+":: :_bcachefs_commands" \
+"*::: :->bcachefs" \
+&& ret=0
+    case $state in
+    (bcachefs)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:bcachefs-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" \
+'-b+[Btree to list from]:BTREE: ' \
+'--btree=[Btree to list from]:BTREE: ' \
+'-l+[Btree depth to descend to (0 == leaves)]:LEVEL: ' \
+'--level=[Btree depth to descend to (0 == leaves)]:LEVEL: ' \
+'-s+[Start position to list from]:START: ' \
+'--start=[Start position to list from]:START: ' \
+'-e+[End position]:END: ' \
+'--end=[End position]:END: ' \
+'-m+[]:MODE:(keys formats nodes nodes-ondisk)' \
+'--mode=[]:MODE:(keys formats nodes nodes-ondisk)' \
+'-c+[Force color on/off. Default\: autodetect tty]:COLORIZE:(true false)' \
+'--colorize=[Force color on/off. Default\: autodetect tty]:COLORIZE:(true false)' \
+'-f[Check (fsck) the filesystem first]' \
+'--fsck[Check (fsck) the filesystem first]' \
+'-v[Verbose mode]' \
+'--verbose[Verbose mode]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'*::devices:_files' \
+&& ret=0
+;;
+(mount)
+_arguments "${_arguments_options[@]}" \
+'-k+[Where the password would be loaded from.]:KEY_LOCATION:(none fail wait ask)' \
+'--key-location=[Where the password would be loaded from.]:KEY_LOCATION:(none fail wait ask)' \
+'-o+[Mount options]:OPTIONS: ' \
+'-c+[Force color on/off. Default\: autodetect tty]:COLORIZE:(true false)' \
+'--colorize=[Force color on/off. Default\: autodetect tty]:COLORIZE:(true false)' \
+'*-v[Verbose mode]' \
+'*--verbose[Verbose mode]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':dev -- Device, or UUID=<UUID>:' \
+'::mountpoint -- Where the filesystem should be mounted. If not set, then the filesystem won'\''t actually be mounted. But all steps preceeding mounting the filesystem (e.g. asking for passphrase) will still be performed:_files' \
+&& ret=0
+;;
+(completions)
+_arguments "${_arguments_options[@]}" \
+'-h[Print help]' \
+'--help[Print help]' \
+':shell:(bash elvish fish powershell zsh)' \
+&& ret=0
+;;
+(format)
+_arguments "${_arguments_options[@]}" \
+'-b+[Block size]:BLOCK_SIZE: ' \
+'--block_size=[Block size]:BLOCK_SIZE: ' \
+'-b+[Btree node size, default 256k]:BREE_NODE_SIZE: ' \
+'--bree_node_size=[Btree node size, default 256k]:BREE_NODE_SIZE: ' \
+'-e+[Action to take on filesystem error]:ERRORS:(continue ro panic)' \
+'--errors=[Action to take on filesystem error]:ERRORS:(continue ro panic)' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+":: :_bcachefs__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:bcachefs-help-command-$line[1]:"
+        case $line[1] in
+            (list)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(mount)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(completions)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(format)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_bcachefs_commands] )) ||
+_bcachefs_commands() {
+    local commands; commands=(
+'list:List filesystem metadata in textual form' \
+'mount:Mount a bcachefs filesystem by its UUID' \
+'completions:Generate shell completions' \
+'format:Format' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'bcachefs commands' commands "$@"
+}
+(( $+functions[_bcachefs__completions_commands] )) ||
+_bcachefs__completions_commands() {
+    local commands; commands=()
+    _describe -t commands 'bcachefs completions commands' commands "$@"
+}
+(( $+functions[_bcachefs__help__completions_commands] )) ||
+_bcachefs__help__completions_commands() {
+    local commands; commands=()
+    _describe -t commands 'bcachefs help completions commands' commands "$@"
+}
+(( $+functions[_bcachefs__format_commands] )) ||
+_bcachefs__format_commands() {
+    local commands; commands=()
+    _describe -t commands 'bcachefs format commands' commands "$@"
+}
+(( $+functions[_bcachefs__help__format_commands] )) ||
+_bcachefs__help__format_commands() {
+    local commands; commands=()
+    _describe -t commands 'bcachefs help format commands' commands "$@"
+}
+(( $+functions[_bcachefs__help_commands] )) ||
+_bcachefs__help_commands() {
+    local commands; commands=(
+'list:List filesystem metadata in textual form' \
+'mount:Mount a bcachefs filesystem by its UUID' \
+'completions:Generate shell completions' \
+'format:Format' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'bcachefs help commands' commands "$@"
+}
+(( $+functions[_bcachefs__help__help_commands] )) ||
+_bcachefs__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'bcachefs help help commands' commands "$@"
+}
+(( $+functions[_bcachefs__help__list_commands] )) ||
+_bcachefs__help__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'bcachefs help list commands' commands "$@"
+}
+(( $+functions[_bcachefs__list_commands] )) ||
+_bcachefs__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'bcachefs list commands' commands "$@"
+}
+(( $+functions[_bcachefs__help__mount_commands] )) ||
+_bcachefs__help__mount_commands() {
+    local commands; commands=()
+    _describe -t commands 'bcachefs help mount commands' commands "$@"
+}
+(( $+functions[_bcachefs__mount_commands] )) ||
+_bcachefs__mount_commands() {
+    local commands; commands=()
+    _describe -t commands 'bcachefs mount commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_bcachefs" ]; then
+    _bcachefs "$@"
+else
+    compdef _bcachefs bcachefs
+fi

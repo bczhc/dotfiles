@@ -1,0 +1,13 @@
+[Unit]
+Description=Btrfs Meta Radio Logger
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+
+[Service]
+Type=exec
+ExecStart=/home/bczhc/bin/scripts/btrfs-meta-ratio-logger
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target

@@ -9,7 +9,7 @@ rm -rf bin/rofi/rofi-iwd-wifi-menu
 cp ~/.ssh/config .ssh/
 
 cd ~
-cp .vimrc .zshrc .p10k.zsh .gitconfig "$basedir"
+cp -ar .zfunc .vimrc .zshrc .p10k.zsh .gitconfig "$basedir"
 
 cd ~/.config
 rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch htop yazi tmux-powerline hypr \
@@ -23,7 +23,7 @@ cd "$basedir"
 rsync -a ~/.config/./tmux/tmux.conf .config --delete --relative
 
 mkdir -p usr/bin
-rsync -a /bin/ddask usr/bin
+rsync -a /bin/ddck usr/bin
 
 mkdir -p .local
 rsync -a ~/.local/xdg-override .local

@@ -152,7 +152,7 @@ export ANDROID_HOME=/home/bczhc/bin/AndroidSdk
 
 export PATH=/home/bczhc/bin/scripts/exec-override:/home/bczhc/bin/scripts:/home/bczhc/bin:"$PATH"
 export PATH="$PATH":/home/bczhc/bin/AndroidSdk/platform-tools
-export PATH="$PATH":/home/bczhc/code/rust/target/debug
+export PATH="$PATH":/home/bczhc/code/rust/target/release
 export PATH="$PATH":/home/bczhc/open-source/zig-lsp
 export PATH="$PATH":/home/bczhc/.local/share/gem/ruby/3.0.0/bin
 export PATH="$PATH":/home/bczhc/.local/bin
@@ -266,9 +266,9 @@ function sortuniq() {
 alias starth='start-hyprland'
 alias baksys='sync; sudo snapsys'
 
-dd_warn_msg="⚠️ Please use 'ddask' instead of 'dd'"
+dd_warn_msg="⚠️ Please use 'ddck' instead of 'dd'"
 
-# 拦截 sudo dd 并建议使用 sudo ddask
+# Special handling for `dd`: use `ddck` instead
 sudo() {
     if [[ "$1" == "dd" ]]; then
         echo $dd_warn_msg
@@ -285,3 +285,9 @@ alias linkstart='__GLX_VENDOR_LIBRARY_NAME=mesa __EGL_VENDOR_LIBRARY_FILENAMES=/
 unset __GLX_VENDOR_LIBRARY_NAME
 unset __EGL_VENDOR_LIBRARY_FILENAMES
 unset VK_ICD_FILENAMES
+
+tmd() {
+    local temp_dir=~/t/"$(date --rfc-3339=seconds)"
+    mkdir -p $temp_dir
+    cd $temp_dir
+}

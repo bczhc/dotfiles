@@ -1,4 +1,4 @@
 Dotfiles
 ----
 
-My linux PC setup.
+My GNU/Linux PC setup.

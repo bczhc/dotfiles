@@ -1,4 +1,4 @@
-require("mime-ext"):setup {
+--[[ require("mime-ext"):setup {
 	with_files = {
 		makefile = "text/makefile",
 	},
@@ -7,6 +7,7 @@ require("mime-ext"):setup {
 	},
 	fallback_file1 = false,
 }
+]]--
 
 function Status:position()
 	local cursor = self._current.cursor
