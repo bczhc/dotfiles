@@ -1,0 +1,47 @@
+From 830d3b7a9e96cce00c2600557090b4404a3c74d0 Mon Sep 17 00:00:00 2001
+From: Zhai Can <bczhc0@126.com>
+Date: Mon, 11 May 2026 21:15:06 +0800
+Subject: [PATCH 1/2] Set overlay keyboard interactivity "none" when the cursor
+ is locked
+
+---
+ src/Overlay.cpp | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/src/Overlay.cpp b/src/Overlay.cpp
+index 8368a3c..50578a9 100644
+--- a/src/Overlay.cpp
++++ b/src/Overlay.cpp
+@@ -1162,6 +1162,13 @@ namespace gsr {
+         XcursorImageDestroy(cursor_image);
+     }
+ 
++    bool niri_cursor_locked() {
++        auto file = popen("niri msg -j has-pointer-constraints | jq '.has_pointer_constraints' | tr -d '\n'", "r");
++        char buf[16]{};
++        fread(buf, 1, sizeof(buf) - 1, file);
++        return strcmp(buf, "true") == 0;
++    }
++
+     void Overlay::show() {
+         if(visible)
+             return;
+@@ -1246,7 +1253,12 @@ namespace gsr {
+         if(wayland_native_overlay) {
+             // wlr-layer-shell OVERLAY surface — full-monitor, no decorations, native Wayland.
+             window_create_params.window_type = MGL_WINDOW_TYPE_OVERLAY;
+-            window_create_params.layer_shell_options.keyboard_interactivity = MGL_LAYER_SHELL_KEYBOARD_INTERACTIVITY_EXCLUSIVE;
++            const bool niri_locked = niri_cursor_locked();
++            if (niri_locked) {
++                window_create_params.layer_shell_options.keyboard_interactivity = MGL_LAYER_SHELL_KEYBOARD_INTERACTIVITY_NONE;
++            } else {
++                window_create_params.layer_shell_options.keyboard_interactivity = MGL_LAYER_SHELL_KEYBOARD_INTERACTIVITY_EXCLUSIVE;
++            }
+             window_create_params.layer_shell_options.exclusive_zone = -1;
+         } else {
+             // MGL_WINDOW_TYPE_DIALOG is needed for kde plasma wayland in some cases, otherwise the window will pop up on another activity
+
+base-commit: 44b56500c332722d39771129245d61b6535cb603
+-- 
+2.54.0
+

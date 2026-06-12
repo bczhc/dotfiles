@@ -1,0 +1,95 @@
+From 94acea186b6d725b0797e2b40ab5408e2b7f6615 Mon Sep 17 00:00:00 2001
+In-Reply-To: <40377716-25d8-43b0-bfda-0c8fb7ff9112@126.com>
+References: <40377716-25d8-43b0-bfda-0c8fb7ff9112@126.com>
+From: Zhai Can <bczhc0@126.com>
+Date: Mon, 4 May 2026 21:25:18 +0800
+Subject: [PATCH] Add several Gtk Actions
+To: dec05eba@protonmail.com
+
+GTK Actions will automatically register DBus methods. This exposes
+a dbus interface to control the app.
+
+Five actions in this commit: "ShowWindow" "PauseRecording"
+"StartRecording" "StopRecording" "HideWindow"
+
+busctl usage example:
+
+```sh
+busctl --user call com.dec05eba.gpu_screen_recorder /com/dec05eba/gpu_screen_recorder org.gtk.Actions Activate sava{sv} HideWindow 0 0
+```
+
+Signed-off-by: Zhai Can <bczhc0@126.com>
+---
+ src/main.cpp | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
+
+diff --git a/src/main.cpp b/src/main.cpp
+index 8af2b94..5c81f78 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -4590,6 +4590,33 @@ static void startup_new_ui(bool launched_by_daemon) {
+     exit(0);
+ }
+ 
++static void handle_start_recording_action(GSimpleAction *, GVariant *, gpointer user_data) {
++    GtkApplication *app = (GtkApplication *) user_data;
++    if(!recording) on_start_recording_button_click(start_recording_button, app);
++}
++
++static void handle_stop_recording_action(GSimpleAction*, GVariant*, gpointer user_data) {
++    GtkApplication *app = (GtkApplication *) user_data;
++    if(recording)
++        on_start_recording_button_click(start_recording_button, app);
++    else if(streaming)
++        on_start_streaming_button_click(start_streaming_button, app);
++    else if(replaying)
++        on_start_replay_button_click(start_replay_button, app);
++}
++
++static void handle_show_window_action(GSimpleAction *, GVariant *, gpointer) {
++    if (window_hidden) show_window();
++}
++
++static void handle_hide_window_action(GSimpleAction *, GVariant *, gpointer) {
++    if (!window_hidden) hide_window();
++}
++
++static void handle_pause_recording_action(GSimpleAction*, GVariant*, gpointer) {
++    if(recording) on_pause_unpause_button_click(nullptr, nullptr);
++}
++
+ int main(int argc, char **argv) {
+     setlocale(LC_ALL, "C");
+ 
+@@ -4638,8 +4665,26 @@ int main(int argc, char **argv) {
+     argv[0] = app_id;
+ 
+     GtkApplication *app = gtk_application_new(app_id, G_APPLICATION_NON_UNIQUE);
++
++    const GActionEntry actions[] = {
++        { "StartRecording", handle_start_recording_action, NULL, NULL, NULL },
++        { "PauseRecording", handle_pause_recording_action, NULL, NULL, NULL },
++        { "StopRecording", handle_stop_recording_action, NULL, NULL, NULL },
++        { "ShowWindow", handle_show_window_action, NULL, NULL, NULL },
++        { "HideWindow", handle_hide_window_action, NULL, NULL, NULL },
++    };
++    g_action_map_add_action_entries(G_ACTION_MAP(app), actions, G_N_ELEMENTS(actions), app);
++    guint owner_id = g_bus_own_name(
++        G_BUS_TYPE_SESSION,
++        app_id,
++        G_BUS_NAME_OWNER_FLAGS_NONE,
++        NULL, NULL, NULL, NULL, NULL
++    );
+     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
++
+     int status = g_application_run(G_APPLICATION(app), argc, argv);
++
++    g_bus_unown_name(owner_id);
+     g_object_unref(app);
+     return status;
+ }
+
+base-commit: d3e5d912fdd71e8d9262e3ae9ae96f38ac04f882
+-- 
+2.54.0
+

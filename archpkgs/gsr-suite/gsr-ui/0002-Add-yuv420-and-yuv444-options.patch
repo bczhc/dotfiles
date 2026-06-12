@@ -1,0 +1,144 @@
+From 8b8483e639083719d098c349bed33dd6e029167a Mon Sep 17 00:00:00 2001
+From: Zhai Can <bczhc0@126.com>
+Date: Thu, 11 Jun 2026 21:49:47 +0800
+Subject: [PATCH 2/2] Add yuv420 and yuv444 options
+
+Assisted-by: Claude:deepseek-v4-pro
+---
+ include/Config.hpp           |  1 +
+ include/gui/SettingsPage.hpp |  3 +++
+ src/Config.cpp               |  3 +++
+ src/Overlay.cpp              |  5 +++++
+ src/gui/SettingsPage.cpp     | 18 ++++++++++++++++++
+ 5 files changed, 30 insertions(+)
+
+diff --git a/include/Config.hpp b/include/Config.hpp
+index 8395a05..b878082 100644
+--- a/include/Config.hpp
++++ b/include/Config.hpp
+@@ -50,6 +50,7 @@ namespace gsr {
+         std::string color_range = "limited";
+         std::string video_quality = "very_high";
+         std::string video_codec = "auto";
++        std::string pixel_format = "yuv420";
+         std::string audio_codec = "opus";
+         std::string framerate_mode = "auto";
+         bool advanced_view = false;
+diff --git a/include/gui/SettingsPage.hpp b/include/gui/SettingsPage.hpp
+index 0e87132..4bf2a14 100644
+--- a/include/gui/SettingsPage.hpp
++++ b/include/gui/SettingsPage.hpp
+@@ -102,6 +102,8 @@ namespace gsr {
+         std::unique_ptr<List> create_video_quality_section();
+         std::unique_ptr<ComboBox> create_video_codec_box();
+         std::unique_ptr<List> create_video_codec();
++        std::unique_ptr<ComboBox> create_pixel_format_box();
++        std::unique_ptr<List> create_pixel_format();
+         std::unique_ptr<ComboBox> create_audio_codec_box();
+         std::unique_ptr<List> create_audio_codec();
+         std::unique_ptr<Entry> create_framerate_entry();
+@@ -197,6 +199,7 @@ namespace gsr {
+         ComboBox *color_range_box_ptr = nullptr;
+         ComboBox *video_quality_box_ptr = nullptr;
+         ComboBox *video_codec_box_ptr = nullptr;
++        ComboBox *pixel_format_box_ptr = nullptr;
+         ComboBox *audio_codec_box_ptr = nullptr;
+         ComboBox *framerate_mode_box_ptr = nullptr;
+         RadioButton *view_radio_button_ptr = nullptr;
+diff --git a/src/Config.cpp b/src/Config.cpp
+index e0ee1e3..c1200fe 100644
+--- a/src/Config.cpp
++++ b/src/Config.cpp
+@@ -191,6 +191,7 @@ namespace gsr {
+             {"streaming.record_options.color_range", &config.streaming_config.record_options.color_range},
+             {"streaming.record_options.video_quality", &config.streaming_config.record_options.video_quality},
+             {"streaming.record_options.codec", &config.streaming_config.record_options.video_codec},
++            {"streaming.record_options.pixel_format", &config.streaming_config.record_options.pixel_format},
+             {"streaming.record_options.audio_codec", &config.streaming_config.record_options.audio_codec},
+             {"streaming.record_options.framerate_mode", &config.streaming_config.record_options.framerate_mode},
+             {"streaming.record_options.advanced_view", &config.streaming_config.record_options.advanced_view},
+@@ -234,6 +235,7 @@ namespace gsr {
+             {"record.record_options.color_range", &config.record_config.record_options.color_range},
+             {"record.record_options.video_quality", &config.record_config.record_options.video_quality},
+             {"record.record_options.codec", &config.record_config.record_options.video_codec},
++            {"record.record_options.pixel_format", &config.record_config.record_options.pixel_format},
+             {"record.record_options.audio_codec", &config.record_config.record_options.audio_codec},
+             {"record.record_options.framerate_mode", &config.record_config.record_options.framerate_mode},
+             {"record.record_options.advanced_view", &config.record_config.record_options.advanced_view},
+@@ -274,6 +276,7 @@ namespace gsr {
+             {"replay.record_options.color_range", &config.replay_config.record_options.color_range},
+             {"replay.record_options.video_quality", &config.replay_config.record_options.video_quality},
+             {"replay.record_options.codec", &config.replay_config.record_options.video_codec},
++            {"replay.record_options.pixel_format", &config.replay_config.record_options.pixel_format},
+             {"replay.record_options.audio_codec", &config.replay_config.record_options.audio_codec},
+             {"replay.record_options.framerate_mode", &config.replay_config.record_options.framerate_mode},
+             {"replay.record_options.advanced_view", &config.replay_config.record_options.advanced_view},
+diff --git a/src/Overlay.cpp b/src/Overlay.cpp
+index 50578a9..890f590 100644
+--- a/src/Overlay.cpp
++++ b/src/Overlay.cpp
+@@ -2791,6 +2791,11 @@ namespace gsr {
+             args.push_back("yes");
+         }
+ 
++        if(record_options.pixel_format != "yuv420") {
++            args.push_back("-pixfmt");
++            args.push_back(record_options.pixel_format.c_str());
++        }
++
+         if(region_area_option == "region")
+             add_region_command(args, region_str, region_str_size);
+     }
+diff --git a/src/gui/SettingsPage.cpp b/src/gui/SettingsPage.cpp
+index 130613f..a02b05d 100644
+--- a/src/gui/SettingsPage.cpp
++++ b/src/gui/SettingsPage.cpp
+@@ -963,6 +963,21 @@ namespace gsr {
+         return video_codec_list;
+     }
+ 
++    std::unique_ptr<ComboBox> SettingsPage::create_pixel_format_box() {
++        auto pixel_format_box = std::make_unique<ComboBox>(get_theme().body_font_desc.c_str());
++        pixel_format_box->add_item(TR("YUV420 (Default)"), "yuv420");
++        pixel_format_box->add_item(TR("YUV444 (Higher quality, larger file)"), "yuv444");
++        pixel_format_box_ptr = pixel_format_box.get();
++        return pixel_format_box;
++    }
++
++    std::unique_ptr<List> SettingsPage::create_pixel_format() {
++        auto pixel_format_list = std::make_unique<List>(List::Orientation::VERTICAL);
++        pixel_format_list->add_widget(std::make_unique<Label>(get_theme().body_font_desc.c_str(), TR("Pixel format:"), get_color_theme().text_color));
++        pixel_format_list->add_widget(create_pixel_format_box());
++        return pixel_format_list;
++    }
++
+     std::unique_ptr<ComboBox> SettingsPage::create_audio_codec_box() {
+         auto audio_codec_box = std::make_unique<ComboBox>(get_theme().body_font_desc.c_str());
+         audio_codec_box->add_item(TR("Opus (Recommended)"), "opus");
+@@ -1059,6 +1074,7 @@ namespace gsr {
+         auto video_section_list = std::make_unique<List>(List::Orientation::VERTICAL);
+         video_section_list->add_widget(create_video_quality_section());
+         video_section_list->add_widget(create_video_codec());
++        video_section_list->add_widget(create_pixel_format());
+         video_section_list->add_widget(create_framerate_section());
+         video_section_list->add_widget(create_record_cursor_section());
+         video_section_list->add_widget(create_enable_vulkan_video_encoding_section());
+@@ -1758,6 +1774,7 @@ namespace gsr {
+         color_range_box_ptr->set_selected_item(record_options.color_range);
+         video_quality_box_ptr->set_selected_item(record_options.video_quality);
+         video_codec_box_ptr->set_selected_item(record_options.video_codec);
++        pixel_format_box_ptr->set_selected_item(record_options.pixel_format);
+         audio_codec_box_ptr->set_selected_item(record_options.audio_codec);
+         framerate_mode_box_ptr->set_selected_item(record_options.framerate_mode);
+         view_radio_button_ptr->set_selected_item(record_options.advanced_view ? "advanced" : "simple");
+@@ -1911,6 +1928,7 @@ namespace gsr {
+         record_options.color_range = color_range_box_ptr->get_selected_id();
+         record_options.video_quality = video_quality_box_ptr->get_selected_id();
+         record_options.video_codec = video_codec_box_ptr->get_selected_id();
++        record_options.pixel_format = pixel_format_box_ptr->get_selected_id();
+         record_options.audio_codec = audio_codec_box_ptr->get_selected_id();
+         record_options.framerate_mode = framerate_mode_box_ptr->get_selected_id();
+         record_options.advanced_view = view_radio_button_ptr->get_selected_id() == "advanced";
+-- 
+2.54.0
+

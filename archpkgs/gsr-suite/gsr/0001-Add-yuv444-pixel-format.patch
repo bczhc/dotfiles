@@ -1,0 +1,1208 @@
+From 88ef8024a13330f63d2da311bef53ae78a1bd451 Mon Sep 17 00:00:00 2001
+From: Zhai Can <bczhc0@126.com>
+Date: Thu, 11 Jun 2026 22:22:19 +0800
+Subject: [PATCH] Add yuv444 pixel format
+
+Generated-by Claude:deepseek-v4-pro; not reviewed at all.
+---
+ include/color_conversion.h       |  15 +-
+ include/encoder/video/nvenc.h    |   1 +
+ include/encoder/video/software.h |   1 +
+ include/encoder/video/vaapi.h    |   1 +
+ include/encoder/video/vulkan.h   |   1 +
+ src/args_parser.c                |   1 +
+ src/color_conversion.c           | 294 ++++++++++++++++++++++++++++++-
+ src/encoder/video/nvenc.c        |  86 ++++++---
+ src/encoder/video/software.c     |  73 +++++---
+ src/encoder/video/vaapi.c        |  96 ++++++++--
+ src/encoder/video/vulkan.c       | 132 ++++++++++----
+ src/main.cpp                     |  18 +-
+ 12 files changed, 607 insertions(+), 112 deletions(-)
+
+diff --git a/include/color_conversion.h b/include/color_conversion.h
+index f1f1b29..f336744 100644
+--- a/include/color_conversion.h
++++ b/include/color_conversion.h
+@@ -6,8 +6,9 @@
+ #include "vec2.h"
+ #include <stdbool.h>
+ 
+-#define GSR_COLOR_CONVERSION_MAX_GRAPHICS_SHADERS 12
+-#define GSR_COLOR_CONVERSION_MAX_FRAMEBUFFERS 2
++#define GSR_COLOR_CONVERSION_MAX_GRAPHICS_SHADERS 16
++#define GSR_COLOR_CONVERSION_MAX_FRAMEBUFFERS 3
++#define GSR_COLOR_CONVERSION_MAX_DESTINATION_TEXTURES 3
+ 
+ typedef enum {
+     GSR_SOURCE_COLOR_RGB,
+@@ -16,8 +17,10 @@ typedef enum {
+ } gsr_source_color;
+ 
+ typedef enum {
+-    GSR_DESTINATION_COLOR_NV12, /* YUV420, BT709, 8-bit */
+-    GSR_DESTINATION_COLOR_P010, /* YUV420, BT2020, 10-bit */
++    GSR_DESTINATION_COLOR_NV12,       /* YUV420, BT709, 8-bit, 2 textures (Y + UV interleaved) */
++    GSR_DESTINATION_COLOR_P010,       /* YUV420, BT2020, 10-bit, 2 textures (Y + UV interleaved) */
++    GSR_DESTINATION_COLOR_YUV444P,    /* YUV444 planar, BT709, 8-bit, 3 textures (Y + U + V) */
++    GSR_DESTINATION_COLOR_YUV444P_10, /* YUV444 planar, BT2020, 10-bit, 3 textures (Y + U + V) */
+     GSR_DESTINATION_COLOR_RGB
+ } gsr_destination_color;
+ 
+@@ -44,8 +47,8 @@ typedef struct {
+ 
+     gsr_destination_color destination_color;
+ 
+-    unsigned int destination_textures[2];
+-    vec2i destination_textures_size[2];
++    unsigned int destination_textures[GSR_COLOR_CONVERSION_MAX_DESTINATION_TEXTURES];
++    vec2i destination_textures_size[GSR_COLOR_CONVERSION_MAX_DESTINATION_TEXTURES];
+     int num_destination_textures;
+ 
+     gsr_color_range color_range;
+diff --git a/include/encoder/video/nvenc.h b/include/encoder/video/nvenc.h
+index f6af2fc..7240ce2 100644
+--- a/include/encoder/video/nvenc.h
++++ b/include/encoder/video/nvenc.h
+@@ -8,6 +8,7 @@ typedef struct gsr_egl gsr_egl;
+ typedef struct {
+     gsr_egl *egl;
+     gsr_color_depth color_depth;
++    gsr_pixel_format pixel_format;
+ } gsr_video_encoder_nvenc_params;
+ 
+ gsr_video_encoder* gsr_video_encoder_nvenc_create(const gsr_video_encoder_nvenc_params *params);
+diff --git a/include/encoder/video/software.h b/include/encoder/video/software.h
+index fd2dc6b..2fa34c5 100644
+--- a/include/encoder/video/software.h
++++ b/include/encoder/video/software.h
+@@ -8,6 +8,7 @@ typedef struct gsr_egl gsr_egl;
+ typedef struct {
+     gsr_egl *egl;
+     gsr_color_depth color_depth;
++    gsr_pixel_format pixel_format;
+ } gsr_video_encoder_software_params;
+ 
+ gsr_video_encoder* gsr_video_encoder_software_create(const gsr_video_encoder_software_params *params);
+diff --git a/include/encoder/video/vaapi.h b/include/encoder/video/vaapi.h
+index b509f17..6de263f 100644
+--- a/include/encoder/video/vaapi.h
++++ b/include/encoder/video/vaapi.h
+@@ -8,6 +8,7 @@ typedef struct gsr_egl gsr_egl;
+ typedef struct {
+     gsr_egl *egl;
+     gsr_color_depth color_depth;
++    gsr_pixel_format pixel_format;
+ } gsr_video_encoder_vaapi_params;
+ 
+ gsr_video_encoder* gsr_video_encoder_vaapi_create(const gsr_video_encoder_vaapi_params *params);
+diff --git a/include/encoder/video/vulkan.h b/include/encoder/video/vulkan.h
+index 383fc4f..aede3ac 100644
+--- a/include/encoder/video/vulkan.h
++++ b/include/encoder/video/vulkan.h
+@@ -8,6 +8,7 @@ typedef struct gsr_egl gsr_egl;
+ typedef struct {
+     gsr_egl *egl;
+     gsr_color_depth color_depth;
++    gsr_pixel_format pixel_format;
+ } gsr_video_encoder_vulkan_params;
+ 
+ gsr_video_encoder* gsr_video_encoder_vulkan_create(const gsr_video_encoder_vulkan_params *params);
+diff --git a/src/args_parser.c b/src/args_parser.c
+index 658e559..f1a79fd 100644
+--- a/src/args_parser.c
++++ b/src/args_parser.c
+@@ -200,6 +200,7 @@ static void usage_header(void) {
+     printf("usage: %s -w <window_id|monitor|focused|portal|region|v4l2_device_path> [-c <container_format>] [-s WxH] [-region WxH+X+Y] [-f <fps>] [-a <audio_input>] "
+            "[-q <quality>] [-r <replay_buffer_size_sec>] [-replay-storage ram|disk] [-restart-replay-on-save yes|no] "
+            "[-k h264|hevc|av1|vp8|vp9|hevc_hdr|av1_hdr|hevc_10bit|av1_10bit] [-ac aac|opus|flac] [-ab <bitrate>] [-fm cfr|vfr|content] "
++           "[-pixfmt yuv420|yuv444] "
+            "[-bm auto|qp|vbr|cbr] [-cr limited|full] [-tune performance|quality] [-df yes|no] [-sc <script_path>] [-p <plugin_path>] "
+            "[-cursor yes|no] [-keyint <value>] [-restore-portal-session yes|no] [-portal-session-token-filepath filepath] [-encoder gpu|cpu] "
+            "[-fallback-cpu-encoding yes|no] [-o <output_file>] [-ro <output_directory>] [-ffmpeg-opts <options>] [--list-capture-options [card_path]] "
+diff --git a/src/color_conversion.c b/src/color_conversion.c
+index c00bfb5..63fa1a9 100644
+--- a/src/color_conversion.c
++++ b/src/color_conversion.c
+@@ -16,6 +16,10 @@
+ #define GRAPHICS_SHADER_INDEX_YUYV_TO_UV_EXTERNAL  9
+ #define GRAPHICS_SHADER_INDEX_YUYV_TO_RGB          10
+ #define GRAPHICS_SHADER_INDEX_YUYV_TO_RGB_EXTERNAL 11
++#define GRAPHICS_SHADER_INDEX_U                    12
++#define GRAPHICS_SHADER_INDEX_V                    13
++#define GRAPHICS_SHADER_INDEX_U_EXTERNAL           14
++#define GRAPHICS_SHADER_INDEX_V_EXTERNAL           15
+ 
+ /* https://en.wikipedia.org/wiki/YCbCr, see study/color_space_transform_matrix.png */
+ 
+@@ -65,6 +69,24 @@ static const char* color_format_range_get_transform_matrix(gsr_destination_color
+             }
+             break;
+         }
++        case GSR_DESTINATION_COLOR_YUV444P: {
++            switch(color_range) {
++                case GSR_COLOR_RANGE_LIMITED:
++                    return RGB_TO_NV12_LIMITED;
++                case GSR_COLOR_RANGE_FULL:
++                    return RGB_TO_NV12_FULL;
++            }
++            break;
++        }
++        case GSR_DESTINATION_COLOR_YUV444P_10: {
++            switch(color_range) {
++                case GSR_COLOR_RANGE_LIMITED:
++                    return RGB_TO_P010_LIMITED;
++                case GSR_COLOR_RANGE_FULL:
++                    return RGB_TO_P010_FULL;
++            }
++            break;
++        }
+         case GSR_DESTINATION_COLOR_RGB:
+             return "";
+         default:
+@@ -137,6 +159,130 @@ static int load_graphics_shader_y(gsr_shader *shader, gsr_egl *egl, gsr_color_gr
+     return 0;
+ }
+ 
++static int load_graphics_shader_u(gsr_shader *shader, gsr_egl *egl, gsr_color_graphics_uniforms *uniforms, gsr_destination_color color_format, gsr_color_range color_range, bool external_texture) {
++    const char *color_transform_matrix = color_format_range_get_transform_matrix(color_format, color_range);
++
++    char vertex_shader[2048];
++    snprintf(vertex_shader, sizeof(vertex_shader),
++        "#version 300 es                                   \n"
++        "in vec2 pos;                                      \n"
++        "in vec2 texcoords;                                \n"
++        "out vec2 texcoords_out;                           \n"
++        "uniform vec2 offset;                              \n"
++        "uniform float rotation;                           \n"
++        "uniform mat2 rotation_matrix;                     \n"
++        "void main()                                       \n"
++        "{                                                 \n"
++        "  texcoords_out = vec2(texcoords.x - 0.5, texcoords.y - 0.5) * rotation_matrix + vec2(0.5, 0.5);  \n"
++        "  gl_Position = vec4(offset.x, offset.y, 0.0, 0.0) + vec4(pos.x, pos.y, 0.0, 1.0);    \n"
++        "}                                                 \n");
++
++    const char *main_code =
++            "  vec4 pixel = texture(tex1, texcoords_out);                                    \n"
++            "  FragColor.x = (RGBtoYUV * vec4(pixel.rgb, 1.0)).y;                            \n"
++            "  FragColor.w = pixel.a;                                                        \n";
++
++    char fragment_shader[2048];
++    if(external_texture) {
++        snprintf(fragment_shader, sizeof(fragment_shader),
++            "#version 300 es                                                                 \n"
++            "#extension GL_OES_EGL_image_external : enable                                   \n"
++            "#extension GL_OES_EGL_image_external_essl3 : require                            \n"
++            "precision highp float;                                                          \n"
++            "in vec2 texcoords_out;                                                          \n"
++            "uniform samplerExternalOES tex1;                                                \n"
++            "out vec4 FragColor;                                                             \n"
++            "%s"
++            "void main()                                                                     \n"
++            "{                                                                               \n"
++            "%s"
++            "}                                                                               \n", color_transform_matrix, main_code);
++    } else {
++        snprintf(fragment_shader, sizeof(fragment_shader),
++            "#version 300 es                                                                 \n"
++            "precision highp float;                                                        \n"
++            "in vec2 texcoords_out;                                                          \n"
++            "uniform sampler2D tex1;                                                         \n"
++            "out vec4 FragColor;                                                             \n"
++            "%s"
++            "void main()                                                                     \n"
++            "{                                                                               \n"
++            "%s"
++            "}                                                                               \n", color_transform_matrix, main_code);
++    }
++
++    if(gsr_shader_init(shader, egl, vertex_shader, fragment_shader) != 0)
++        return -1;
++
++    gsr_shader_bind_attribute_location(shader, "pos", 0);
++    gsr_shader_bind_attribute_location(shader, "texcoords", 1);
++    uniforms->offset = egl->glGetUniformLocation(shader->program_id, "offset");
++    uniforms->rotation_matrix = egl->glGetUniformLocation(shader->program_id, "rotation_matrix");
++    return 0;
++}
++
++static int load_graphics_shader_v(gsr_shader *shader, gsr_egl *egl, gsr_color_graphics_uniforms *uniforms, gsr_destination_color color_format, gsr_color_range color_range, bool external_texture) {
++    const char *color_transform_matrix = color_format_range_get_transform_matrix(color_format, color_range);
++
++    char vertex_shader[2048];
++    snprintf(vertex_shader, sizeof(vertex_shader),
++        "#version 300 es                                   \n"
++        "in vec2 pos;                                      \n"
++        "in vec2 texcoords;                                \n"
++        "out vec2 texcoords_out;                           \n"
++        "uniform vec2 offset;                              \n"
++        "uniform float rotation;                           \n"
++        "uniform mat2 rotation_matrix;                     \n"
++        "void main()                                       \n"
++        "{                                                 \n"
++        "  texcoords_out = vec2(texcoords.x - 0.5, texcoords.y - 0.5) * rotation_matrix + vec2(0.5, 0.5);  \n"
++        "  gl_Position = vec4(offset.x, offset.y, 0.0, 0.0) + vec4(pos.x, pos.y, 0.0, 1.0);    \n"
++        "}                                                 \n");
++
++    const char *main_code =
++            "  vec4 pixel = texture(tex1, texcoords_out);                                    \n"
++            "  FragColor.x = (RGBtoYUV * vec4(pixel.rgb, 1.0)).z;                            \n"
++            "  FragColor.w = pixel.a;                                                        \n";
++
++    char fragment_shader[2048];
++    if(external_texture) {
++        snprintf(fragment_shader, sizeof(fragment_shader),
++            "#version 300 es                                                                 \n"
++            "#extension GL_OES_EGL_image_external : enable                                   \n"
++            "#extension GL_OES_EGL_image_external_essl3 : require                            \n"
++            "precision highp float;                                                          \n"
++            "in vec2 texcoords_out;                                                          \n"
++            "uniform samplerExternalOES tex1;                                                \n"
++            "out vec4 FragColor;                                                             \n"
++            "%s"
++            "void main()                                                                     \n"
++            "{                                                                               \n"
++            "%s"
++            "}                                                                               \n", color_transform_matrix, main_code);
++    } else {
++        snprintf(fragment_shader, sizeof(fragment_shader),
++            "#version 300 es                                                                 \n"
++            "precision highp float;                                                        \n"
++            "in vec2 texcoords_out;                                                          \n"
++            "uniform sampler2D tex1;                                                         \n"
++            "out vec4 FragColor;                                                             \n"
++            "%s"
++            "void main()                                                                     \n"
++            "{                                                                               \n"
++            "%s"
++            "}                                                                               \n", color_transform_matrix, main_code);
++    }
++
++    if(gsr_shader_init(shader, egl, vertex_shader, fragment_shader) != 0)
++        return -1;
++
++    gsr_shader_bind_attribute_location(shader, "pos", 0);
++    gsr_shader_bind_attribute_location(shader, "texcoords", 1);
++    uniforms->offset = egl->glGetUniformLocation(shader->program_id, "offset");
++    uniforms->rotation_matrix = egl->glGetUniformLocation(shader->program_id, "rotation_matrix");
++    return 0;
++}
++
+ static unsigned int load_graphics_shader_uv(gsr_shader *shader, gsr_egl *egl, gsr_color_graphics_uniforms *uniforms, gsr_destination_color color_format, gsr_color_range color_range, bool external_texture) {
+     const char *color_transform_matrix = color_format_range_get_transform_matrix(color_format, color_range);
+ 
+@@ -480,7 +626,17 @@ static int load_framebuffers(gsr_color_conversion *self) {
+         self->params.egl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, self->params.destination_textures[1], 0);
+         self->params.egl->glDrawBuffers(1, &draw_buffer);
+         if(self->params.egl->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+-            fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to create framebuffer for UV\n");
++            fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to create framebuffer for U/UV\n");
++            goto err;
++        }
++    }
++
++    if(self->params.num_destination_textures > 2) {
++        self->params.egl->glBindFramebuffer(GL_FRAMEBUFFER, self->framebuffers[2]);
++        self->params.egl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, self->params.destination_textures[2], 0);
++        self->params.egl->glDrawBuffers(1, &draw_buffer);
++        if(self->params.egl->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
++            fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to create framebuffer for V\n");
+             goto err;
+         }
+     }
+@@ -536,6 +692,35 @@ static bool gsr_color_conversion_load_graphics_shaders(gsr_color_conversion *sel
+             }
+             break;
+         }
++        case GSR_DESTINATION_COLOR_YUV444P:
++        case GSR_DESTINATION_COLOR_YUV444P_10: {
++            if(load_graphics_shader_y(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_Y], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_Y], self->params.destination_color, self->params.color_range, false) != 0) {
++                fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load Y graphics shader\n");
++                return false;
++            }
++
++            if(load_graphics_shader_u(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_U], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_U], self->params.destination_color, self->params.color_range, false) != 0) {
++                fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load U graphics shader\n");
++                return false;
++            }
++
++            if(load_graphics_shader_v(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_V], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_V], self->params.destination_color, self->params.color_range, false) != 0) {
++                fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load V graphics shader\n");
++                return false;
++            }
++
++            if(load_graphics_shader_yuyv_to_y(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_YUYV_TO_Y], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_YUYV_TO_Y], false) != 0) {
++                fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load YUYV to Y graphics shader\n");
++                return false;
++            }
++
++            /* For YUYV source with YUV444 destination, use the NV12 UV shader for U and V */
++            if(load_graphics_shader_yuyv_to_uv(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_YUYV_TO_UV], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_YUYV_TO_UV], false) != 0) {
++                fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load YUYV to UV graphics shader\n");
++                return false;
++            }
++            break;
++        }
+         case GSR_DESTINATION_COLOR_RGB: {
+             if(load_graphics_shader_rgb(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_RGB], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_RGB], false) != 0) {
+                 fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load RGB graphics shader\n");
+@@ -577,6 +762,34 @@ static bool gsr_color_conversion_load_external_graphics_shaders(gsr_color_conver
+             }
+             break;
+         }
++        case GSR_DESTINATION_COLOR_YUV444P:
++        case GSR_DESTINATION_COLOR_YUV444P_10: {
++            if(load_graphics_shader_y(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_Y_EXTERNAL], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_Y_EXTERNAL], self->params.destination_color, self->params.color_range, true) != 0) {
++                fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load Y graphics shader (external)\n");
++                return false;
++            }
++
++            if(load_graphics_shader_u(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_U_EXTERNAL], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_U_EXTERNAL], self->params.destination_color, self->params.color_range, true) != 0) {
++                fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load U graphics shader (external)\n");
++                return false;
++            }
++
++            if(load_graphics_shader_v(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_V_EXTERNAL], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_V_EXTERNAL], self->params.destination_color, self->params.color_range, true) != 0) {
++                fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load V graphics shader (external)\n");
++                return false;
++            }
++
++            if(load_graphics_shader_yuyv_to_y(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_YUYV_TO_Y_EXTERNAL], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_YUYV_TO_Y_EXTERNAL], true) != 0) {
++                fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load YUYV to Y graphics shader (external)\n");
++                return false;
++            }
++
++            if(load_graphics_shader_yuyv_to_uv(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_YUYV_TO_UV_EXTERNAL], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_YUYV_TO_UV_EXTERNAL], true) != 0) {
++                fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load YUYV to UV graphics shader (external)\n");
++                return false;
++            }
++            break;
++        }
+         case GSR_DESTINATION_COLOR_RGB: {
+             if(load_graphics_shader_rgb(&self->graphics_shaders[GRAPHICS_SHADER_INDEX_RGB_EXTERNAL], self->params.egl, &self->graphics_uniforms[GRAPHICS_SHADER_INDEX_RGB_EXTERNAL], true) != 0) {
+                 fprintf(stderr, "gsr error: gsr_color_conversion_init: failed to load RGB graphics shader (external)\n");
+@@ -609,6 +822,14 @@ int gsr_color_conversion_init(gsr_color_conversion *self, const gsr_color_conver
+             }
+             break;
+         }
++        case GSR_DESTINATION_COLOR_YUV444P:
++        case GSR_DESTINATION_COLOR_YUV444P_10: {
++            if(self->params.num_destination_textures != 3) {
++                fprintf(stderr, "gsr error: gsr_color_conversion_init: expected 3 destination textures for destination color YUV444P, got %d destination texture(s)\n", self->params.num_destination_textures);
++                goto err;
++            }
++            break;
++        }
+         case GSR_DESTINATION_COLOR_RGB: {
+             if(self->params.num_destination_textures != 1) {
+                 fprintf(stderr, "gsr error: gsr_color_conversion_init: expected 1 destination textures for destination color RGB8, got %d destination texture(s)\n", self->params.num_destination_textures);
+@@ -810,6 +1031,37 @@ static void gsr_color_conversion_draw_graphics(gsr_color_conversion *self, unsig
+                     }
+                     break;
+                 }
++                case GSR_DESTINATION_COLOR_YUV444P:
++                case GSR_DESTINATION_COLOR_YUV444P_10: {
++                    self->params.egl->glBindFramebuffer(GL_FRAMEBUFFER, self->framebuffers[0]);
++
++                    int shader_index = external_texture ? GRAPHICS_SHADER_INDEX_Y_EXTERNAL : GRAPHICS_SHADER_INDEX_Y;
++                    gsr_shader_use(&self->graphics_shaders[shader_index]);
++                    self->params.egl->glUniformMatrix2fv(self->graphics_uniforms[shader_index].rotation_matrix, 1, GL_TRUE, (const float*)rotation_matrix);
++                    self->params.egl->glUniform2f(self->graphics_uniforms[shader_index].offset, pos_norm.x, pos_norm.y);
++                    self->params.egl->glDrawArrays(GL_TRIANGLES, 0, 6);
++
++                    if(self->params.num_destination_textures > 1) {
++                        self->params.egl->glBindFramebuffer(GL_FRAMEBUFFER, self->framebuffers[1]);
++
++                        shader_index = external_texture ? GRAPHICS_SHADER_INDEX_U_EXTERNAL : GRAPHICS_SHADER_INDEX_U;
++                        gsr_shader_use(&self->graphics_shaders[shader_index]);
++                        self->params.egl->glUniformMatrix2fv(self->graphics_uniforms[shader_index].rotation_matrix, 1, GL_TRUE, (const float*)rotation_matrix);
++                        self->params.egl->glUniform2f(self->graphics_uniforms[shader_index].offset, pos_norm.x, pos_norm.y);
++                        self->params.egl->glDrawArrays(GL_TRIANGLES, 0, 6);
++                    }
++
++                    if(self->params.num_destination_textures > 2) {
++                        self->params.egl->glBindFramebuffer(GL_FRAMEBUFFER, self->framebuffers[2]);
++
++                        shader_index = external_texture ? GRAPHICS_SHADER_INDEX_V_EXTERNAL : GRAPHICS_SHADER_INDEX_V;
++                        gsr_shader_use(&self->graphics_shaders[shader_index]);
++                        self->params.egl->glUniformMatrix2fv(self->graphics_uniforms[shader_index].rotation_matrix, 1, GL_TRUE, (const float*)rotation_matrix);
++                        self->params.egl->glUniform2f(self->graphics_uniforms[shader_index].offset, pos_norm.x, pos_norm.y);
++                        self->params.egl->glDrawArrays(GL_TRIANGLES, 0, 6);
++                    }
++                    break;
++                }
+                 case GSR_DESTINATION_COLOR_RGB: {
+                     self->params.egl->glBindFramebuffer(GL_FRAMEBUFFER, self->framebuffers[0]);
+                     //cap_xcomp->params.egl->glClear(GL_COLOR_BUFFER_BIT); // TODO: Do this in a separate clear_ function. We want to do that when using multiple drm to create the final image (multiple monitors for example)
+@@ -849,6 +1101,30 @@ static void gsr_color_conversion_draw_graphics(gsr_color_conversion *self, unsig
+                     }
+                     break;
+                 }
++                case GSR_DESTINATION_COLOR_YUV444P:
++                case GSR_DESTINATION_COLOR_YUV444P_10: {
++                    /* YUYV → YUV444: Y from YUYV, U from YUYV→UV R channel, V defaults to 0.5 (cleared).
++                       Full chroma reconstruction from 4:2:2 to 4:4:4 requires interpolation not yet implemented. */
++                    self->params.egl->glBindFramebuffer(GL_FRAMEBUFFER, self->framebuffers[0]);
++
++                    int shader_index = external_texture ? GRAPHICS_SHADER_INDEX_YUYV_TO_Y_EXTERNAL : GRAPHICS_SHADER_INDEX_YUYV_TO_Y;
++                    gsr_shader_use(&self->graphics_shaders[shader_index]);
++                    self->params.egl->glUniformMatrix2fv(self->graphics_uniforms[shader_index].rotation_matrix, 1, GL_TRUE, (const float*)rotation_matrix);
++                    self->params.egl->glUniform2f(self->graphics_uniforms[shader_index].offset, pos_norm.x, pos_norm.y);
++                    self->params.egl->glDrawArrays(GL_TRIANGLES, 0, 6);
++
++                    if(self->params.num_destination_textures > 1) {
++                        self->params.egl->glBindFramebuffer(GL_FRAMEBUFFER, self->framebuffers[1]);
++
++                        shader_index = external_texture ? GRAPHICS_SHADER_INDEX_YUYV_TO_UV_EXTERNAL : GRAPHICS_SHADER_INDEX_YUYV_TO_UV;
++                        gsr_shader_use(&self->graphics_shaders[shader_index]);
++                        self->params.egl->glUniformMatrix2fv(self->graphics_uniforms[shader_index].rotation_matrix, 1, GL_TRUE, (const float*)rotation_matrix);
++                        self->params.egl->glUniform2f(self->graphics_uniforms[shader_index].offset, pos_norm.x, pos_norm.y);
++                        self->params.egl->glDrawArrays(GL_TRIANGLES, 0, 6);
++                    }
++                    /* Framebuffer 2 (V) left cleared to 0.5 (neutral) */
++                    break;
++                }
+                 case GSR_DESTINATION_COLOR_RGB: {
+                     self->params.egl->glBindFramebuffer(GL_FRAMEBUFFER, self->framebuffers[0]);
+                     //cap_xcomp->params.egl->glClear(GL_COLOR_BUFFER_BIT); // TODO: Do this in a separate clear_ function. We want to do that when using multiple drm to create the final image (multiple monitors for example)
+@@ -915,6 +1191,16 @@ void gsr_color_conversion_clear(gsr_color_conversion *self) {
+             color2[3] = 1.0f;
+             break;
+         }
++        case GSR_DESTINATION_COLOR_YUV444P:
++        case GSR_DESTINATION_COLOR_YUV444P_10: {
++            /* Y=0 (black), U=0.5 (neutral), V=0.5 (neutral) */
++            color1[0] = 0.0f;
++            color2[0] = 0.5f;
++            color2[1] = 0.0f;
++            color2[2] = 0.0f;
++            color2[3] = 1.0f;
++            break;
++        }
+         case GSR_DESTINATION_COLOR_RGB: {
+             color2[0] = 0.0f;
+             color2[1] = 0.0f;
+@@ -934,6 +1220,12 @@ void gsr_color_conversion_clear(gsr_color_conversion *self) {
+         self->params.egl->glClear(GL_COLOR_BUFFER_BIT);
+     }
+ 
++    if(self->params.num_destination_textures > 2) {
++        self->params.egl->glBindFramebuffer(GL_FRAMEBUFFER, self->framebuffers[2]);
++        self->params.egl->glClearColor(color2[0], color2[1], color2[2], color2[3]);
++        self->params.egl->glClear(GL_COLOR_BUFFER_BIT);
++    }
++
+     self->params.egl->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+ }
+ 
+diff --git a/src/encoder/video/nvenc.c b/src/encoder/video/nvenc.c
+index dd877c5..5d4c014 100644
+--- a/src/encoder/video/nvenc.c
++++ b/src/encoder/video/nvenc.c
+@@ -11,14 +11,14 @@
+ typedef struct {
+     gsr_video_encoder_nvenc_params params;
+ 
+-    unsigned int target_textures[2];
+-    vec2i target_texture_size[2];
++    unsigned int target_textures[3];
++    vec2i target_texture_size[3];
+ 
+     AVBufferRef *device_ctx;
+ 
+     gsr_cuda cuda;
+-    CUgraphicsResource cuda_graphics_resources[2];
+-    CUarray mapped_arrays[2];
++    CUgraphicsResource cuda_graphics_resources[3];
++    CUarray mapped_arrays[3];
+     CUstream cuda_stream;
+ } gsr_video_encoder_nvenc;
+ 
+@@ -48,7 +48,11 @@ static bool gsr_video_encoder_nvenc_setup_context(gsr_video_encoder_nvenc *self,
+     AVHWFramesContext *hw_frame_context = (AVHWFramesContext*)frame_context->data;
+     hw_frame_context->width = video_codec_context->width;
+     hw_frame_context->height = video_codec_context->height;
+-    hw_frame_context->sw_format = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? AV_PIX_FMT_P010LE : AV_PIX_FMT_NV12;
++    if(self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444) {
++        hw_frame_context->sw_format = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? AV_PIX_FMT_YUV444P16 : AV_PIX_FMT_YUV444P;
++    } else {
++        hw_frame_context->sw_format = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? AV_PIX_FMT_P010LE : AV_PIX_FMT_NV12;
++    }
+     hw_frame_context->format = video_codec_context->pix_fmt;
+     hw_frame_context->device_ctx = (AVHWDeviceContext*)self->device_ctx->data;
+ 
+@@ -90,14 +94,28 @@ static bool gsr_video_encoder_nvenc_setup_textures(gsr_video_encoder_nvenc *self
+         return false;
+     }
+ 
++    const bool yuv444 = self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444;
++    const bool is_10bit = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS;
++
++    /* For YUV444: 3 single-channel textures (Y, U, V) all at full resolution.
++       For YUV420: 2 textures (Y full res R8/R16, UV half res RG8/RG16). */
+     const unsigned int internal_formats_nv12[2] = { GL_R8, GL_RG8 };
+     const unsigned int internal_formats_p010[2] = { GL_R16, GL_RG16 };
+-    const unsigned int formats[2] = { GL_RED, GL_RG };
+-    const int div[2] = {1, 2}; // divide UV texture size by 2 because chroma is half size
+-
+-    for(int i = 0; i < 2; ++i) {
+-        self->target_texture_size[i] = (vec2i){ video_codec_context->width / div[i], video_codec_context->height / div[i] };
+-        self->target_textures[i] = gl_create_texture(self->params.egl, self->target_texture_size[i].x, self->target_texture_size[i].y, self->params.color_depth == GSR_COLOR_DEPTH_8_BITS ? internal_formats_nv12[i] : internal_formats_p010[i], formats[i], GL_NEAREST);
++    const unsigned int formats_420[2] = { GL_RED, GL_RG };
++    const int div_420[2] = {1, 2}; // divide UV texture size by 2 because chroma is half size
++
++    const unsigned int internal_format_yuv444 = is_10bit ? GL_R16 : GL_R8;
++    const unsigned int format_yuv444 = GL_RED;
++    const int num_textures = yuv444 ? 3 : 2;
++
++    for(int i = 0; i < num_textures; ++i) {
++        if(yuv444) {
++            self->target_texture_size[i] = (vec2i){ video_codec_context->width, video_codec_context->height };
++            self->target_textures[i] = gl_create_texture(self->params.egl, self->target_texture_size[i].x, self->target_texture_size[i].y, internal_format_yuv444, format_yuv444, GL_NEAREST);
++        } else {
++            self->target_texture_size[i] = (vec2i){ video_codec_context->width / div_420[i], video_codec_context->height / div_420[i] };
++            self->target_textures[i] = gl_create_texture(self->params.egl, self->target_texture_size[i].x, self->target_texture_size[i].y, is_10bit ? internal_formats_p010[i] : internal_formats_nv12[i], formats_420[i], GL_NEAREST);
++        }
+         if(self->target_textures[i] == 0) {
+             fprintf(stderr, "gsr error: gsr_video_encoder_nvenc_setup_textures: failed to create opengl texture\n");
+             return false;
+@@ -148,9 +166,10 @@ static bool gsr_video_encoder_nvenc_start(gsr_video_encoder *encoder, AVCodecCon
+ }
+ 
+ void gsr_video_encoder_nvenc_stop(gsr_video_encoder_nvenc *self, AVCodecContext *video_codec_context) {
+-    self->params.egl->glDeleteTextures(2, self->target_textures);
++    self->params.egl->glDeleteTextures(3, self->target_textures);
+     self->target_textures[0] = 0;
+     self->target_textures[1] = 0;
++    self->target_textures[2] = 0;
+ 
+     if(video_codec_context->hw_frames_ctx)
+         av_buffer_unref(&video_codec_context->hw_frames_ctx);
+@@ -158,7 +177,7 @@ void gsr_video_encoder_nvenc_stop(gsr_video_encoder_nvenc *self, AVCodecContext
+         av_buffer_unref(&self->device_ctx);
+ 
+     if(self->cuda.cu_ctx) {
+-        for(int i = 0; i < 2; ++i) {
++        for(int i = 0; i < 3; ++i) {
+             if(self->cuda_graphics_resources[i]) {
+                 self->cuda.cuGraphicsUnmapResources(1, &self->cuda_graphics_resources[i], 0);
+                 self->cuda.cuGraphicsUnregisterResource(self->cuda_graphics_resources[i]);
+@@ -171,9 +190,14 @@ void gsr_video_encoder_nvenc_stop(gsr_video_encoder_nvenc *self, AVCodecContext
+ }
+ 
+ static void gsr_video_encoder_nvenc_copy_textures_to_frame(gsr_video_encoder *encoder, AVFrame *frame, gsr_color_conversion *color_conversion) {
++    (void)color_conversion;
+     gsr_video_encoder_nvenc *self = encoder->priv;
+-    const int div[2] = {1, 2}; // divide UV texture size by 2 because chroma is half size
+-    for(int i = 0; i < 2; ++i) {
++    const bool yuv444 = self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444;
++    const int div[2] = {1, 2}; // divide UV texture size by 2 because chroma is half size (YUV420 only)
++    const int num_planes = yuv444 ? 3 : 2;
++    const int bytes_per_pixel = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? 2 : 1;
++
++    for(int i = 0; i < num_planes; ++i) {
+         CUDA_MEMCPY2D memcpy_struct;
+         memcpy_struct.srcXInBytes = 0;
+         memcpy_struct.srcY = 0;
+@@ -184,11 +208,11 @@ static void gsr_video_encoder_nvenc_copy_textures_to_frame(gsr_video_encoder *en
+         memcpy_struct.dstMemoryType = CU_MEMORYTYPE_DEVICE;
+ 
+         memcpy_struct.srcArray = self->mapped_arrays[i];
+-        memcpy_struct.srcPitch = frame->width / div[i];
++        memcpy_struct.srcPitch = yuv444 ? frame->width : frame->width / div[i];
+         memcpy_struct.dstDevice = (CUdeviceptr)frame->data[i];
+         memcpy_struct.dstPitch = frame->linesize[i];
+-        memcpy_struct.WidthInBytes = frame->width * (self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? 2 : 1);
+-        memcpy_struct.Height = frame->height / div[i];
++        memcpy_struct.WidthInBytes = frame->width * bytes_per_pixel;
++        memcpy_struct.Height = yuv444 ? frame->height : frame->height / div[i];
+         // TODO: Remove this copy if possible
+         self->cuda.cuMemcpy2DAsync_v2(&memcpy_struct, self->cuda_stream);
+     }
+@@ -199,12 +223,26 @@ static void gsr_video_encoder_nvenc_copy_textures_to_frame(gsr_video_encoder *en
+ 
+ static void gsr_video_encoder_nvenc_get_textures(gsr_video_encoder *encoder, unsigned int *textures, vec2i *texture_sizes, int *num_textures, gsr_destination_color *destination_color) {
+     gsr_video_encoder_nvenc *self = encoder->priv;
+-    textures[0] = self->target_textures[0];
+-    textures[1] = self->target_textures[1];
+-    texture_sizes[0] = self->target_texture_size[0];
+-    texture_sizes[1] = self->target_texture_size[1];
+-    *num_textures = 2;
+-    *destination_color = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? GSR_DESTINATION_COLOR_P010 : GSR_DESTINATION_COLOR_NV12;
++    const bool yuv444 = self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444;
++    const bool is_10bit = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS;
++
++    if(yuv444) {
++        textures[0] = self->target_textures[0];
++        textures[1] = self->target_textures[1];
++        textures[2] = self->target_textures[2];
++        texture_sizes[0] = self->target_texture_size[0];
++        texture_sizes[1] = self->target_texture_size[1];
++        texture_sizes[2] = self->target_texture_size[2];
++        *num_textures = 3;
++        *destination_color = is_10bit ? GSR_DESTINATION_COLOR_YUV444P_10 : GSR_DESTINATION_COLOR_YUV444P;
++    } else {
++        textures[0] = self->target_textures[0];
++        textures[1] = self->target_textures[1];
++        texture_sizes[0] = self->target_texture_size[0];
++        texture_sizes[1] = self->target_texture_size[1];
++        *num_textures = 2;
++        *destination_color = is_10bit ? GSR_DESTINATION_COLOR_P010 : GSR_DESTINATION_COLOR_NV12;
++    }
+ }
+ 
+ static void gsr_video_encoder_nvenc_destroy(gsr_video_encoder *encoder, AVCodecContext *video_codec_context) {
+diff --git a/src/encoder/video/software.c b/src/encoder/video/software.c
+index b473bb9..8df1326 100644
+--- a/src/encoder/video/software.c
++++ b/src/encoder/video/software.c
+@@ -12,8 +12,8 @@
+ typedef struct {
+     gsr_video_encoder_software_params params;
+ 
+-    unsigned int target_textures[2];
+-    vec2i texture_sizes[2];
++    unsigned int target_textures[3];
++    vec2i texture_sizes[3];
+ } gsr_video_encoder_software;
+ 
+ static bool gsr_video_encoder_software_setup_textures(gsr_video_encoder_software *self, AVCodecContext *video_codec_context, AVFrame *frame) {
+@@ -29,16 +29,27 @@ static bool gsr_video_encoder_software_setup_textures(gsr_video_encoder_software
+         return false;
+     }
+ 
++    const bool yuv444 = self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444;
++    const bool is_10bit = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS;
+     const unsigned int internal_formats_nv12[2] = { GL_R8, GL_RG8 };
+     const unsigned int internal_formats_p010[2] = { GL_R16, GL_RG16 };
+-    const unsigned int formats[2] = { GL_RED, GL_RG };
++    const unsigned int formats_420[2] = { GL_RED, GL_RG };
+     const int div[2] = {1, 2}; // divide UV texture size by 2 because chroma is half size
+ 
+-    for(int i = 0; i < 2; ++i) {
+-        self->texture_sizes[i] = (vec2i){ video_codec_context->width / div[i], video_codec_context->height / div[i] };
+-        self->target_textures[i] = gl_create_texture(self->params.egl, self->texture_sizes[i].x, self->texture_sizes[i].y, self->params.color_depth == GSR_COLOR_DEPTH_8_BITS ? internal_formats_nv12[i] : internal_formats_p010[i], formats[i], GL_NEAREST);
++    const unsigned int internal_format_yuv444 = is_10bit ? GL_R16 : GL_R8;
++    const unsigned int format_yuv444 = GL_RED;
++    const int num_textures = yuv444 ? 3 : 2;
++
++    for(int i = 0; i < num_textures; ++i) {
++        if(yuv444) {
++            self->texture_sizes[i] = (vec2i){ video_codec_context->width, video_codec_context->height };
++            self->target_textures[i] = gl_create_texture(self->params.egl, self->texture_sizes[i].x, self->texture_sizes[i].y, internal_format_yuv444, format_yuv444, GL_NEAREST);
++        } else {
++            self->texture_sizes[i] = (vec2i){ video_codec_context->width / div[i], video_codec_context->height / div[i] };
++            self->target_textures[i] = gl_create_texture(self->params.egl, self->texture_sizes[i].x, self->texture_sizes[i].y, is_10bit ? internal_formats_p010[i] : internal_formats_nv12[i], formats_420[i], GL_NEAREST);
++        }
+         if(self->target_textures[i] == 0) {
+-            fprintf(stderr, "gsr error: gsr_capture_kms_setup_cuda_textures: failed to create opengl texture\n");
++            fprintf(stderr, "gsr error: gsr_video_encoder_software_setup_textures: failed to create opengl texture\n");
+             return false;
+         }
+     }
+@@ -67,20 +78,28 @@ static bool gsr_video_encoder_software_start(gsr_video_encoder *encoder, AVCodec
+ 
+ void gsr_video_encoder_software_stop(gsr_video_encoder_software *self, AVCodecContext *video_codec_context) {
+     (void)video_codec_context;
+-    self->params.egl->glDeleteTextures(2, self->target_textures);
++    self->params.egl->glDeleteTextures(3, self->target_textures);
+     self->target_textures[0] = 0;
+     self->target_textures[1] = 0;
++    self->target_textures[2] = 0;
+ }
+ 
+ static void gsr_video_encoder_software_copy_textures_to_frame(gsr_video_encoder *encoder, AVFrame *frame, gsr_color_conversion *color_conversion) {
+-    (void)encoder;
+-    //gsr_video_encoder_software *self = encoder->priv;
++    gsr_video_encoder_software *self = encoder->priv;
++    const bool yuv444 = self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444;
+     // TODO: hdr support
+-    const unsigned int formats[2] = { GL_RED, GL_RG };
++    const unsigned int formats_420[2] = { GL_RED, GL_RG };
+     const int div[2] = {1, 2}; // divide UV texture size by 2 because chroma is half size
+-    for(int i = 0; i < 2; ++i) {
+-        // TODO: Use glPixelStore?
+-        gsr_color_conversion_read_destination_texture(color_conversion, i, 0, 0, frame->width / div[i], frame->height / div[i], formats[i], GL_UNSIGNED_BYTE, frame->data[i]);
++
++    if(yuv444) {
++        /* YUV444: 3 planes all at full resolution */
++        for(int i = 0; i < 3; ++i) {
++            gsr_color_conversion_read_destination_texture(color_conversion, i, 0, 0, frame->width, frame->height, GL_RED, GL_UNSIGNED_BYTE, frame->data[i]);
++        }
++    } else {
++        for(int i = 0; i < 2; ++i) {
++            gsr_color_conversion_read_destination_texture(color_conversion, i, 0, 0, frame->width / div[i], frame->height / div[i], formats_420[i], GL_UNSIGNED_BYTE, frame->data[i]);
++        }
+     }
+     // cap_kms->kms.base.egl->eglSwapBuffers(cap_kms->kms.base.egl->egl_display, cap_kms->kms.base.egl->egl_surface);
+ 
+@@ -90,12 +109,26 @@ static void gsr_video_encoder_software_copy_textures_to_frame(gsr_video_encoder
+ 
+ static void gsr_video_encoder_software_get_textures(gsr_video_encoder *encoder, unsigned int *textures, vec2i *texture_sizes, int *num_textures, gsr_destination_color *destination_color) {
+     gsr_video_encoder_software *self = encoder->priv;
+-    textures[0] = self->target_textures[0];
+-    textures[1] = self->target_textures[1];
+-    texture_sizes[0] = self->texture_sizes[0];
+-    texture_sizes[1] = self->texture_sizes[1];
+-    *num_textures = 2;
+-    *destination_color = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? GSR_DESTINATION_COLOR_P010 : GSR_DESTINATION_COLOR_NV12;
++    const bool yuv444 = self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444;
++    const bool is_10bit = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS;
++
++    if(yuv444) {
++        textures[0] = self->target_textures[0];
++        textures[1] = self->target_textures[1];
++        textures[2] = self->target_textures[2];
++        texture_sizes[0] = self->texture_sizes[0];
++        texture_sizes[1] = self->texture_sizes[1];
++        texture_sizes[2] = self->texture_sizes[2];
++        *num_textures = 3;
++        *destination_color = is_10bit ? GSR_DESTINATION_COLOR_YUV444P_10 : GSR_DESTINATION_COLOR_YUV444P;
++    } else {
++        textures[0] = self->target_textures[0];
++        textures[1] = self->target_textures[1];
++        texture_sizes[0] = self->texture_sizes[0];
++        texture_sizes[1] = self->texture_sizes[1];
++        *num_textures = 2;
++        *destination_color = is_10bit ? GSR_DESTINATION_COLOR_P010 : GSR_DESTINATION_COLOR_NV12;
++    }
+ }
+ 
+ static void gsr_video_encoder_software_destroy(gsr_video_encoder *encoder, AVCodecContext *video_codec_context) {
+diff --git a/src/encoder/video/vaapi.c b/src/encoder/video/vaapi.c
+index 81c03c8..4c6dab7 100644
+--- a/src/encoder/video/vaapi.c
++++ b/src/encoder/video/vaapi.c
+@@ -17,8 +17,8 @@
+ typedef struct {
+     gsr_video_encoder_vaapi_params params;
+ 
+-    unsigned int target_textures[2];
+-    vec2i texture_sizes[2];
++    unsigned int target_textures[3];
++    vec2i texture_sizes[3];
+ 
+     AVBufferRef *device_ctx;
+     VADisplay va_dpy;
+@@ -47,7 +47,11 @@ static bool gsr_video_encoder_vaapi_setup_context(gsr_video_encoder_vaapi *self,
+     AVHWFramesContext *hw_frame_context = (AVHWFramesContext*)frame_context->data;
+     hw_frame_context->width = video_codec_context->width;
+     hw_frame_context->height = video_codec_context->height;
+-    hw_frame_context->sw_format = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? AV_PIX_FMT_P010LE : AV_PIX_FMT_NV12;
++    if(self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444) {
++        hw_frame_context->sw_format = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? AV_PIX_FMT_YUV444P16 : AV_PIX_FMT_YUV444P;
++    } else {
++        hw_frame_context->sw_format = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? AV_PIX_FMT_P010LE : AV_PIX_FMT_NV12;
++    }
+     hw_frame_context->format = video_codec_context->pix_fmt;
+     hw_frame_context->device_ctx = (AVHWDeviceContext*)self->device_ctx->data;
+ 
+@@ -91,6 +95,8 @@ static bool gsr_video_encoder_vaapi_setup_textures(gsr_video_encoder_vaapi *self
+ 
+     const uint32_t formats_nv12[2] = { fourcc('R', '8', ' ', ' '), fourcc('G', 'R', '8', '8') };
+     const uint32_t formats_p010[2] = { fourcc('R', '1', '6', ' '), fourcc('G', 'R', '3', '2') };
++    const uint32_t format_y = fourcc('R', '8', ' ', ' ');
++    const uint32_t format_y_10bit = fourcc('R', '1', '6', ' ');
+ 
+     if(self->prime.fourcc == VA_FOURCC_NV12 || self->prime.fourcc == VA_FOURCC_P010) {
+         const uint32_t *formats = self->prime.fourcc == VA_FOURCC_NV12 ? formats_nv12 : formats_p010;
+@@ -105,7 +111,6 @@ static bool gsr_video_encoder_vaapi_setup_textures(gsr_video_encoder_vaapi *self
+             uint32_t pitches[4];
+             uint64_t modifiers[4];
+             for(uint32_t j = 0; j < self->prime.layers[layer].num_planes; ++j) {
+-                // TODO: Close these? in _stop, using self->prime
+                 fds[j] = self->prime.objects[self->prime.layers[layer].object_index[j]].fd;
+                 offsets[j] = self->prime.layers[layer].offset[j];
+                 pitches[j] = self->prime.layers[layer].pitch[j];
+@@ -132,7 +137,6 @@ static bool gsr_video_encoder_vaapi_setup_textures(gsr_video_encoder_vaapi *self
+             while(self->params.egl->eglGetError() != EGL_SUCCESS){}
+             self->params.egl->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
+             if(self->params.egl->glGetError() != 0 || self->params.egl->eglGetError() != EGL_SUCCESS) {
+-                // TODO: Get the error properly
+                 fprintf(stderr, "gsr error: gsr_video_encoder_vaapi_setup_textures: failed to bind egl image to gl texture, error: %d\n", self->params.egl->eglGetError());
+                 self->params.egl->eglDestroyImage(self->params.egl->egl_display, image);
+                 self->params.egl->glBindTexture(GL_TEXTURE_2D, 0);
+@@ -143,9 +147,60 @@ static bool gsr_video_encoder_vaapi_setup_textures(gsr_video_encoder_vaapi *self
+             self->params.egl->glBindTexture(GL_TEXTURE_2D, 0);
+         }
+ 
++        return true;
++    } else if(self->prime.fourcc == VA_FOURCC_444P) {
++        /* YUV444 planar: 3 layers (Y, U, V) all at full resolution */
++        const bool is_10bit = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS;
++        const uint32_t layer_format = is_10bit ? format_y_10bit : format_y;
++
++        self->params.egl->glGenTextures(3, self->target_textures);
++        for(int i = 0; i < 3; ++i) {
++            const int layer = i;
++
++            int fds[4];
++            uint32_t offsets[4];
++            uint32_t pitches[4];
++            uint64_t modifiers[4];
++            for(uint32_t j = 0; j < self->prime.layers[layer].num_planes; ++j) {
++                fds[j] = self->prime.objects[self->prime.layers[layer].object_index[j]].fd;
++                offsets[j] = self->prime.layers[layer].offset[j];
++                pitches[j] = self->prime.layers[layer].pitch[j];
++                modifiers[j] = self->prime.objects[self->prime.layers[layer].object_index[j]].drm_format_modifier;
++            }
++
++            intptr_t img_attr[44];
++            setup_dma_buf_attrs(img_attr, layer_format, self->prime.width, self->prime.height,
++                fds, offsets, pitches, modifiers, self->prime.layers[layer].num_planes, true);
++            self->texture_sizes[i] = (vec2i){ self->prime.width, self->prime.height };
++
++            while(self->params.egl->eglGetError() != EGL_SUCCESS){}
++            EGLImage image = self->params.egl->eglCreateImage(self->params.egl->egl_display, 0, EGL_LINUX_DMA_BUF_EXT, NULL, img_attr);
++            if(!image) {
++                fprintf(stderr, "gsr error: gsr_video_encoder_vaapi_setup_textures: failed to create egl image from drm fd for output drm fd (YUV444 layer %d), error: %d\n", i, self->params.egl->eglGetError());
++                return false;
++            }
++
++            self->params.egl->glBindTexture(GL_TEXTURE_2D, self->target_textures[i]);
++            self->params.egl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
++            self->params.egl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
++
++            while(self->params.egl->glGetError()) {}
++            while(self->params.egl->eglGetError() != EGL_SUCCESS){}
++            self->params.egl->glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
++            if(self->params.egl->glGetError() != 0 || self->params.egl->eglGetError() != EGL_SUCCESS) {
++                fprintf(stderr, "gsr error: gsr_video_encoder_vaapi_setup_textures: failed to bind egl image to gl texture (YUV444 layer %d), error: %d\n", i, self->params.egl->eglGetError());
++                self->params.egl->eglDestroyImage(self->params.egl->egl_display, image);
++                self->params.egl->glBindTexture(GL_TEXTURE_2D, 0);
++                return false;
++            }
++
++            self->params.egl->eglDestroyImage(self->params.egl->egl_display, image);
++            self->params.egl->glBindTexture(GL_TEXTURE_2D, 0);
++        }
++
+         return true;
+     } else {
+-        fprintf(stderr, "gsr error: gsr_video_encoder_vaapi_setup_textures: unexpected fourcc %u for output drm fd, expected nv12 or p010\n", self->prime.fourcc);
++        fprintf(stderr, "gsr error: gsr_video_encoder_vaapi_setup_textures: unexpected fourcc %u for output drm fd, expected nv12, p010 or 444p\n", self->prime.fourcc);
+         return false;
+     }
+ }
+@@ -290,9 +345,10 @@ static bool gsr_video_encoder_vaapi_start(gsr_video_encoder *encoder, AVCodecCon
+ }
+ 
+ void gsr_video_encoder_vaapi_stop(gsr_video_encoder_vaapi *self, AVCodecContext *video_codec_context) {
+-    self->params.egl->glDeleteTextures(2, self->target_textures);
++    self->params.egl->glDeleteTextures(3, self->target_textures);
+     self->target_textures[0] = 0;
+     self->target_textures[1] = 0;
++    self->target_textures[2] = 0;
+ 
+     if(video_codec_context->hw_frames_ctx)
+         av_buffer_unref(&video_codec_context->hw_frames_ctx);
+@@ -309,12 +365,26 @@ void gsr_video_encoder_vaapi_stop(gsr_video_encoder_vaapi *self, AVCodecContext
+ 
+ static void gsr_video_encoder_vaapi_get_textures(gsr_video_encoder *encoder, unsigned int *textures, vec2i *texture_sizes, int *num_textures, gsr_destination_color *destination_color) {
+     gsr_video_encoder_vaapi *self = encoder->priv;
+-    textures[0] = self->target_textures[0];
+-    textures[1] = self->target_textures[1];
+-    texture_sizes[0] = self->texture_sizes[0];
+-    texture_sizes[1] = self->texture_sizes[1];
+-    *num_textures = 2;
+-    *destination_color = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? GSR_DESTINATION_COLOR_P010 : GSR_DESTINATION_COLOR_NV12;
++    const bool yuv444 = self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444;
++    const bool is_10bit = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS;
++
++    if(yuv444) {
++        textures[0] = self->target_textures[0];
++        textures[1] = self->target_textures[1];
++        textures[2] = self->target_textures[2];
++        texture_sizes[0] = self->texture_sizes[0];
++        texture_sizes[1] = self->texture_sizes[1];
++        texture_sizes[2] = self->texture_sizes[2];
++        *num_textures = 3;
++        *destination_color = is_10bit ? GSR_DESTINATION_COLOR_YUV444P_10 : GSR_DESTINATION_COLOR_YUV444P;
++    } else {
++        textures[0] = self->target_textures[0];
++        textures[1] = self->target_textures[1];
++        texture_sizes[0] = self->texture_sizes[0];
++        texture_sizes[1] = self->texture_sizes[1];
++        *num_textures = 2;
++        *destination_color = is_10bit ? GSR_DESTINATION_COLOR_P010 : GSR_DESTINATION_COLOR_NV12;
++    }
+ }
+ 
+ static void gsr_video_encoder_vaapi_destroy(gsr_video_encoder *encoder, AVCodecContext *video_codec_context) {
+diff --git a/src/encoder/video/vulkan.c b/src/encoder/video/vulkan.c
+index 89836df..a94cbdd 100644
+--- a/src/encoder/video/vulkan.c
++++ b/src/encoder/video/vulkan.c
+@@ -45,8 +45,8 @@ typedef struct {
+ 
+ typedef struct {
+     gsr_video_encoder_vulkan_params params;
+-    unsigned int target_textures[2];
+-    vec2i texture_sizes[2];
++    unsigned int target_textures[3];
++    vec2i texture_sizes[3];
+     AVBufferRef *device_ctx;
+ 
+     gsr_vk_funcs vk;
+@@ -54,10 +54,10 @@ typedef struct {
+     VkQueue vk_queue;
+ 
+     /* Exportable images that GL renders into */
+-    VkImage export_images[2];
+-    VkDeviceMemory export_memory[2];
+-    VkDeviceSize export_memory_size[2];
+-    unsigned int gl_memory_objects[2];
++    VkImage export_images[3];
++    VkDeviceMemory export_memory[3];
++    VkDeviceSize export_memory_size[3];
++    unsigned int gl_memory_objects[3];
+ 
+     /* Vulkan command infrastructure for copying to encoder frame */
+     VkCommandPool command_pool;
+@@ -132,7 +132,11 @@ static bool gsr_video_encoder_vulkan_setup_context(gsr_video_encoder_vulkan *sel
+     AVHWFramesContext *hw_frame_context = (AVHWFramesContext*)frame_context->data;
+     hw_frame_context->width = video_codec_context->width;
+     hw_frame_context->height = video_codec_context->height;
+-    hw_frame_context->sw_format = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? AV_PIX_FMT_P010LE : AV_PIX_FMT_NV12;
++    if(self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444) {
++        hw_frame_context->sw_format = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? AV_PIX_FMT_YUV444P16 : AV_PIX_FMT_YUV444P;
++    } else {
++        hw_frame_context->sw_format = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? AV_PIX_FMT_P010LE : AV_PIX_FMT_NV12;
++    }
+     hw_frame_context->format = video_codec_context->pix_fmt;
+     hw_frame_context->device_ctx = (AVHWDeviceContext*)self->device_ctx->data;
+ 
+@@ -302,24 +306,39 @@ static bool gsr_video_encoder_vulkan_setup_textures(gsr_video_encoder_vulkan *se
+ 
+     self->vk_device = vv->act_dev;
+ 
+-    const bool is_p010 = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS;
+-    const VkFormat fmt_y  = is_p010 ? VK_FORMAT_R16_UNORM    : VK_FORMAT_R8_UNORM;
+-    const VkFormat fmt_uv = is_p010 ? VK_FORMAT_R16G16_UNORM : VK_FORMAT_R8G8_UNORM;
+-    const unsigned int gl_fmt_y  = is_p010 ? GL_R16  : GL_R8;
+-    const unsigned int gl_fmt_uv = is_p010 ? GL_RG16 : GL_RG8;
++    const bool is_10bit = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS;
++    const bool yuv444 = self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444;
++    const VkFormat fmt_y  = is_10bit ? VK_FORMAT_R16_UNORM    : VK_FORMAT_R8_UNORM;
++    const VkFormat fmt_uv = is_10bit ? VK_FORMAT_R16G16_UNORM : VK_FORMAT_R8G8_UNORM;
++    const unsigned int gl_fmt_y  = is_10bit ? GL_R16  : GL_R8;
++    const unsigned int gl_fmt_uv = is_10bit ? GL_RG16 : GL_RG8;
++    const int num_images = yuv444 ? 3 : 2;
+ 
+     if(!create_exportable_image(&self->vk, vv->act_dev, vv->phys_dev,
+                                 frame->width, frame->height, fmt_y,
+                                 &self->export_images[0], &self->export_memory[0], &self->export_memory_size[0]))
+         return false;
+ 
+-    if(!create_exportable_image(&self->vk, vv->act_dev, vv->phys_dev,
+-                                frame->width / 2, frame->height / 2, fmt_uv,
+-                                &self->export_images[1], &self->export_memory[1], &self->export_memory_size[1]))
+-        return false;
++    if(yuv444) {
++        /* YUV444: 3 single-channel images (Y, U, V) all at full resolution */
++        if(!create_exportable_image(&self->vk, vv->act_dev, vv->phys_dev,
++                                    frame->width, frame->height, fmt_y,
++                                    &self->export_images[1], &self->export_memory[1], &self->export_memory_size[1]))
++            return false;
++
++        if(!create_exportable_image(&self->vk, vv->act_dev, vv->phys_dev,
++                                    frame->width, frame->height, fmt_y,
++                                    &self->export_images[2], &self->export_memory[2], &self->export_memory_size[2]))
++            return false;
++    } else {
++        if(!create_exportable_image(&self->vk, vv->act_dev, vv->phys_dev,
++                                    frame->width / 2, frame->height / 2, fmt_uv,
++                                    &self->export_images[1], &self->export_memory[1], &self->export_memory_size[1]))
++            return false;
++    }
+ 
+     /* Export Vulkan memory as FDs and import into GL */
+-    for(int i = 0; i < 2; i++) {
++    for(int i = 0; i < num_images; i++) {
+         VkMemoryGetFdInfoKHR fd_info = {
+             .sType = VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR,
+             .memory = self->export_memory[i],
+@@ -344,7 +363,7 @@ static bool gsr_video_encoder_vulkan_setup_textures(gsr_video_encoder_vulkan *se
+     }
+ 
+     /* Create GL textures backed by the exportable images */
+-    self->params.egl->glGenTextures(2, self->target_textures);
++    self->params.egl->glGenTextures(num_images, self->target_textures);
+ 
+     self->params.egl->glBindTexture(GL_TEXTURE_2D, self->target_textures[0]);
+     self->params.egl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_TILING_EXT, GL_OPTIMAL_TILING_EXT);
+@@ -353,15 +372,35 @@ static bool gsr_video_encoder_vulkan_setup_textures(gsr_video_encoder_vulkan *se
+                                            self->gl_memory_objects[0], 0);
+     self->params.egl->glBindTexture(GL_TEXTURE_2D, 0);
+ 
+-    self->params.egl->glBindTexture(GL_TEXTURE_2D, self->target_textures[1]);
+-    self->params.egl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_TILING_EXT, GL_OPTIMAL_TILING_EXT);
+-    self->params.egl->glTexStorageMem2DEXT(GL_TEXTURE_2D, 1, gl_fmt_uv,
+-                                           frame->width / 2, frame->height / 2,
+-                                           self->gl_memory_objects[1], 0);
+-    self->params.egl->glBindTexture(GL_TEXTURE_2D, 0);
+-
+-    self->texture_sizes[0] = (vec2i){ frame->width,     frame->height     };
+-    self->texture_sizes[1] = (vec2i){ frame->width / 2, frame->height / 2 };
++    if(yuv444) {
++        self->params.egl->glBindTexture(GL_TEXTURE_2D, self->target_textures[1]);
++        self->params.egl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_TILING_EXT, GL_OPTIMAL_TILING_EXT);
++        self->params.egl->glTexStorageMem2DEXT(GL_TEXTURE_2D, 1, gl_fmt_y,
++                                               frame->width, frame->height,
++                                               self->gl_memory_objects[1], 0);
++        self->params.egl->glBindTexture(GL_TEXTURE_2D, 0);
++
++        self->params.egl->glBindTexture(GL_TEXTURE_2D, self->target_textures[2]);
++        self->params.egl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_TILING_EXT, GL_OPTIMAL_TILING_EXT);
++        self->params.egl->glTexStorageMem2DEXT(GL_TEXTURE_2D, 1, gl_fmt_y,
++                                               frame->width, frame->height,
++                                               self->gl_memory_objects[2], 0);
++        self->params.egl->glBindTexture(GL_TEXTURE_2D, 0);
++
++        self->texture_sizes[0] = (vec2i){ frame->width, frame->height };
++        self->texture_sizes[1] = (vec2i){ frame->width, frame->height };
++        self->texture_sizes[2] = (vec2i){ frame->width, frame->height };
++    } else {
++        self->params.egl->glBindTexture(GL_TEXTURE_2D, self->target_textures[1]);
++        self->params.egl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_TILING_EXT, GL_OPTIMAL_TILING_EXT);
++        self->params.egl->glTexStorageMem2DEXT(GL_TEXTURE_2D, 1, gl_fmt_uv,
++                                               frame->width / 2, frame->height / 2,
++                                               self->gl_memory_objects[1], 0);
++        self->params.egl->glBindTexture(GL_TEXTURE_2D, 0);
++
++        self->texture_sizes[0] = (vec2i){ frame->width,     frame->height     };
++        self->texture_sizes[1] = (vec2i){ frame->width / 2, frame->height / 2 };
++    }
+ 
+     /* Set up Vulkan command infrastructure */
+     VkCommandPoolCreateInfo pool_info = {
+@@ -510,9 +549,11 @@ static void gsr_video_encoder_vulkan_copy_textures_to_frame(gsr_video_encoder *e
+ 
+     if(self->gl_ready_semaphore != VK_NULL_HANDLE && self->params.egl->glSignalSemaphoreEXT) {
+         /* GPU-side GL→Vulkan sync: signal the semaphore from GL, then flush (no CPU stall) */
+-        unsigned int gl_textures[2] = { self->target_textures[0], self->target_textures[1] };
+-        unsigned int dst_layouts[2] = { GL_LAYOUT_GENERAL_EXT, GL_LAYOUT_GENERAL_EXT };
+-        self->params.egl->glSignalSemaphoreEXT(self->gl_semaphore, 0, NULL, 2, gl_textures, dst_layouts);
++        const bool yuv444 = self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444;
++        const int num_images = yuv444 ? 3 : 2;
++        unsigned int gl_textures[3] = { self->target_textures[0], self->target_textures[1], self->target_textures[2] };
++        unsigned int dst_layouts[3] = { GL_LAYOUT_GENERAL_EXT, GL_LAYOUT_GENERAL_EXT, GL_LAYOUT_GENERAL_EXT };
++        self->params.egl->glSignalSemaphoreEXT(self->gl_semaphore, 0, NULL, num_images, gl_textures, dst_layouts);
+         self->params.egl->glFlush();
+     } else {
+         /* Fallback: CPU stall to ensure GL has finished */
+@@ -797,9 +838,10 @@ static void gsr_video_encoder_vulkan_copy_textures_to_frame(gsr_video_encoder *e
+ }
+ 
+ void gsr_video_encoder_vulkan_stop(gsr_video_encoder_vulkan *self, AVCodecContext *video_codec_context) {
+-    self->params.egl->glDeleteTextures(2, self->target_textures);
++    self->params.egl->glDeleteTextures(3, self->target_textures);
+     self->target_textures[0] = 0;
+     self->target_textures[1] = 0;
++    self->target_textures[2] = 0;
+ 
+     if(self->vk_device) {
+         /* Drain any in-flight copy before freeing resources */
+@@ -814,7 +856,7 @@ void gsr_video_encoder_vulkan_stop(gsr_video_encoder_vulkan *self, AVCodecContex
+         /* Destroying the command pool also frees the command buffer */
+         if(self->command_pool)
+             self->vk.vkDestroyCommandPool(self->vk_device, self->command_pool, NULL);
+-        for(int i = 0; i < 2; i++) {
++        for(int i = 0; i < 3; i++) {
+             if(self->export_images[i])
+                 self->vk.vkDestroyImage(self->vk_device, self->export_images[i], NULL);
+             if(self->export_memory[i])
+@@ -830,12 +872,26 @@ void gsr_video_encoder_vulkan_stop(gsr_video_encoder_vulkan *self, AVCodecContex
+ 
+ static void gsr_video_encoder_vulkan_get_textures(gsr_video_encoder *encoder, unsigned int *textures, vec2i *texture_sizes, int *num_textures, gsr_destination_color *destination_color) {
+     gsr_video_encoder_vulkan *self = encoder->priv;
+-    textures[0] = self->target_textures[0];
+-    textures[1] = self->target_textures[1];
+-    texture_sizes[0] = self->texture_sizes[0];
+-    texture_sizes[1] = self->texture_sizes[1];
+-    *num_textures = 2;
+-    *destination_color = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS ? GSR_DESTINATION_COLOR_P010 : GSR_DESTINATION_COLOR_NV12;
++    const bool yuv444 = self->params.pixel_format == GSR_PIXEL_FORMAT_YUV444;
++    const bool is_10bit = self->params.color_depth == GSR_COLOR_DEPTH_10_BITS;
++
++    if(yuv444) {
++        textures[0] = self->target_textures[0];
++        textures[1] = self->target_textures[1];
++        textures[2] = self->target_textures[2];
++        texture_sizes[0] = self->texture_sizes[0];
++        texture_sizes[1] = self->texture_sizes[1];
++        texture_sizes[2] = self->texture_sizes[2];
++        *num_textures = 3;
++        *destination_color = is_10bit ? GSR_DESTINATION_COLOR_YUV444P_10 : GSR_DESTINATION_COLOR_YUV444P;
++    } else {
++        textures[0] = self->target_textures[0];
++        textures[1] = self->target_textures[1];
++        texture_sizes[0] = self->texture_sizes[0];
++        texture_sizes[1] = self->texture_sizes[1];
++        *num_textures = 2;
++        *destination_color = is_10bit ? GSR_DESTINATION_COLOR_P010 : GSR_DESTINATION_COLOR_NV12;
++    }
+ }
+ 
+ static void gsr_video_encoder_vulkan_destroy(gsr_video_encoder *encoder, AVCodecContext *video_codec_context) {
+diff --git a/src/main.cpp b/src/main.cpp
+index c2a5516..bf825b0 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -761,16 +761,10 @@ static void open_video_hardware(AVCodecContext *codec_context, bool low_power, c
+         }
+ 
+         if(codec_context->codec_id == AV_CODEC_ID_H264) {
+-            // TODO: h264 10bit?
+-            // TODO:
+-            // switch(pixel_format) {
+-            //     case GSR_PIXEL_FORMAT_YUV420:
+-            //         av_dict_set_int(&options, "profile", AV_PROFILE_H264_HIGH, 0);
+-            //         break;
+-            //     case GSR_PIXEL_FORMAT_YUV444:
+-            //         av_dict_set_int(&options, "profile", AV_PROFILE_H264_HIGH_444, 0);
+-            //         break;
+-            // }
++            if(arg_parser.pixel_format == GSR_PIXEL_FORMAT_YUV444)
++                av_dict_set_int(&options, "profile", AV_PROFILE_H264_HIGH_444, 0);
++            else
++                av_dict_set_int(&options, "profile", AV_PROFILE_H264_HIGH, 0);
+         } else if(codec_context->codec_id == AV_CODEC_ID_AV1) {
+             switch(arg_parser.pixel_format) {
+                 case GSR_PIXEL_FORMAT_YUV420:
+@@ -1528,6 +1522,7 @@ static gsr_video_encoder* create_video_encoder(gsr_egl *egl, const args_parser &
+         gsr_video_encoder_software_params params;
+         params.egl = egl;
+         params.color_depth = color_depth;
++        params.pixel_format = arg_parser.pixel_format;
+         video_encoder = gsr_video_encoder_software_create(&params);
+         return video_encoder;
+     }
+@@ -1536,6 +1531,7 @@ static gsr_video_encoder* create_video_encoder(gsr_egl *egl, const args_parser &
+         gsr_video_encoder_vulkan_params params;
+         params.egl = egl;
+         params.color_depth = color_depth;
++        params.pixel_format = arg_parser.pixel_format;
+         video_encoder = gsr_video_encoder_vulkan_create(&params);
+         return video_encoder;
+     }
+@@ -1547,6 +1543,7 @@ static gsr_video_encoder* create_video_encoder(gsr_egl *egl, const args_parser &
+             gsr_video_encoder_vaapi_params params;
+             params.egl = egl;
+             params.color_depth = color_depth;
++            params.pixel_format = arg_parser.pixel_format;
+             video_encoder = gsr_video_encoder_vaapi_create(&params);
+             break;
+         }
+@@ -1554,6 +1551,7 @@ static gsr_video_encoder* create_video_encoder(gsr_egl *egl, const args_parser &
+             gsr_video_encoder_nvenc_params params;
+             params.egl = egl;
+             params.color_depth = color_depth;
++            params.pixel_format = arg_parser.pixel_format;
+             video_encoder = gsr_video_encoder_nvenc_create(&params);
+             break;
+         }
+
+base-commit: 01045800155c74123da48f9cdd8f459d06c40ddc
+-- 
+2.54.0
+
