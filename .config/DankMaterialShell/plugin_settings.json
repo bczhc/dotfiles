@@ -1,19 +1,20 @@
 {
   "emojiLauncher": {
-    "enabled": true,
-    "recentEmojis": "📅,😹,🥲,👶🏿,🤐,😭,😂,😵‍💫,😵,😳,🤣,🉑,🙂,🥺,♥️,😡,🤚,🖐️,🤮,🤔",
+    "enabled": false,
+    "recentEmojis": "♂,🤤,📅,😹,🥲,👶🏿,🤐,😭,😂,😵‍💫,😵,😳,🤣,🉑,🙂,🥺,♥️,😡,🤚,🖐️",
     "useDMS": false,
     "trigger": ":e"
   },
   "commandRunner": {
     "enabled": true,
     "history": [
+      "xeyes",
+      "yazi",
+      "rime-add-words",
       "vkcube",
       "vkcubej",
-      "xeyes",
       "xetes",
       "glxgears",
-      "rime-add-words",
       "virt-manager",
       "wayneko",
       "thu",
@@ -26,8 +27,7 @@
       "cpu-high",
       "cpufreq 2000M",
       "cpufreq 800M",
-      "sdrpp-swrender",
-      "alacritty-cpu --command=zsh"
+      "sdrpp-swrender"
     ]
   },
   "alarmClock": {
@@ -46,5 +46,10 @@
   },
   "stickyNoteWidget": {
     "enabled": true
+  },
+  "myEmojiLauncher": {
+    "enabled": true,
+    "trigger": ":e ",
+    "recentEmojis": "🤣"
   }
 }

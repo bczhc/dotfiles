@@ -1,0 +1,72 @@
+[colors]
+draw_bold_text_with_bright_colors = true
+
+[colors.primary]
+background = '#ffffff'
+foreground = '#000000'
+
+[colors.selection]
+text = '#000000'
+background = '#fce4ec'
+
+[colors.cursor]
+text = '#000000'
+cursor = '#cc4d82'
+
+[colors.normal]
+black   = '#1C1B1F'
+red     = '#c13138'
+green   = '#3d991d'
+yellow  = '#f4c410'
+blue    = '#d64a84'
+magenta = '#ffcce1'
+cyan    = '#CC4D82'
+white   = '#393637'
+
+[colors.bright]
+black   = '#ada8aa'
+red     = '#f45c64'
+green   = '#6ee046'
+yellow  = '#ffd020'
+blue    = '#ea498c'
+magenta = '#ffcce1'
+cyan    = '#ffafd0'
+white   = '#fff8fb'
+
+[env]
+TERM = "xterm-256color"
+
+[font]
+size = 12
+
+[font.bold]
+family = "monospace"
+style = "Bold"
+
+[font.bold_italic]
+family = "monospace"
+style = "Bold Italic"
+
+[font.italic]
+family = "monospace"
+style = "Italic"
+
+[font.normal]
+family = "Iosevka Term Extended"
+
+[scrolling]
+history = 100000
+
+[window]
+opacity = 0.5
+
+[window.padding]
+x = 5
+y = 5
+
+[terminal]
+
+[[keyboard.bindings]]
+key = "Enter"
+mods = "Shift"
+chars = "\x0a"

@@ -153,10 +153,14 @@ binds {
     Mod+Z { set-zoom-level "1.0"; }
     Mod+Shift+Z { toggle-zoom-lock; } // locks focal center, will also make it lock level
 
-    Mod+Shift+E { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" ":e"; }
+    Mod+Shift+E { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" ":e "; }
     Mod+grave { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" "!"; }
     Mod+Delete { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
     //Mod+Ctrl+L { spawn "dms" "ipc" "call" "lock" "lock"; } // buggy
 
     Alt+Z { spawn-sh "$HOMESCRIPT_DIR/niri/toggle-gsr-ui"; }
+
+    //Mod+F1 { spawn-sh "touch /tmp/layout-locked"; }
+    //Mod+F2 { spawn-sh "rm /tmp/layout-locked || true"; }
+    Mod+F1 { spawn-sh "niri msg action toggle-view-lock"; }
 }

@@ -80,6 +80,7 @@ window-rule {
     match title="^Save [aA]s"
     match title="^Open"
     match title="QEMU\/KVM$"
+    match app-id="gtk3-textarea"
 
     open-floating true
 }
@@ -191,6 +192,13 @@ window-rule {
 window-rule {
     match app-id=r#"^conhost\.exe$"#
     float-above-fullscreen true
+}
+
+window-rule {
+    match app-id="yazi-filechooser"
+    default-column-width { proportion 0.7; }
+    default-window-height { proportion 0.8; }
+    open-floating true
 }
 
 /// LAYER RULES

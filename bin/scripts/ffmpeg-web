@@ -7,4 +7,4 @@ cq="$2"
 
 shift 2
 
-ffmpeg -i $src -c:v hevc_nvenc -b:v 0 -rc vbr -cq $cq -c:a aac -b:a 0 "$@"
+ffmpeg -i $src -c:v hevc_nvenc -pix_fmt yuv420p -color_range pc -b:v 0 -rc vbr -cq $cq -c:a aac -b:a 0 "$@"
