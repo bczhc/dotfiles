@@ -189,6 +189,8 @@ alias sl='ls'
 alias LS='ls'
 alias SL='ls'
 alias ll='ls -lp'
+alias pgrpe='pgrep'
+alias grpe='grep'
 
 alias grep='grep --color'
 
@@ -291,3 +293,7 @@ tmd() {
     mkdir -p $temp_dir
     cd $temp_dir
 }
+
+alias gpuhigh='sudo nvidia-smi -lmc 7001,7001; sudo nvidia-smi -lgc 2100,2100'
+alias gpulow='sudo nvidia-smi -lmc 405,405; sudo nvidia-smi -lgc 472,472'
+alias gpunormal='sudo nvidia-smi -lmc 405,7001; sudo nvidia-smi -lgc 472,2100'

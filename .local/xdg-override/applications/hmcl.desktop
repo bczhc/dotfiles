@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+Exec=/mnt/nvme/mc-game/mc/hmcl
+Name=HMCL
+Icon=/usr/share/icons/hmcl.png

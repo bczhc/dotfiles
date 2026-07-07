@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+menu="$(efibootmgr | rg '^Boot....\* ')"
+count=$(echo "$menu" | wc -l)
+[ $count -ne 2 ] && exit 'Expected bootable entry count is 2; got '${count}.
+
+windows_id="$(echo "$menu" | rg '^Boot(....)\* Windows.*' -r '$1')"
+count=$(echo "$windows_id" | wc -l)
+[ $count -ne 1 ] && exit 'Windows entry count is expected only one'
+echo "Windows entry ID: $windows_id"
+
+sudo efibootmgr -qn "$windows_id"

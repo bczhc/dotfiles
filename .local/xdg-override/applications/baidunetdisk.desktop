@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Baidu Netdisk (bwrap)
+Name[zh_CN]=百度网盘 (bwrap)
+#Exec=/usr/lib/baidunetdisk/baidunetdisk --no-sandbox %U
+Exec=/home/bczhc/AppSandbox/BaiduNetdisk/bwrap
+Terminal=false
+Type=Application
+#Icon=baidunetdisk
+Icon=/usr/share/icons/hicolor/scalable/apps/baidunetdisk.svg
+StartupWMClass=baidunetdisk
+Comment=百度网盘
+MimeType=x-scheme-handler/baiduyunguanjia;
+Categories=Network;

@@ -19,6 +19,7 @@
     d = diff
     l = log
     cl = clone
+    cp = cherry-pick
 [pull]
 	rebase = false
 [cinnabar]

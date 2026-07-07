@@ -180,7 +180,7 @@ window-rule {
     float-above-fullscreen true
 }
 
-/-window-rule {
+window-rule {
     match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
     default-floating-position x=10 y=10 relative-to="bottom-right"
 
@@ -199,6 +199,18 @@ window-rule {
     default-column-width { proportion 0.7; }
     default-window-height { proportion 0.8; }
     open-floating true
+}
+
+window-rule {
+    match title=r#"^vkgears$"#
+    match app-id=r#"jetbrains-.*"#
+    match app-id=r#".*\.exe$"#
+    match title="winit window"
+    match title="Minecraft"
+    match app-id=r#"steam_app.*"#
+
+    force-render true
+    //force-render-fps
 }
 
 /// LAYER RULES

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=JLC Assistant (bwrap)
+Name[zh_CN]=嘉立创下单助手 (bwrap)
+Exec=/home/bczhc/AppSandbox/JLC\ Assistant/bwrap
+Terminal=false
+Type=Application
+Icon=/usr/share/icons/hicolor/128x128/apps/jlc-assistant.png
+StartupWMClass=jlc-assistant
+Comment=嘉立创下单助手
+MimeType=x-scheme-handler/baiduyunguanjia;
+Categories=Network;

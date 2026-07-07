@@ -9,8 +9,9 @@
     "enabled": true,
     "history": [
       "xeyes",
-      "yazi",
       "rime-add-words",
+      "rime-rime-words",
+      "yazi",
       "vkcube",
       "vkcubej",
       "xetes",
@@ -26,8 +27,7 @@
       "tqs",
       "cpu-high",
       "cpufreq 2000M",
-      "cpufreq 800M",
-      "sdrpp-swrender"
+      "cpufreq 800M"
     ]
   },
   "alarmClock": {
@@ -50,6 +50,6 @@
   "myEmojiLauncher": {
     "enabled": true,
     "trigger": ":e ",
-    "recentEmojis": "🤣"
+    "recentEmojis": "🤣,😂,😨,😳"
   }
 }

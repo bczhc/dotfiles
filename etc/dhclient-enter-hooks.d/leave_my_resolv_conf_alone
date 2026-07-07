@@ -1,0 +1,3 @@
+# See https://unix.stackexchange.com/a/429698 and /bin/dhclient-script
+
+make_resolv_conf() { :; }

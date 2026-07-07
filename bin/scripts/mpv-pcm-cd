@@ -1,0 +1,3 @@
+#!/bin/bash
+
+mpv --ad=pcm_s16le --demuxer-rawaudio-channels=2 --demuxer-rawaudio-format=s16le --demuxer-rawaudio-rate=44100 --audio-format=s16 --demuxer=rawaudio "$@"

@@ -18,6 +18,8 @@ rsync $rsync_arg -avz Videos "$bak_dir"/zhc --info=progress2 --no-i-r
 rsync $rsync_arg -avz Screenshots/ "$bak_dir"/zhc/Screenshots/png --info=progress2 --no-i-r
 rsync $rsync_arg -avz Pictures "$bak_dir/zhc" --info=progress2 --no-i-r
 rsync $rsync_arg -avz Music "$bak_dir/zhc" --info=progress2 --no-i-r
+rsync $rsync_arg -avz Games "$bak_dir/zhc" --info=progress2 --no-i-r
+rsync $rsync_arg -avz AppSandbox "$bak_dir/zhc" --info=progress2 --no-i-r
 
 # 屏幕录像
 rsync $rsync_arg -avz /mnt/nvme/screenrecord/ "$bak_dir"/zhc/Screenrecords --info=progress2 --no-i-r
@@ -64,8 +66,8 @@ mkdir -p "$bak_dir"/zhc/code
 fd . ~/code -t d -d 1 -x rsync $rsync_arg --no-i-r --info=PROGRESS2 -a --filter=':- .gitignore' --exclude='/target' --delete-during "{}" "$bak_dir/zhc/code/"
 
 # .local/state logs
-mkdir -p "$bak_dir"/home-local
-rsync $rsync_arg ~/.local/state "$bak_dir"/zhc/linux/arch/home-local
+mkdir -p "$bak_dir"/zhc/linux/arch/home-local
+rsync -a $rsync_arg ~/.local/state "$bak_dir"/zhc/linux/arch/home-local
 
 ## sudo operations
 mkdir -p "$bak_dir"/zhc/linux/arch/var-log

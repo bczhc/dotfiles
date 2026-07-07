@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+[ $# -eq 0 ] && echo 'Usage: cmd <disc-device>' && exit 1
+
+bin=/home/bczhc/code/vibecoded/disc-sessions-fuse/disc_sessions_fuse.py
+device="$1"
+
+mkdir -p sessions
+exec "$bin" "$device" sessions

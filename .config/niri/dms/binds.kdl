@@ -163,4 +163,5 @@ binds {
     //Mod+F1 { spawn-sh "touch /tmp/layout-locked"; }
     //Mod+F2 { spawn-sh "rm /tmp/layout-locked || true"; }
     Mod+F1 { spawn-sh "niri msg action toggle-view-lock"; }
+    Mod+F2 { spawn "mark-shot"; }
 }

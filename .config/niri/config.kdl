@@ -43,11 +43,10 @@ output "DP-2" {
     //mode "2560x1440@60"
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
-    scale 1.333333333333333333
+    //scale 1.333333333333333333
+    scale 1.33333333
     //scale 1
-    //scale 1.333333333333333
     //scale 3
-    //scale 1.3333333
 
     // Transform allows to rotate the output counter-clockwise, valid values are:
     // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
@@ -64,6 +63,8 @@ output "DP-2" {
     // automatically.
     //position x=1920 y=0
     position x=0 y=0
+
+    max-bpc 10
 }
 
 spawn-at-startup "wl-clip-persist" "--clipboard" "regular" "--all-mime-type-regex" r#"(?i)^(?!image/x-inkscape-svg).+"#
@@ -132,6 +133,7 @@ input {
         // scroll-method "no-scroll"
         accel-profile "adaptive"
         accel-speed 0.2
+        //accel-speed -0.7891238
     }
 
     trackpoint {
@@ -240,10 +242,13 @@ layout {
         bottom 0
     }
 }
+
+// 'Background' layer-shell (aka. the Wallpaper) of DMS
 layer-rule {
     match namespace="^quickshell$"
     place-within-backdrop true
 }
+
 overview {
     workspace-shadow {
         off

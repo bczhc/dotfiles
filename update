@@ -14,16 +14,30 @@ cp -ar .zfunc .vimrc .zshrc .p10k.zsh .gitconfig "$basedir"
 cd ~/.config
 rsync -a --delete i3 polybar rofi mpv alacritty picom dunst neofetch htop yazi tmux-powerline hypr \
     niri waybar eww DankMaterialShell systemd MangoHud \
-    --exclude=DankMaterialShell/plugins \
+    --exclude=DankMaterialShell/plugins --exclude=DankMaterialShell/themes \
   "$basedir/.config/"
 
 cd "$basedir"
 
 # tmux
-rsync -a ~/.config/./tmux/tmux.conf .config --delete --relative
+rsync -a ~/.config/./tmux/tmux.conf .config --delete -R
 
 mkdir -p usr/bin
 rsync -a /bin/ddck usr/bin
 
 mkdir -p .local
 rsync -a ~/.local/xdg-override .local
+
+# dhclient hooks
+rsync -a /./etc/dhclient-enter-hooks.d . --delete -R
+rsync -a /./etc/dhclient-exit-hooks.d . --delete -R
+
+# App Sandbox
+fd . ~/AppSandbox -d1 -x echo '{/.}' | while read -r name; do
+    rsync -aR --delete ~/./AppSandbox/"$name"/bwrap .
+done
+
+# Game launching scripts
+fd . ~/Games -d1 -x echo '{/.}' | while read -r name; do
+    rsync -aR --delete ~/./Games/"$name"/launch .
+done

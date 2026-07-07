@@ -1,0 +1,29 @@
+#!/bin/bash
+
+abspath="$(readlink -f "$0")"
+absdir="$(dirname "$abspath")"
+home_folder="$absdir"/home
+
+bwrap \
+  --unshare-user \
+  --unshare-ipc \
+  --unshare-pid \
+  --unshare-uts \
+  --dev-bind / / \
+  --bind "$home_folder" $HOME \
+  --tmpfs /tmp \
+  --tmpfs /run \
+  --proc /proc \
+  --dir "$HOME" \
+  --ro-bind ~/.config/fontconfig "$HOME"/.config/fontconfig \
+  --bind ~/.cache/fontconfig "$HOME"/.cache/fontconfig \
+  --ro-bind ~/.Xauthority "$HOME"/.Xauthority \
+  --bind /run/user/1000/wayland-1 /run/user/1000/wayland-1 \
+  --ro-bind /tmp/.X11-unix/X0 /tmp/.X11-unix/X0 \
+  --ro-bind /etc/resolv.conf /etc/resolv.conf \
+  --ro-bind /run/user/1000/bus /run/user/1000/bus \
+  --setenv DISPLAY "$DISPLAY" \
+  --setenv XAUTHORITY "$HOME"/.Xauthority \
+  --unsetenv http_proxy --unsetenv https_proxy \
+  --ro-bind /home/bczhc/smb/smb-tmp/baiduyun-bak $HOME/baiduyun-bak \
+  bash -c 'ulimit -c 0; GDK_BACKEND=x11 /usr/lib/baidunetdisk/baidunetdisk --no-sandbox'
