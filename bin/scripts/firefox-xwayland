@@ -1,5 +1,7 @@
 #!/bin/bash
 
 unset WAYLAND_DISPLAY
+unset ELECTRON_OZONE_PLATFORM_HINT
+unset GDK_BACKEND
 #GDK_DPI_SCALE=1.33333 
 non-proxy firefox --profile="$HOME"/.local/share/firefox-xwayland-profile

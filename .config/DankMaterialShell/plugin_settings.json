@@ -9,6 +9,8 @@
     "enabled": true,
     "history": [
       "xeyes",
+      "xeye",
+      "eyes",
       "rime-add-words",
       "rime-rime-words",
       "yazi",
@@ -25,9 +27,7 @@
       "glxgea",
       "firefox-xwayland",
       "tqs",
-      "cpu-high",
-      "cpufreq 2000M",
-      "cpufreq 800M"
+      "cpu-high"
     ]
   },
   "alarmClock": {
@@ -50,6 +50,6 @@
   "myEmojiLauncher": {
     "enabled": true,
     "trigger": ":e ",
-    "recentEmojis": "🤣,😂,😨,😳"
+    "recentEmojis": "😂,👍,😭,🤣,😨,😳"
   }
 }

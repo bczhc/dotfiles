@@ -297,3 +297,5 @@ tmd() {
 alias gpuhigh='sudo nvidia-smi -lmc 7001,7001; sudo nvidia-smi -lgc 2100,2100'
 alias gpulow='sudo nvidia-smi -lmc 405,405; sudo nvidia-smi -lgc 472,472'
 alias gpunormal='sudo nvidia-smi -lmc 405,7001; sudo nvidia-smi -lgc 472,2100'
+
+alias h='htop'

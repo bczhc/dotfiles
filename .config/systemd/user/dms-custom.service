@@ -9,6 +9,10 @@ Type=dbus
 BusName=org.freedesktop.Notifications
 
 Environment="XDG_DATA_DIRS=/home/bczhc/.local/xdg-override:/home/bczhc/.local/share:/usr/local:/usr/share:/usr/local/share"
+
+# 2026-05-18 update: No. All envs below are not used anymore. To prevent unexpected env inheritance that causes the env
+# polution, I now control them via QuickShell pragma settings. See my DMS commit: 7e6fcb97ad32bc621e8a8b9d5bc02a6d37266fb8.
+#
 # See: https://github.com/AvengeMedia/DankMaterialShell/issues/2056
 #Environment="QSG_RHI_BACKEND=vulkan"
 # However, don't use this now... See: https://github.com/niri-wm/niri/discussions/3691
@@ -19,10 +23,10 @@ Environment="XDG_DATA_DIRS=/home/bczhc/.local/xdg-override:/home/bczhc/.local/sh
 # For the memory leak issue, just write a custom script and ensure the dms service is stopped
 # before niri action `power-off-monitors`.
 #Environment="VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.json"
+
+
 # See: https://github.com/AvengeMedia/DankMaterialShell/issues/1637
 Environment="DMS_MODAL_LAYER=overlay"
-
-Environment="VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json"
 
 ExecStart=/home/bczhc/bin/dms run --session
 ExecReload=/usr/bin/pkill -USR1 -x dms

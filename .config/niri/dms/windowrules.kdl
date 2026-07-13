@@ -176,6 +176,7 @@ window-rule {
 window-rule {
     match app-id="^firefox$"
     match title="^Picture-in-Picture$"
+    match app-id="^XEyes$"
 
     float-above-fullscreen true
 }

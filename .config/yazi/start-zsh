@@ -1,0 +1,18 @@
+#!/bin/zsh
+
+[ $# -eq 0 ] && echo 'Usage: cmd <hovered> [<selected>...]' && exit 1
+
+hovered=$1
+shift 1
+selected=($@)
+
+# If there's any selected file, use selected files.
+[ $#selected -ge 1 ] && exec zsh -s $selected
+# Or use the current hovered file
+exec zsh -s $hovered
+
+echo Hovered ${#hovered}:
+print -l $hovered
+
+echo Selected ${#selected}:
+print -l $selected

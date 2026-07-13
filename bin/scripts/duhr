@@ -1,0 +1,8 @@
+#!/bin/bash
+
+[ $# -ne 1 ] && echo 'Usage: cmd <file>' && exit 1
+
+file="$1"
+
+bytes="$(du -b "$file" --apparent-size | awk '{print $1}')"
+echo $bytes | tohr
