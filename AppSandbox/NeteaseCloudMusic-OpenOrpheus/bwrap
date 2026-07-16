@@ -4,7 +4,7 @@ abspath="$(readlink -f "$0")"
 absdir="$(dirname "$abspath")"
 home_folder="$absdir"/home
 
-bwrap \
+exec bwrap \
   --unshare-user \
   --unshare-ipc \
   --unshare-pid \
@@ -22,8 +22,9 @@ bwrap \
   --ro-bind /tmp/.X11-unix/X0 /tmp/.X11-unix/X0 \
   --ro-bind /etc/resolv.conf /etc/resolv.conf \
   --ro-bind /run/user/1000/bus /run/user/1000/bus \
+  --dev-bind /dev/snd /dev/snd \
+  --ro-bind /run/user/1000/pulse /run/user/1000/pulse \
   --setenv DISPLAY "$DISPLAY" \
   --setenv XAUTHORITY "$HOME"/.Xauthority \
   --unsetenv http_proxy --unsetenv https_proxy \
-  --bind "$HOME"/electron-test "$HOME"/electron-test \
-  bash -c 'ulimit -c 0; jlc-assistant --no-sandbox --use-gl=desktop'
+  bash -c 'open-orpheus'

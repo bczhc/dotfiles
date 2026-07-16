@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Netease Cloud Music (OpenOrpheus, bwrap)
+Name[zh_CN]=网易云音乐 (OpenOrpheus, bwrap)
+Exec=/home/bczhc/AppSandbox/NeteaseCloudMusic-OpenOrpheus/bwrap
+Terminal=false
+Type=Application
+#Icon=/usr/share/icons/open-orpheus.svg
+Icon=/usr/share/icons/NetEase_Music_icon.png
+Categories=Music;

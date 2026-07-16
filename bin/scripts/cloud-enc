@@ -1,3 +1,0 @@
-#!/bin/bash
-
-openssl enc -aes-256-cbc -pbkdf2 -pass file:/home/bczhc/cloud-enc-password

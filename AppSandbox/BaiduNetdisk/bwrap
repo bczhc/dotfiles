@@ -4,6 +4,9 @@ abspath="$(readlink -f "$0")"
 absdir="$(dirname "$abspath")"
 home_folder="$absdir"/home
 
+#upload_dir="$HOME"/smb/smb-temp/baiduyun-bak
+upload_dir=/mnt/nvme/wplace-snaps
+
 bwrap \
   --unshare-user \
   --unshare-ipc \
@@ -25,5 +28,5 @@ bwrap \
   --setenv DISPLAY "$DISPLAY" \
   --setenv XAUTHORITY "$HOME"/.Xauthority \
   --unsetenv http_proxy --unsetenv https_proxy \
-  --ro-bind /home/bczhc/smb/smb-tmp/baiduyun-bak $HOME/baiduyun-bak \
+  --ro-bind "$upload_dir" "$HOME"/upload-dir \
   bash -c 'ulimit -c 0; GDK_BACKEND=x11 /usr/lib/baidunetdisk/baidunetdisk --no-sandbox'

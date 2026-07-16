@@ -64,7 +64,7 @@ output "DP-2" {
     //position x=1920 y=0
     position x=0 y=0
 
-    max-bpc 10
+    //max-bpc 10
 }
 
 spawn-at-startup "wl-clip-persist" "--clipboard" "regular" "--all-mime-type-regex" r#"(?i)^(?!image/x-inkscape-svg).+"#

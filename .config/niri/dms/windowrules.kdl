@@ -16,7 +16,7 @@ window-rule {
 window-rule {
     match app-id="^[aA]lacritty$"
 
-    float-above-fullscreen true
+   // float-above-fullscreen true
 
     background-effect {
         xray true
@@ -178,21 +178,21 @@ window-rule {
     match title="^Picture-in-Picture$"
     match app-id="^XEyes$"
 
-    float-above-fullscreen true
+    //float-above-fullscreen true
 }
 
 window-rule {
     match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
     default-floating-position x=10 y=10 relative-to="bottom-right"
 
-    float-above-fullscreen true
+    //float-above-fullscreen true
     open-floating true
 }
 
 // Wine 'wineconsole'
 window-rule {
     match app-id=r#"^conhost\.exe$"#
-    float-above-fullscreen true
+   // float-above-fullscreen true
 }
 
 window-rule {
@@ -202,7 +202,7 @@ window-rule {
     open-floating true
 }
 
-window-rule {
+/-window-rule {
     match title=r#"^vkgears$"#
     match app-id=r#"jetbrains-.*"#
     match app-id=r#".*\.exe$"#
@@ -213,6 +213,24 @@ window-rule {
     force-render true
     //force-render-fps
 }
+
+window-rule {
+    match app-id="firefox-default"
+
+    open-on-workspace "ws2"
+    open-focused false
+}
+
+window-rule {
+    //match title="Open Orpheus Menu"
+    match app-id="^open-orpheus$"
+
+    open-floating true
+    default-column-width { proportion 0.6; }
+    default-window-height { proportion 0.7; }
+}
+
+// WINDOW RULES END
 
 /// LAYER RULES
 

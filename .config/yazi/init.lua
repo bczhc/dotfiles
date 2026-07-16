@@ -28,5 +28,17 @@ function Status:position()
 	}
 end
 
+-- https://github.com/sxyazi/yazi/issues/4129
+function ya.readable_size(size)
+ 	local units = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB", "RiB", "QiB" }
+ 	local i = 1
+ 	while size > 1024 and i < #units do
+ 		size = size / 1024
+ 		i = i + 1
+ 	end
+ 	local s = string.format("%.1f%s", size, units[i]):gsub("[.,]0", "", 1)
+ 	return s
+ end
+
 require("git"):setup()
 require('bczhc-custom')
