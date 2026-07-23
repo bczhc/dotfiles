@@ -1,0 +1,12 @@
+# See: https://bugzilla.mozilla.org/show_bug.cgi?id=2037013
+#
+# Firefox 147 is a properly working version with wgpu.
+
+[Desktop Entry]
+Version=1.0
+Name=Firefox WGPU
+Exec=/usr/local/lib/firefox147-wgpu/firefox --profile=/home/bczhc/.mozilla/firefox/profile:\ firefox-wgpu
+Type=Application
+Icon=firefox
+Terminal=false
+Categories=WebBrowser;Network;

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=Firefox No-Proxy
+Exec=env -u http_proxy -u https_proxy firefox --profile=/home/bczhc/.mozilla/firefox/profile:\ firefox\ non-proxy
+Type=Application
+Icon=firefox
+Terminal=false
+Categories=WebBrowser;Network;

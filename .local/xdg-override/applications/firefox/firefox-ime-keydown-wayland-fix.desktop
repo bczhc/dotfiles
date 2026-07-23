@@ -1,0 +1,10 @@
+# See: https://bugzilla.mozilla.org/show_bug.cgi?id=2028505
+
+[Desktop Entry]
+Version=1.0
+Name=Firefox Wayland IME Keydown Fix
+Exec=/usr/local/lib/firefox-ime-keydown-wayland-fix/firefox --profile=/home/bczhc/.mozilla/firefox/profile:\ firefox-ime-keydown-wayland-fix
+Type=Application
+Icon=firefox
+Terminal=false
+Categories=WebBrowser;Network;

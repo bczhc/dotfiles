@@ -1,0 +1,125 @@
+From ea733d5b78364e33657723b92882ebeb5bb1b43e Mon Sep 17 00:00:00 2001
+From: Zhai Can <bczhc0@126.com>
+Date: Thu, 23 Jul 2026 23:46:16 +0800
+Subject: [PATCH] Very hacky fix for
+ https://bugzilla.mozilla.org/show_bug.cgi?id=2028505
+
+---
+ widget/gtk/IMContextWrapper.cpp | 62 +++++++++++++++++++++++++++++++++
+ widget/gtk/IMContextWrapper.h   |  4 +++
+ 2 files changed, 66 insertions(+)
+
+diff --git a/widget/gtk/IMContextWrapper.cpp b/widget/gtk/IMContextWrapper.cpp
+index ec1b28332a04..67eadaa282ee 100644
+--- a/widget/gtk/IMContextWrapper.cpp
++++ b/widget/gtk/IMContextWrapper.cpp
+@@ -31,6 +31,43 @@
+ // Therefore you shouldn't use `LogLevel::Verbose` for logging usual behavior.
+ mozilla::LazyLogModule gIMELog("IMEHandler");
+ 
++// keyd monitor hack: read physical key state from /dev/input to
++// distinguish key press vs key release in Wayland key snooper mode.
++// 0=uninit, 1=up/release, 2=down/press
++#include <atomic>
++#include <pthread.h>
++#include <unistd.h>
++
++static std::atomic<uint32_t> gKeydPhysicalKeyState{0};
++
++static void* KeydMonitorThread(void*) {
++  FILE* pipe = popen("keyd monitor", "r");
++  if (!pipe) return nullptr;
++  char line[256];
++  while (fgets(line, sizeof(line), pipe)) {
++    if (strstr(line, " down") || strstr(line, "down\n")) {
++      gKeydPhysicalKeyState.store(2, std::memory_order_relaxed);
++    } else if (strstr(line, " up") || strstr(line, "up\n")) {
++      gKeydPhysicalKeyState.store(1, std::memory_order_relaxed);
++    }
++  }
++  pclose(pipe);
++  return nullptr;
++}
++
++static uint32_t GetKeydPhysicalKeyState() {
++  static std::once_flag sOnce;
++  std::call_once(sOnce, []() {
++    if (access("/bin/keyd", X_OK) != 0) {
++      MOZ_CRASH("keyd not found at /bin/keyd");
++    }
++    pthread_t thread;
++    pthread_create(&thread, nullptr, KeydMonitorThread, nullptr);
++    pthread_detach(thread);
++  });
++  return gKeydPhysicalKeyState.load(std::memory_order_relaxed);
++}
++
+ namespace mozilla {
+ namespace widget {
+ 
+@@ -2194,6 +2231,30 @@ bool IMContextWrapper::MaybeDispatchKeyEventAsProcessedByIME(
+     }
+ 
+     if (dispatchFakeKeyDown) {
++      // keyd monitor: suppress if physical key is up (release).
++      uint32_t keyState = GetKeydPhysicalKeyState();
++      if (keyState == 1) {
++        MOZ_LOG(gIMELog, LogLevel::Info,
++                ("0x%p   MaybeDispatchKeyEventAsProcessedByIME(), "
++                 "suppressed by keyd (physical key is up)",
++                 this));
++        return true;
++      }
++
++      // Time-based dedup: suppress duplicate fake keydowns within 10ms
++      // from the same key press (e.g. preedit_changed + preedit_end
++      // for Esc, or commit + preedit_start in auto-commit mode).
++      TimeStamp now = TimeStamp::Now();
++      if (!mLastSnoopedFakeKeyDownTime.IsNull() &&
++          (now - mLastSnoopedFakeKeyDownTime).ToMilliseconds() < 10) {
++        MOZ_LOG(gIMELog, LogLevel::Info,
++                ("0x%p   MaybeDispatchKeyEventAsProcessedByIME(), "
++                 "time-based dedup (%.1f ms since last)",
++                 this,
++                 (now - mLastSnoopedFakeKeyDownTime).ToMilliseconds()));
++        return true;
++      }
++
+       WidgetKeyboardEvent fakeKeyDownEvent(true, eKeyDown, lastFocusedWindow);
+       fakeKeyDownEvent.mKeyCode = NS_VK_PROCESSKEY;
+       fakeKeyDownEvent.mKeyNameIndex = KEY_NAME_INDEX_Process;
+@@ -2209,6 +2270,7 @@ bool IMContextWrapper::MaybeDispatchKeyEventAsProcessedByIME(
+ 
+       KeymapWrapper::DispatchKeyDownOrKeyUpEvent(
+           lastFocusedWindow, fakeKeyDownEvent, &mKeyboardEventWasConsumed);
++      mLastSnoopedFakeKeyDownTime = now;
+       MOZ_LOG(gIMELog, LogLevel::Info,
+               ("0x%p   MaybeDispatchKeyEventAsProcessedByIME(), "
+                "fake keydown event is dispatched",
+diff --git a/widget/gtk/IMContextWrapper.h b/widget/gtk/IMContextWrapper.h
+index 7d942f6abbf4..5bb73d5af62e 100644
+--- a/widget/gtk/IMContextWrapper.h
++++ b/widget/gtk/IMContextWrapper.h
+@@ -13,6 +13,7 @@
+ #include "mozilla/GUniquePtr.h"
+ #include "mozilla/Maybe.h"
+ #include "mozilla/TextEventDispatcherListener.h"
++#include "mozilla/TimeStamp.h"
+ #include "mozilla/WritingModes.h"
+ #include "mozilla/widget/IMEData.h"
+ #include "nsCOMPtr.h"
+@@ -482,6 +483,9 @@ class IMContextWrapper final : public TextEventDispatcherListener {
+   // mIsKeySnooped is set to true if IM uses key snooper to listen key events.
+   // In such case, we won't receive key events if IME consumes the event.
+   bool mIsKeySnooped;
++  // Timestamp of the last fake keydown dispatched in key snooper mode.
++  // Used to suppress duplicate dispatches from the same key press.
++  TimeStamp mLastSnoopedFakeKeyDownTime;
+   // mSetInputPurposeAndInputHints is set if `SetInputContext` wants `Focus`
+   // to set input-purpose and input-hints.
+   bool mSetInputPurposeAndInputHints;
+
+base-commit: b52296d542b89092ffd707ca478a85ebf0f89ff5
+-- 
+2.55.0
+

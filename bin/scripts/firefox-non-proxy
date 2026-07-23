@@ -1,3 +1,0 @@
-#!/bin/bash
-
-non-proxy firefox --profile /home/bczhc/.mozilla/firefox/profile-non-proxy
