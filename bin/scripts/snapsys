@@ -55,12 +55,12 @@ else
 fi
 
 # 创建可读写快照
-if btrfs subvolume snapshot "$BTRFS_ROOT/$SUBVOL_NAME" "$RW_SNAPSHOT_PATH" > /dev/null; then
-    echo "成功：可读写快照 -> $RW_SNAPSHOT_NAME"
-else
-    echo "失败：无法创建可读写快照。"
-    # 注意：如果这里失败，通常建议手动清理上面已经创建成功的只读快照
-    exit 1
-fi
+#if btrfs subvolume snapshot "$BTRFS_ROOT/$SUBVOL_NAME" "$RW_SNAPSHOT_PATH" > /dev/null; then
+#    echo "成功：可读写快照 -> $RW_SNAPSHOT_NAME"
+#else
+#    echo "失败：无法创建可读写快照。"
+#    # 注意：如果这里失败，通常建议手动清理上面已经创建成功的只读快照
+#    exit 1
+#fi
 
 echo "--- 所有任务已完成 ---"

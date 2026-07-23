@@ -1,4 +1,12 @@
 window-rule {
+    // match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    match title="^Picture-in-Picture$"
+    open-focused false
+    open-floating true
+    default-floating-position x=70 y=40 relative-to="top-left" // x: 40+struts
+}
+
+window-rule {
     match app-id="^float-alacritty$"
     open-floating true
     default-column-width { proportion 0.7; }
@@ -158,7 +166,7 @@ window-rule {
         }
     }
 
-    open-maximized-if-alone true
+    //open-maximized-if-alone true
     //default-column-width { proportion 1.00; }
 }
 
@@ -173,12 +181,12 @@ window-rule {
     opacity 0.5
 }
 
-window-rule {
+/-window-rule {
     match app-id="^firefox$"
     match title="^Picture-in-Picture$"
     match app-id="^XEyes$"
 
-    //float-above-fullscreen true
+    float-above-fullscreen true
 }
 
 window-rule {
@@ -202,23 +210,24 @@ window-rule {
     open-floating true
 }
 
-/-window-rule {
+window-rule {
     match title=r#"^vkgears$"#
+    // https://github.com/niri-wm/niri/issues/3890
     match app-id=r#"jetbrains-.*"#
     match app-id=r#".*\.exe$"#
     match title="winit window"
-    match title="Minecraft"
     match app-id=r#"steam_app.*"#
 
-    force-render true
+    force-render false
     //force-render-fps
 }
 
 window-rule {
     match app-id="firefox-default"
 
-    open-on-workspace "ws2"
     open-focused false
+    open-on-workspace "ws2"
+    //open-on-output "HEADLESS-1"
 }
 
 window-rule {

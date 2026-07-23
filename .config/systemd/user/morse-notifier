@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -m
+
+while :; do
+    sleep 7200 # 2h
+
+    (cd /home/bczhc/code/vibecoded/softbuffer-big-text; ./wl-paper-show 'Morse' -f /usr/share/fonts/noto/NotoSerif-Bold.ttf) &
+    child_pid=$!
+
+    while :; do
+        if [ -f /tmp/morse-dismiss ]; then
+            rm /tmp/morse-dismiss
+            kill -TERM -$child_pid
+            break
+        fi
+        sleep 1
+    done
+done

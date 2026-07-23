@@ -21,6 +21,9 @@ binds {
     Mod+Q     { focus-column-left; }
     Mod+E     { focus-column-right; }
 
+    MouseForward { focus-column-left; }
+    MouseBack { focus-column-right; }
+
     Mod+Left  { focus-column-left; }
     Mod+Right { focus-column-right; }
 

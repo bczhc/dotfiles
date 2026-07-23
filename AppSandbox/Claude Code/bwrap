@@ -1,0 +1,78 @@
+#!/bin/bash
+
+thisdir="$(dirname "$(readlink -f "$0")")"
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <directory_or_file_path> [bwrap args...]"
+  exit 1
+fi
+
+TARGET="$(realpath "$1")"
+shift
+
+# Build bwrap arguments array
+BWRAP_ARGS=(
+  --unshare-user
+  --unshare-ipc
+  --unshare-pid
+  --unshare-uts
+  --tmpfs /tmp
+  --tmpfs /run
+  --proc /proc
+  --dev /dev
+  --ro-bind /usr /usr
+  --ro-bind /lib /lib
+  --ro-bind-try /lib64 /lib64
+  --ro-bind /bin /bin
+  --ro-bind-try /sbin /sbin
+  --ro-bind /etc /etc
+  --bind "$thisdir"/home "$HOME"
+  --dir "$HOME"
+  --ro-bind-try ~/.config/fontconfig "$HOME"/.config/fontconfig
+  --bind-try ~/.cache/fontconfig "$HOME"/.cache/fontconfig
+  --ro-bind-try ~/.Xauthority "$HOME"/.Xauthority
+  --bind-try /run/user/1000/wayland-1 /run/user/1000/wayland-1
+  --ro-bind-try /tmp/.X11-unix/X0 /tmp/.X11-unix/X0
+  --ro-bind-try /etc/resolv.conf /etc/resolv.conf
+  --ro-bind-try /run/user/1000/bus /run/user/1000/bus
+  --setenv DISPLAY "$DISPLAY"
+  --setenv XAUTHORITY "$HOME"/.Xauthority
+)
+
+if [ -d "$TARGET" ]; then
+  # Case 1: Target is a directory -> Mount as workspace
+  BWRAP_ARGS+=(--bind "$TARGET" "$HOME/workspace")
+
+elif [ -f "$TARGET" ]; then
+  # Case 2: Target is a file -> Expose only this single file in workspace
+  CLEANUP_DIR="$(mktemp -d /tmp/claude_sandbox.XXXXXX)"
+  FILENAME="$(basename "$TARGET")"
+  
+  # Clean up temporary directory on exit
+  trap 'rm -rf "$CLEANUP_DIR"' EXIT
+  
+  # Create an empty file to serve as mount point inside the container
+  touch "$CLEANUP_DIR/$FILENAME"
+  
+  BWRAP_ARGS+=(
+    --bind "$CLEANUP_DIR" "$HOME/workspace"
+    --bind "$TARGET" "$HOME/workspace/$FILENAME"
+  )
+else
+  echo "Error: '$TARGET' is not a valid file or directory"
+  exit 1
+fi
+
+# Set working directory and execute the command
+BWRAP_ARGS+=(
+  --chdir "$HOME/workspace"
+)
+
+# Claude Code
+BWRAP_ARGS+=(
+    --ro-bind "$HOME"/.local "$HOME"/.local
+    --ro-bind "$HOME"/bin/scripts/claude-ds "$HOME"/claude-ds
+    bash -c '~/claude-ds --dangerously-skip-permissions'
+)
+
+exec bwrap "${BWRAP_ARGS[@]}"

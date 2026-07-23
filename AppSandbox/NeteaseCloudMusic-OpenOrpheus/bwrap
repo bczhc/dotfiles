@@ -27,4 +27,5 @@ exec bwrap \
   --setenv DISPLAY "$DISPLAY" \
   --setenv XAUTHORITY "$HOME"/.Xauthority \
   --unsetenv http_proxy --unsetenv https_proxy \
+  --tmpfs "$HOME"/.config/open-orpheus/cache/play \
   bash -c 'open-orpheus'

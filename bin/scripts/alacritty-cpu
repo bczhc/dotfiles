@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # path: OpenGL -> Zink -> lavapipe (vulkan)
-#__GLX_VENDOR_LIBRARY_NAME=mesa \
-#__EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json \
-#VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json \
+__GLX_VENDOR_LIBRARY_NAME=mesa \
+__EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json \
+VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json \
 alacritty-graphics "$@"
