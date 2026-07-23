@@ -1,4 +1,4 @@
-From 02d05957cd8142c2445bf438d3234ebc128b811e Mon Sep 17 00:00:00 2001
+From 2ada5e00c4aba7ac4b79119d2ed039bc1950e357 Mon Sep 17 00:00:00 2001
 From: Zhai Can <bczhc0@126.com>
 Date: Thu, 23 Jul 2026 16:11:27 +0800
 Subject: [PATCH] Bug 2028505 - Fix spurious fake keydown events in Wayland key
@@ -43,27 +43,29 @@ The fix handles all four cases:
   consecutive identical preedit is recognized as a new key press (for
   arrow keys or re-typing).
 
-- When the preedit becomes empty (IME dismissal), skip the
-  compositionchange dispatch and let the subsequent preedit_end ->
-  commit path produce exactly one KEYDOWN.
+- When the preedit becomes empty (IME dismissal), still dispatch the
+  compositionchange event so the page can clear its preedit UI, but
+  suppress the fake keydown — the subsequent preedit_end -> commit path
+  produces exactly one KEYDOWN.
 
 - Track when a fake KEYDOWN was dispatched for a commit in key snooper
   mode via mJustDispatchedFakeKeyDownForCommitInSnoopMode, and suppress
   the immediately following composition start's fake KEYDOWN. The flag
   is cleared in OnKeyEvent so separate key presses are unaffected.
 
-Based on patch https://phabricator.services.mozilla.com/D313440 by
-Martin <stransky@redhat.com>.
+Differential Revision: https://phabricator.services.mozilla.com/D313440
+
+Based on patch by Martin <stransky@redhat.com>.
 
 Generated-by: Claude:deepseek-v4-pro; not reviewed
 Fixes: https://bugzilla.mozilla.org/show_bug.cgi?id=2028505
 ---
- widget/gtk/IMContextWrapper.cpp | 73 +++++++++++++++++++++++++++++++++
- widget/gtk/IMContextWrapper.h   | 13 ++++++
- 2 files changed, 86 insertions(+)
+ widget/gtk/IMContextWrapper.cpp | 92 ++++++++++++++++++++++++++++++---
+ widget/gtk/IMContextWrapper.h   | 13 +++++
+ 2 files changed, 99 insertions(+), 6 deletions(-)
 
 diff --git a/widget/gtk/IMContextWrapper.cpp b/widget/gtk/IMContextWrapper.cpp
-index ec1b28332a04..97238eb26634 100644
+index ec1b28332a04..6141a51041f6 100644
 --- a/widget/gtk/IMContextWrapper.cpp
 +++ b/widget/gtk/IMContextWrapper.cpp
 @@ -779,6 +779,11 @@ KeyHandlingState IMContextWrapper::OnKeyEvent(
@@ -78,7 +80,7 @@ index ec1b28332a04..97238eb26634 100644
    // Even if old IM context has composition, key event should be sent to
    // current context since the user expects so.
    GtkIMContext* currentContext = GetCurrentContext();
-@@ -1796,6 +1801,51 @@ void IMContextWrapper::OnChangeCompositionNative(GtkIMContext* aContext) {
+@@ -1796,6 +1801,50 @@ void IMContextWrapper::OnChangeCompositionNative(GtkIMContext* aContext) {
      return;  // Don't start the composition with empty string.
    }
  
@@ -87,12 +89,11 @@ index ec1b28332a04..97238eb26634 100644
 +  if (mIsKeySnooped && !mProcessingKeyEvent && mPostingKeyEvents.IsEmpty()) {
 +    if (compositionString.IsEmpty()) {
 +      // The preedit is being cleared (e.g. Esc/Enter to dismiss IME).
-+      // Skip dispatching compositionchange here; the subsequent preedit_end
-+      // will handle the commit and dispatch exactly one keydown event.
++      // Don't skip DispatchCompositionChangeEvent — the page needs the
++      // compositionupdate event to clear its preedit UI. The fake keydown
++      // will be suppressed in DispatchCompositionChangeEvent instead.
 +      mDispatchedCompositionString.Truncate();
-+      return;
-+    }
-+    if (compositionString.Equals(mDispatchedCompositionString)) {
++    } else if (compositionString.Equals(mDispatchedCompositionString)) {
 +      // Same composition string as last time. Compare text ranges to
 +      // detect whether the IME state actually changed (e.g. arrow key
 +      // candidate navigation changes clause highlighting) or whether
@@ -130,7 +131,7 @@ index ec1b28332a04..97238eb26634 100644
    // Be aware, widget can be gone
    DispatchCompositionChangeEvent(aContext, compositionString);
  }
-@@ -2168,6 +2218,16 @@ bool IMContextWrapper::MaybeDispatchKeyEventAsProcessedByIME(
+@@ -2168,6 +2217,16 @@ bool IMContextWrapper::MaybeDispatchKeyEventAsProcessedByIME(
      bool dispatchFakeKeyDown = false;
      switch (aFollowingEvent) {
        case eCompositionStart:
@@ -147,7 +148,7 @@ index ec1b28332a04..97238eb26634 100644
        case eCompositionCommit:
        case eCompositionCommitAsIs:
        case eContentCommandInsertText:
-@@ -2213,6 +2273,16 @@ bool IMContextWrapper::MaybeDispatchKeyEventAsProcessedByIME(
+@@ -2213,6 +2272,16 @@ bool IMContextWrapper::MaybeDispatchKeyEventAsProcessedByIME(
                ("0x%p   MaybeDispatchKeyEventAsProcessedByIME(), "
                 "fake keydown event is dispatched",
                 this));
@@ -164,7 +165,34 @@ index ec1b28332a04..97238eb26634 100644
      }
    }
  
-@@ -2428,6 +2498,7 @@ bool IMContextWrapper::DispatchCompositionChangeEvent(
+@@ -2376,12 +2445,20 @@ bool IMContextWrapper::DispatchCompositionChangeEvent(
+   }
+   // If this composition string change caused by a key press, we need to
+   // dispatch eKeyDown or eKeyUp before dispatching eCompositionChange event.
+-  else if (!MaybeDispatchKeyEventAsProcessedByIME(eCompositionChange)) {
+-    MOZ_LOG(gIMELog, LogLevel::Warning,
+-            ("0x%p   DispatchCompositionChangeEvent(), Warning, "
+-             "MaybeDispatchKeyEventAsProcessedByIME() returned false",
+-             this));
+-    return false;
++  // Skip the fake keydown when the preedit becomes empty in key snooper mode:
++  // the subsequent composition commit will produce exactly one keydown.
++  else {
++    bool preeditClearedInSnoopMode =
++        aCompositionString.IsEmpty() && mIsKeySnooped &&
++        !mProcessingKeyEvent && mPostingKeyEvents.IsEmpty();
++    if (!preeditClearedInSnoopMode &&
++        !MaybeDispatchKeyEventAsProcessedByIME(eCompositionChange)) {
++      MOZ_LOG(gIMELog, LogLevel::Warning,
++              ("0x%p   DispatchCompositionChangeEvent(), Warning, "
++               "MaybeDispatchKeyEventAsProcessedByIME() returned false",
++               this));
++      return false;
++    }
+   }
+ 
+   RefPtr<TextEventDispatcher> dispatcher = GetTextEventDispatcher();
+@@ -2428,6 +2505,7 @@ bool IMContextWrapper::DispatchCompositionChangeEvent(
    // DispatchEvent is async on e10s, so composition rect isn't updated now
    // on tab parent.
    mDispatchedCompositionString = aCompositionString;
@@ -172,7 +200,7 @@ index ec1b28332a04..97238eb26634 100644
    mLayoutChanged = false;
    mCompositionTargetRange.mOffset =
        mCompositionStart + rangeArray->TargetClauseOffset();
-@@ -2584,6 +2655,8 @@ bool IMContextWrapper::DispatchCompositionCommitEvent(
+@@ -2584,6 +2662,8 @@ bool IMContextWrapper::DispatchCompositionCommitEvent(
    mCompositionStart = UINT32_MAX;
    mCompositionTargetRange.Clear();
    mDispatchedCompositionString.Truncate();
