@@ -15,7 +15,7 @@ YDO_CMD_FINISH = "ydotool click #{click_code}"
 KEYD_KEY_DOWN = 'f down'
 KEYD_KEY_UP = 'f up'
 
-puts "--- Hyprland 连点器已启动 (监听 keyd 虚拟键盘) ---"
+puts "--- ydotool 连点器已启动 (监听 keyd 虚拟键盘) ---"
 puts "按住设置的按键开始连点，松开停止。"
 
 # 开启 keyd monitor 进程进行监听

@@ -9,10 +9,10 @@
     "enabled": true,
     "history": [
       "xeyes",
+      "rime-add-words",
       "xxeyes",
       "vkcube",
       "pulse con",
-      "rime-add-words",
       "xeye",
       "eyes",
       "rime-rime-words",
@@ -50,6 +50,6 @@
   "myEmojiLauncher": {
     "enabled": true,
     "trigger": ":e ",
-    "recentEmojis": "😱,😹,😭,😂,😡,👍,🤣,😨,😳"
+    "recentEmojis": "😭,🤣,🥺,🙏,😂,😡,😱,😹,👍,😨,😳"
   }
 }

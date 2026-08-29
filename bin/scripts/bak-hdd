@@ -22,7 +22,7 @@ rsync $rsync_arg -avz Games "$bak_dir/zhc" --info=progress2 --no-i-r
 rsync $rsync_arg -avz AppSandbox "$bak_dir/zhc" --info=progress2 --no-i-r
 
 # 屏幕录像
-rsync $rsync_arg -avz /mnt/nvme/screenrecord/ "$bak_dir"/zhc/Screenrecords --info=progress2 --no-i-r
+# rsync $rsync_arg -avz /mnt/nvme/screenrecord/ "$bak_dir"/zhc/Screenrecords --info=progress2 --no-i-r
 
 # 带排除 ~/.config
 rsync $rsync_arg -a .config/ "$bak_dir"/zhc/linux/home-.config --info=PROGRESS2 --no-i-r --delete -v \
@@ -34,7 +34,7 @@ rsync $rsync_arg -a .config/ "$bak_dir"/zhc/linux/home-.config --info=PROGRESS2 
 
 # Mozilla
 rsync $rsync_arg -aRv /home/bczhc/./.mozilla/firefox/w7uo8oy7.default-release/places.sqlite "$bak_dir"/zhc/linux/mozilla/
-rsync $rsync_arg -aRv /home/bczhc/./.mozilla/firefox/profile-non-proxy/places.sqlite "$bak_dir"/zhc/linux/mozilla/
+rsync $rsync_arg -aRv /home/bczhc/./.mozilla/firefox/profile:\ firefox\ non-proxy/places.sqlite "$bak_dir"/zhc/linux/mozilla/
 
 # QQ
 rsync $rsync_arg -a .config/QQ/ "$bak_dir"/zhc/tencent/linuxqq --info=PROGRESS2 --no-i-r -v --inplace

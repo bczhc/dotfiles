@@ -42,10 +42,12 @@ prepend_preloaders = [
 prepend_fetchers = [
 	{ group = "git", url = "*", run = "git" },
 	{ group = "git", url = "*/", run = "git" },
+    #{ group = "mime", url = "*", run = "mime-ext.remote", prio = "high" },
 ]
 prepend_previewers = [
 	{ url = "*.m4a", run = "file" },
 ]
+
 append_previewers = [
 	{ url = "*", run = "file-extra-metadata" },
 ]

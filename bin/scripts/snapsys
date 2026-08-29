@@ -24,7 +24,7 @@ fi
 
 # 4. 确保快照存放目录存在
 [ ! -d "$SNAPS_DIR" ] && mkdir -p "$SNAPS_DIR"
-[ ! -d "$RW_SNAPS_DIR" ] && mkdir -p "$RW_SNAPS_DIR"
+# [ ! -d "$RW_SNAPS_DIR" ] && mkdir -p "$RW_SNAPS_DIR"
 
 # 5. 生成快照名称并检查冲突
 SNAPSHOT_NAME=$(date '+%Y-%m-%d %H:%M:%S')
@@ -38,7 +38,7 @@ if [ -e "$SNAPSHOT_PATH" ] || [ -e "$RW_SNAPSHOT_PATH" ]; then
     echo "错误：快照名称已存在 (可能在同一分钟内重复运行)。"
     echo "冲突路径: "
     [ -e "$SNAPSHOT_PATH" ] && echo "  - $SNAPSHOT_PATH"
-    [ -e "$RW_SNAPSHOT_PATH" ] && echo "  - $RW_SNAPSHOT_PATH"
+    # [ -e "$RW_SNAPSHOT_PATH" ] && echo "  - $RW_SNAPSHOT_PATH"
     echo "操作已终止，未创建任何快照。"
     exit 1
 fi

@@ -23,7 +23,7 @@
 [pull]
 	rebase = false
 [cinnabar]
-	version-check = 1784626751
+	version-check = 1785769721
 [init]
 	defaultBranch = master
 [filter "lfs"]

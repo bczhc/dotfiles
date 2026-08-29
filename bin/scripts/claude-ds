@@ -1,6 +1,6 @@
 #!/bin/bash
 
-key_file='/home/bczhc/.local/share/zhcprivate/ds-arch-claude-key'
+key_file='/home/bczhc/.local/zhcprivate/ds-arch-claude-key'
 
 export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
 export ANTHROPIC_AUTH_TOKEN=$(cat "$key_file")

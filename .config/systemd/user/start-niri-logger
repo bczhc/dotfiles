@@ -8,7 +8,7 @@ wa_dir="$state_dir"/bczhc/niri-window-activity
 mkdir -p "$wa_dir"
 
 key_out="$wa_dir/keyd.log"
-niri_out="$wa_dir/niri.jsonl"
+niri_out="$wa_dir/niri-focus.jsonl"
 
 keyd monitor | isots >> "$key_out" &
 

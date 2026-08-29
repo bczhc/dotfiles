@@ -5,10 +5,10 @@ set scrolloff=2
 set showmatch
 set shiftwidth=4
 set tabstop=4
-set autoread
 set expandtab
 set backspace=indent,eol,start
 set hlsearch
+set noautoread
 
 syntax enable
 filetype plugin indent on

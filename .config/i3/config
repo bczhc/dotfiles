@@ -15,8 +15,8 @@ set $mod Mod4
 # is used in the bar {} block below.
 font pango:Noto Sans Mono 8
 
-#mouse_warping none
-#focus_follows_mouse no
+mouse_warping none
+focus_follows_mouse no
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).

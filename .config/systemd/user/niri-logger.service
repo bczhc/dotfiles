@@ -6,7 +6,7 @@ Requisite=graphical-session.target
 
 [Service]
 Type=exec
-ExecStart=/home/bczhc/bin/scripts/monitor-niri-window-activity
+ExecStart=/home/bczhc/.config/systemd/user/start-niri-logger
 Restart=on-failure
 
 [Install]

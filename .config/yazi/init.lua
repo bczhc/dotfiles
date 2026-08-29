@@ -42,3 +42,4 @@ function ya.readable_size(size)
 
 require("git"):setup()
 require('bczhc-custom')
+require('archive')
