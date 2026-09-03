@@ -1,12 +1,1 @@
-// =================================
-// Base switch
-include "main/config.kdl"
-//include "test/config.kdl"
-// =================================
-
-
-// =================================
-// DRM device switch
-// This include file is instantly created by `startn`.
-// =================================
-include "/tmp/niri-drm-switch.kdl"
+config-generated.kdl

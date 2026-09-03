@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then wl-copy; exit; fi
-if [ "$1" == "-o" ]; then wl-paste; exit; fi
+if [ "$1" == "-o" ]; then wl-paste | cat; exit; fi
 
 echo 'Usage:'
 echo '  xc'

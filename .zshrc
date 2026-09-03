@@ -141,6 +141,8 @@ source /usr/share/fzf/completion.zsh
 #export QT_IM_MODULE=fcitx
 #export SDL_IM_MODULE=fcitx
 #export GLFW_IM_MODULE=ibus
+#export XMODIFIERS="@im=fcitx"
+#export QT_IM_MODULES="wayland;fcitx"
 
 # display scale (legacy x11)
 #export GDK_SCALE=1
