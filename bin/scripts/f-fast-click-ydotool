@@ -6,43 +6,79 @@ if Process.euid != 0
   exit 1
 end
 
-# 设置 ydotool 的命令
-# 使用你提供的参数：重复 999999 次，延迟 20ms
+# 打印帮助
+if ['-h', '--help'].include?(ARGV[0])
+  puts "用法: #{$PROGRAM_NAME} [按键]"
+  puts "  (无参数)          使用 F 键连点"
+  puts "  `                使用反引号 ` 连点（此时 F 禁用）"
+  puts "  -h, --help       显示本帮助"
+  puts ""
+  puts "按住所选按键开始连点，松开停止；按 Alt+所选按键 锁定连点，再按一次解锁。"
+  exit 0
+end
+
+# 选择连点按键：默认 F；传 `（反引号）则改用反引号，此时 F 禁用
+use_backtick = ['`', 'grave', 'backtick'].include?(ARGV[0])
+hold_key = use_backtick ? '`' : 'f'
+display = use_backtick ? '`' : 'F'
+KEY_DOWN = "#{hold_key} down"
+KEY_UP = "#{hold_key} up"
+
 click_code='0xc0'
 #click_code='0xc1'
 YDO_CMD = "ydotool click --repeat=999999 --next-delay=10 #{click_code}"
 YDO_CMD_FINISH = "ydotool click #{click_code}"
-KEYD_KEY_DOWN = 'f down'
-KEYD_KEY_UP = 'f up'
 
 puts "--- ydotool 连点器已启动 (监听 keyd 虚拟键盘) ---"
-puts "按住设置的按键开始连点，松开停止。"
+puts "按住 #{display} 开始连点，松开停止；按 Alt+#{display} 锁定连点，再按一次 Alt+#{display} 解锁。"
 
 # 开启 keyd monitor 进程进行监听
 # 注意：我们这里不指定设备，直接监听 keyd 的虚拟输出
 IO.popen("keyd monitor") do |monitor|
   click_pid = nil
+  alt_held = false
+  locked = false
+
+  start_click = lambda do |note|
+    if click_pid.nil?
+      click_pid = Process.spawn(YDO_CMD)
+      puts "开始连点 (#{note}, PID: #{click_pid})"
+    end
+  end
+
+  stop_click = lambda do
+    if click_pid
+      Process.kill("TERM", click_pid)
+      Process.wait(click_pid)
+      puts "停止连点"
+      system YDO_CMD_FINISH
+      click_pid = nil
+    end
+  end
 
   monitor.each_line do |line|
+    # 跟踪 Alt 状态（keyd 报 leftalt / rightalt）
+    if line.include?("alt down")
+      alt_held = true
+    elsif line.include?("alt up")
+      alt_held = false
+    end
+
     # 匹配 key down
-    if line.include?(KEYD_KEY_DOWN)
-      if click_pid.nil?
-        # 启动 ydotool 连点进程
-        click_pid = Process.spawn(YDO_CMD)
-        puts "开始连点 (PID: #{click_pid})"
+    if line.include?(KEY_DOWN)
+      if alt_held
+        # Alt+按键：切换锁定状态
+        locked = !locked
+        locked ? start_click.call("锁定") : stop_click.call
+      else
+        # 原功能：按住按键开始连点
+        start_click.call("按住")
       end
 
     # 匹配 key up
-    elsif line.include?(KEYD_KEY_UP)
-      if click_pid
-        # 杀死连点进程
-        # 使用 INT 或 TERM 信号停止 ydotool
-        Process.kill("TERM", click_pid)
-        Process.wait(click_pid)
-        puts "停止连点"
-        system YDO_CMD_FINISH
-        click_pid = nil
-      end
+    elsif line.include?(KEY_UP)
+      # 原功能：松开按键停止；锁定状态下不停止
+      stop_click.call unless locked
     end
   end
 end

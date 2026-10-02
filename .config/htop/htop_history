@@ -16,3 +16,4 @@ command
 bfs
 receive
 scrcpy
+/bin/git

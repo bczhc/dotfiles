@@ -9,6 +9,9 @@
     "enabled": true,
     "history": [
       "xeyes",
+      "audac",
+      "yes",
+      "xetes",
       "rime-add-words",
       "xxeyes",
       "vkcube",
@@ -18,16 +21,13 @@
       "rime-rime-words",
       "yazi",
       "vkcubej",
-      "xetes",
       "glxgears",
       "virt-manager",
       "wayneko",
       "thu",
       "alacritty-cpu",
       "typora",
-      "gsr-ui",
-      "glxgea",
-      "firefox-xwayland"
+      "gsr-ui"
     ]
   },
   "alarmClock": {
@@ -50,6 +50,6 @@
   "myEmojiLauncher": {
     "enabled": true,
     "trigger": ":e ",
-    "recentEmojis": "😭,🤣,🥺,🙏,😂,😡,😱,😹,👍,😨,😳"
+    "recentEmojis": "😭,🥰,😋,😂,🤣,🥺,😔,😤,🤬,😞,😓,😡,🤔,😱,🙏,😹,👍,😨,😳"
   }
 }

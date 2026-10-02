@@ -1,0 +1,176 @@
+{
+    "annotation": {
+        "defaultColor": "#FF4D4D",
+        "defaultTool": "pen",
+        "fullscreenDefaultTool": "pen"
+    },
+    "capture": {
+        "selectionHistory": [
+            {
+                "h": 285,
+                "w": 627,
+                "x": 496,
+                "y": 422
+            },
+            {
+                "h": 501,
+                "w": 527,
+                "x": 1300,
+                "y": 267
+            },
+            {
+                "h": 801,
+                "w": 1482,
+                "x": 302,
+                "y": 80
+            },
+            {
+                "h": 519,
+                "w": 737,
+                "x": 137,
+                "y": 254
+            },
+            {
+                "h": 448,
+                "w": 378,
+                "x": 410,
+                "y": 236
+            },
+            {
+                "h": 169,
+                "w": 192,
+                "x": 632,
+                "y": 392
+            },
+            {
+                "h": 186,
+                "w": 301,
+                "x": 520,
+                "y": 442
+            },
+            {
+                "h": 290,
+                "w": 369,
+                "x": 424,
+                "y": 374
+            },
+            {
+                "h": 346,
+                "w": 498,
+                "x": 275,
+                "y": 288
+            },
+            {
+                "h": 657,
+                "w": 783,
+                "x": 123,
+                "y": 149
+            }
+        ],
+        "wayland": {
+            "kde": {
+                "kwinScreenshot": {
+                    "enabled": true
+                }
+            }
+        }
+    },
+    "clipboard": {
+        "image": {
+            "mode": "image/png",
+            "thresholdM": 4
+        }
+    },
+    "codeScan": {
+        "command": "",
+        "timeoutMs": 15000
+    },
+    "debug": {
+        "enabled": false,
+        "logPath": ""
+    },
+    "env": {
+    },
+    "export": {
+        "imageFrame": {
+            "cornerRadius": 18,
+            "enabled": false,
+            "padding": 112,
+            "shadowOffsetY": 28,
+            "shadowOpacity": 0.32,
+            "shadowRadius": 72
+        }
+    },
+    "ocr": {
+        "backend": "rapidocr",
+        "command": "",
+        "enabled": true,
+        "timeoutMs": 30000
+    },
+    "pinnedWindow": {
+        "alwaysOnTop": true,
+        "autoOcr": false,
+        "border": true,
+        "borderColor": "#5EEAD4",
+        "borderWidth": 2,
+        "textSelectionCopyEnabled": true
+    },
+    "save": {
+        "pathTemplate": "{pictures}/mark-shot/mark-shot-{datetime}.png"
+    },
+    "scrollCapture": {
+        "frame": 5,
+        "hidePreviewDuringCapture": false,
+        "previewGap": 5
+    },
+    "shortcuts": {
+        "actions": {
+            "copy": "Ctrl+C",
+            "pin": "Ctrl+P",
+            "save": "Ctrl+S"
+        },
+        "startup": {
+            "codeScanner": "Q",
+            "colorPicker": "C",
+            "displayCapture": "D",
+            "ruler": "R"
+        },
+        "tools": {
+            "pen": "P",
+            "rectangle": "R"
+        }
+    },
+    "toolbar": {
+        "fontSize": "middle",
+        "iconSize": "middle"
+    },
+    "translation": {
+        "apiBase": "https://api.openai.com/v1",
+        "apiKey": "",
+        "apiKeyEnv": "OPENAI_API_KEY",
+        "autoAfterOcr": false,
+        "command": "",
+        "model": "gpt-4o-mini",
+        "systemPrompt": "",
+        "targetLanguage": "Simplified Chinese",
+        "temperature": 0.2,
+        "timeoutMs": 60000,
+        "timeoutSeconds": 60
+    },
+    "windowDetection": {
+        "command": "mark-shot-window-detection-niri",
+        "enabled": false,
+        "env": {
+        },
+        "timeoutMs": 1000
+    },
+    "windows": {
+        "hotkeys": {
+            "capture": "Ctrl+Alt+S"
+        },
+        "tray": {
+            "enabled": false
+        }
+    }
+}
+

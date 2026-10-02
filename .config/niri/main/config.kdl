@@ -22,6 +22,7 @@ Finally it turned out that I had an off in the config output "eDP-1" which I add
     scale 1.75
     //scale 1
     mode "2560x1600@240.000"
+    //mode "2560x1600@60.002"
 }
 output "HEADLESS-1" {
     scale 1.5
@@ -286,6 +287,9 @@ environment {
     GDK_BACKEND "wayland"
 
     NIRI_SPAWN_FLAG "1"
+
+    // AppImage packaged by tauri needs this to use my system theme
+    APPIMAGE_GTK_THEME "WhiteSur-Light-pink"
 }
 hotkey-overlay {
     skip-at-startup

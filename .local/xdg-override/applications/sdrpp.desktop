@@ -4,6 +4,6 @@ Version=1.0
 Type=Application
 Terminal=false
 Exec=/home/bczhc/bin/src/SDRPlusPlus/sdrpp-gamepad
-Name=SDR++ (Gamepad controlled)
+Name=SDR++ Custom
 Icon=/usr/share/sdrpp/icons/sdrpp.png
 Categories=HamRadio

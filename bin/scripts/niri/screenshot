@@ -2,7 +2,7 @@
 
 ## My niri screenshout utility script.
 ##
-## Assisted-by: Gemini:Fast
+## Assisted-by: Gemini:Fast and Claude:deepseek-v4-pro
 
 set -e
 
@@ -38,12 +38,15 @@ if [[ "$1" == "-h" || "$1" == "--help" ]]; then
     echo 'Usage:'
     echo "  $0"
     echo "  $0 --area"
+    echo "  $0 --markshot"
     echo "  $0 --help"
     exit 0
 fi
 
 area_mode=0
+markshot_mode=0
 [[ "$1" == "--area" ]] && area_mode=1
+[[ "$1" == "--markshot" ]] && markshot_mode=1
 
 mkdir -p "$SAVE_DIR"
 
@@ -52,14 +55,16 @@ mkdir -p "$SAVE_DIR"
 comment_value="$(/home/bczhc/bin/scripts/niri/ipc-msgs)"
 
 # 截图
-if [[ "$area_mode" -eq 1 ]]; then
+if [[ "$markshot_mode" -eq 1 ]]; then
+    mark-shot --output-path "$TEMP_FILE" || interactive_canceled
+elif [[ "$area_mode" -eq 1 ]]; then
     niri-ss-blocked area "$TEMP_FILE" || interactive_canceled
 else
     niri-ss-blocked screen "$TEMP_FILE" || failure 1
 fi
 
 [ -f "$TEMP_FILE" ] || failure 2.1
-# fs上做备份，万一后续处理出问题
+# tmpfs上做备份，万一后续处理出问题
 temp_file_on_fs="$SAVE_DIR"/$temp_file_uuid.png
 cp -av "$TEMP_FILE" "$temp_file_on_fs"
 

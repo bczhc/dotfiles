@@ -4,9 +4,10 @@ binds {
 
     Mod+Shift+U { spawn "rofi" "-show" "calc"; }
 
-    Mod+V { spawn "bash" "-c" "cliphist list | wldebug rofi -dmenu | tee -a ~/wllog"; }
-    //Mod+V { spawn "bash" "-c" "cliphist list | /mnt/nvme/open-source/rofi/build/rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"; }
+    //Mod+V { spawn "bash" "-c" "cliphist list | wldebug rofi -dmenu | tee -a ~/wllog"; }
+    Mod+V { spawn "bash" "-c" "cliphist list | /mnt/nvme/open-source/rofi/build/rofi -dmenu -display-columns 2 | cliphist decode | wl-copy"; }
     //Mod+V { spawn "bash" "-c" "wldebug rofi -dpi 72 -show | tee -a ~/wllog"; }
+    //Mod+V { spawn "/bin/fuzzel"; }
 
     Mod+Return { spawn "alacritty"; }
     Mod+Shift+Return { spawn "xfce4-terminal"; }
@@ -26,6 +27,8 @@ binds {
 
     MouseForward { focus-column-left; }
     MouseBack { focus-column-right; }
+    Shift+MouseForward { spawn-sh "$HOMESCRIPT_DIR/niri/focus-workspace -1"; }
+    Shift+MouseBack { spawn-sh "$HOMESCRIPT_DIR/niri/focus-workspace 1"; }
 
     Mod+Left  { focus-column-left; }
     Mod+Right { focus-column-right; }
@@ -169,5 +172,5 @@ binds {
     //Mod+F1 { spawn-sh "touch /tmp/layout-locked"; }
     //Mod+F2 { spawn-sh "rm /tmp/layout-locked || true"; }
     Mod+F1 { spawn-sh "niri msg action toggle-view-lock"; }
-    Mod+F2 { spawn "mark-shot"; }
+    Mod+F2 { spawn-sh "$HOMESCRIPT_DIR/niri/screenshot --markshot"; }
 }

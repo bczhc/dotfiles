@@ -3,4 +3,4 @@
 include "main/config.kdl"
 
 // === DRM device switch =====
-include "drm-selector/drm-intel.kdl"
+include "drm-selector/drm-nvidia.kdl"

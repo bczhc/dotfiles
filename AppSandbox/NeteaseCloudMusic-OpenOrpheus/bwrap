@@ -9,23 +9,37 @@ exec bwrap \
   --unshare-ipc \
   --unshare-pid \
   --unshare-uts \
-  --dev-bind / / \
-  --bind "$home_folder" $HOME \
+  --ro-bind /usr /usr \
+  --ro-bind /lib /lib \
+  --ro-bind-try /lib64 /lib64 \
+  --ro-bind /bin /bin \
+  --ro-bind /etc /etc \
+  --dev /dev \
+  --proc /proc \
   --tmpfs /tmp \
   --tmpfs /run \
-  --proc /proc \
-  --dir "$HOME" \
-  --ro-bind ~/.config/fontconfig "$HOME"/.config/fontconfig \
-  --bind ~/.cache/fontconfig "$HOME"/.cache/fontconfig \
-  --ro-bind ~/.Xauthority "$HOME"/.Xauthority \
-  --bind /run/user/1000/wayland-1 /run/user/1000/wayland-1 \
-  --ro-bind /tmp/.X11-unix/X0 /tmp/.X11-unix/X0 \
-  --ro-bind /etc/resolv.conf /etc/resolv.conf \
-  --ro-bind /run/user/1000/bus /run/user/1000/bus \
-  --dev-bind /dev/snd /dev/snd \
-  --ro-bind /run/user/1000/pulse /run/user/1000/pulse \
+  --dir /home \
+  --bind "$home_folder" "$HOME" \
+  --ro-bind /home/bczhc/bin/sqfs/NCM-Open-Orpheus /opt/app \
+  --ro-bind-try ~/.config/fontconfig "$HOME"/.config/fontconfig \
+  --bind-try ~/.cache/fontconfig "$HOME"/.cache/fontconfig \
+  --ro-bind-try ~/.Xauthority "$HOME"/.Xauthority \
+  --bind-try /run/user/1000/wayland-1 /run/user/1000/wayland-1 \
+  --ro-bind-try /tmp/.X11-unix/X0 /tmp/.X11-unix/X0 \
+  --ro-bind-try /etc/resolv.conf /etc/resolv.conf \
+  --ro-bind-try /run/user/1000/bus /run/user/1000/bus \
+  --dev-bind-try /dev/snd /dev/snd \
+  --ro-bind-try /run/user/1000/pulse /run/user/1000/pulse \
   --setenv DISPLAY "$DISPLAY" \
   --setenv XAUTHORITY "$HOME"/.Xauthority \
   --unsetenv http_proxy --unsetenv https_proxy \
   --tmpfs "$HOME"/.config/open-orpheus/cache/play \
-  bash -c 'open-orpheus'
+  --dev-bind-try /dev/dri /dev/dri \
+  --ro-bind-try /usr/lib/dri /usr/lib/dri \
+  --ro-bind-try /usr/lib64/dri /usr/lib64/dri \
+  --ro-bind-try /usr/share/drirc.d /usr/share/drirc.d \
+  --ro-bind-try /usr/lib/xorg/modules/drivers /usr/lib/xorg/modules/drivers \
+  /opt/app/AppRun --disable-gpu --disable-software-rasterizer
+
+
+  #bash -c 'open-orpheus'

@@ -5,7 +5,7 @@ absdir="$(dirname "$abspath")"
 home_folder="$absdir"/home
 
 #upload_dir="$HOME"/smb/smb-temp/baiduyun-bak
-upload_dir=/mnt/nvme/wplace-snaps
+upload_dir=/mnt/nvme/baidu
 
 bwrap \
   --unshare-user \

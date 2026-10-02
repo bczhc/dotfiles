@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=13.0
+Type=Application
+Terminal=false
+Exec=env AU_QT_QPA_PLATFORM=wayland QT_QPA_PLATFORM=wayland audacity-linux-4.0.0-x86_64.AppImage
+Name=Audacity
+Icon=audacity

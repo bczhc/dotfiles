@@ -221,14 +221,19 @@ window-rule {
 
 window-rule {
     match title=r#"^vkgears$"#
-    // https://github.com/niri-wm/niri/issues/3890
-    match app-id=r#"jetbrains-.*"#
     match app-id=r#".*\.exe$"#
     match title="winit window"
     match app-id=r#"steam_app.*"#
 
     force-render true
     //force-render-fps
+}
+
+// workaround to https://github.com/niri-wm/niri/issues/3890
+window-rule {
+    match app-id=r#"jetbrains-.*"#
+    match title=r#"^SigDigger.*"#
+    force-render true
 }
 
 window-rule {
@@ -254,6 +259,16 @@ window-rule {
     match app-id="^scrcpy$"
 
     force-render true
+}
+
+window-rule {
+    match title="Birdwatching Notebook"
+
+    force-render true
+    open-fullscreen false
+    open-floating true
+    open-focused false
+    focus-ring { off; }
 }
 
 // WINDOW RULES END

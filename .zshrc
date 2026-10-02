@@ -284,6 +284,8 @@ sudo() {
 alias dd='echo $dd_warn_msg'
 alias linkstart='__GLX_VENDOR_LIBRARY_NAME=mesa __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json MESA_LOADER_DRIVER_OVERRIDE=zink GALLIUM_DRIVER=zink LIBGL_KOPPER_DRI2=1'
 
+alias glow='glow --pager'
+
 # depollute envs from alacritty-cpu
 #unset __NV_PRIME_RENDER_OFFLOAD
 unset __GLX_VENDOR_LIBRARY_NAME
@@ -291,7 +293,12 @@ unset __EGL_VENDOR_LIBRARY_FILENAMES
 unset VK_ICD_FILENAMES
 
 tmd() {
-    local temp_dir=~/t/"$(date --rfc-3339=seconds)"
+    local next=1 n d
+    for d in ~/t/*(/N); do
+        n=${d:t}
+        [[ $n == <-> ]] && (( n >= next )) && (( next = n + 1 ))
+    done
+    local temp_dir=~/t/$next
     mkdir -p $temp_dir
     cd $temp_dir
 }
